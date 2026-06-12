@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Menu, X, Phone, MapPin, Car, Instagram, MessageCircle } from 'lucide-react';
+import { Menu, X, Phone, MapPin, Car, Instagram, MessageCircle, Lock } from 'lucide-react';
 import { SiteConfig } from '../types';
 import Logo from './Logo';
 
@@ -145,6 +145,17 @@ export default function Header({ config, onNavigate, currentView }: HeaderProps)
 
             {/* Action Buttons (Header CTA) */}
             <div className="hidden lg:flex items-center space-x-3.5">
+              {currentView === 'main' && (
+                <button
+                  onClick={() => onNavigate('admin')}
+                  className="px-4 py-2.5 text-xs font-black text-white bg-[#22C55E] hover:bg-[#16A34A] rounded-xl shadow-md transition-all duration-300 flex items-center space-x-1.5 hover:scale-103 cursor-pointer"
+                  title="Painel Administrativo"
+                >
+                  <Lock size={13} className="text-white shrink-0" />
+                  <span>Painel Admin</span>
+                </button>
+              )}
+
               <button
                 onClick={() => handleNavClick('#cobertura')}
                 className="px-5 py-2.5 text-xs font-bold text-white bg-transparent hover:bg-white hover:text-[#0A1F44] border border-white/20 rounded-xl transition-all duration-300"
@@ -204,6 +215,16 @@ export default function Header({ config, onNavigate, currentView }: HeaderProps)
           )}
 
           <div className="pt-3 border-t border-white/10 flex flex-col gap-2">
+            {currentView === 'main' && (
+              <button
+                onClick={() => { setIsOpen(false); onNavigate('admin'); }}
+                className="flex items-center justify-center space-x-2 px-4 py-3 rounded-xl text-xs font-black text-white bg-[#22C55E] hover:bg-[#16A34A] shadow-md cursor-pointer"
+              >
+                <Lock size={15} className="text-white shrink-0" />
+                <span>Painel Admin</span>
+              </button>
+            )}
+
             <button
               onClick={() => handleNavClick('#cobertura')}
               className="flex items-center justify-center space-x-2 px-4 py-3 rounded-xl text-xs font-bold text-white bg-transparent border border-white/20 hover:bg-white/10 transition-all shadow-md"

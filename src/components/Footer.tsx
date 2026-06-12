@@ -82,6 +82,16 @@ export default function Footer({ config, onNavigate }: FooterProps) {
               <li>
                 <a href="#faq" className="text-[#00AEEF] hover:text-white font-semibold transition-colors">Perguntas FAQ</a>
               </li>
+              <li className="pt-3">
+                <button
+                  onClick={() => { onNavigate('admin'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                  className="px-3.5 py-2 text-[10px] font-black uppercase tracking-wider text-white bg-[#22C55E] hover:bg-[#16A34A] rounded-xl shadow-md transition-all duration-300 flex items-center space-x-1.5 hover:scale-103 cursor-pointer"
+                  title="Painel Administrativo"
+                >
+                  <Lock size={11} className="text-white shrink-0" />
+                  <span>Painel Admin</span>
+                </button>
+              </li>
             </ul>
           </div>
 
