@@ -1512,9 +1512,23 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
                   </div>
                 </div>
 
-                <div className="pt-3 border-t flex justify-end space-x-2">
-                  <button type="button" onClick={() => setEditingBanner(null)} className="px-4 py-2 rounded-xl bg-slate-150 hover:bg-slate-200 text-slate-750 text-xs font-bold">Cancelar</button>
-                  <button type="submit" className="px-5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold flex items-center space-x-1.5"><Save size={13} /><span>Salvar Banner</span></button>
+                <div className="pt-3 border-t flex justify-between items-center">
+                  <div>
+                    {editingBanner.id && (
+                      <button 
+                        type="button" 
+                        onClick={() => handleDeleteBannerClick(editingBanner.id!)}
+                        className="px-4 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 text-xs font-bold flex items-center space-x-1.5 border border-red-100"
+                      >
+                        <Trash2 size={13} />
+                        <span>Excluir Permanentemente</span>
+                      </button>
+                    )}
+                  </div>
+                  <div className="flex space-x-2">
+                    <button type="button" onClick={() => setEditingBanner(null)} className="px-4 py-2 rounded-xl bg-slate-150 hover:bg-slate-200 text-slate-750 text-xs font-bold">Cancelar</button>
+                    <button type="submit" className="px-5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold flex items-center space-x-1.5"><Save size={13} /><span>Salvar Banner</span></button>
+                  </div>
                 </div>
               </form>
             ) : (
@@ -1558,15 +1572,15 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
                           </span>
                           <button 
                             onClick={() => setEditingBanner(banner)}
-                            className="p-1 px-2.5 rounded bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-bold"
+                            className="p-1 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-bold flex items-center gap-1.5 transition-all"
                           >
-                            Editar
+                            <Edit3 size={13} /> Editar
                           </button>
                           <button 
                             onClick={() => handleDeleteBannerClick(banner.id)}
-                            className="p-1 px-2.5 rounded bg-red-50 hover:bg-red-100 border border-red-100 text-red-650 font-bold"
+                            className="p-1 px-3 py-1.5 rounded-xl bg-red-50 hover:bg-red-600 hover:text-white border border-red-100 text-red-650 font-bold flex items-center gap-1.5 transition-all"
                           >
-                            Excluir
+                            <Trash2 size={13} /> Excluir
                           </button>
                         </div>
                       </div>
