@@ -45,7 +45,7 @@ export default function Footer({ config, onNavigate }: FooterProps) {
           
           {/* Logo / Brand block */}
           <div className="flex flex-col space-y-4">
-            <Logo size="md" logoUrl={config.logo_url} nomeEmpresa={config.nome_empresa} />
+            <Logo size="md" lightVersion={true} logoUrl={config.logo_url} logoBrancaUrl={config.logo_branca_url} nomeEmpresa={config.nome_empresa} />
             
             <p className="text-xs text-slate-300 leading-relaxed font-semibold">
               {config.footer_descricao || 'Conexões ultrarrápidas, 100% fibra óptica de ponta a ponta e suporte humanizado qualificado para você navegar, jogar e assistir sem travamentos.'}

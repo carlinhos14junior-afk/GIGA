@@ -26,7 +26,7 @@ interface AdminPanelProps {
   onPlanosChange: () => void;
 }
 
-type TabType = 'dashboard' | 'banners' | 'empresa' | 'planos' | 'cobertura' | 'redes_sociais' | 'seo' | 'usuarios' | 'configuracoes' | 'rodape' | 'conteudo';
+type TabType = 'dashboard' | 'banners' | 'empresa' | 'planos' | 'cobertura' | 'redes_sociais' | 'seo' | 'usuarios' | 'configuracoes' | 'rodape' | 'conteudo' | 'logo';
 
 export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPanelProps) {
   // Theme Toggle state (with persistence in localStorage)
@@ -92,6 +92,8 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
   const [uploadDesktopLoading, setUploadDesktopLoading] = useState(false);
   const [uploadMobileLoading, setUploadMobileLoading] = useState(false);
   const [uploadLogoLoading, setUploadLogoLoading] = useState(false);
+  const [uploadLogoBrancaLoading, setUploadLogoBrancaLoading] = useState(false);
+  const [uploadFaviconLoading, setUploadFaviconLoading] = useState(false);
 
   // Trigger helper Alert popup
   const showAlert = (text: string, type: 'success' | 'error' = 'success') => {
@@ -105,6 +107,10 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
   useEffect(() => {
     async function initSession() {
       try {
+        // Load empresa data regardless of login status for branding (login screen)
+        const emp = await getEmpresa();
+        setEmpresaDetail(emp);
+
         const currentUser = await getCurrentUser();
         if (currentUser) {
           setUser(currentUser);
@@ -355,7 +361,10 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
           whatsapp: saved.whatsapp,
           email: saved.email,
           endereco: `${saved.endereco}, ${saved.numero}`,
-          cnpj: saved.cnpj // Ensure CNPJ is also synced
+          cnpj: saved.cnpj,
+          logo_url: saved.logo_url || '',
+          logo_branca_url: saved.logo_branca_url || '',
+          favicon_url: saved.favicon_url || ''
         };
         await saveSiteConfig(synced);
         setSiteConfig(synced);
@@ -536,6 +545,33 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
     }
   };
 
+  // Upload Logo/Identity Helpers
+  const handleLogoIdentityUpload = async (type: 'logo_url' | 'logo_branca_url' | 'favicon_url', file: File) => {
+    if (!empresaDetail) return;
+    
+    if (type === 'logo_url') setUploadLogoLoading(true);
+    else if (type === 'logo_branca_url') setUploadLogoBrancaLoading(true);
+    else setUploadFaviconLoading(true);
+
+    try {
+      const fileName = `${type}_${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
+      const url = await uploadFile('logos', fileName, file);
+      
+      setEmpresaDetail(prev => prev ? {
+        ...prev,
+        [type]: url
+      } : null);
+
+      showAlert(`Item de identidade (${type.replace('_url', '')}) carregado com sucesso!`);
+    } catch (err) {
+      showAlert('Erro ao subir logotipo.', 'error');
+    } finally {
+      if (type === 'logo_url') setUploadLogoLoading(false);
+      else if (type === 'logo_branca_url') setUploadLogoBrancaLoading(false);
+      else setUploadFaviconLoading(false);
+    }
+  };
+
   // UPLOAD GERENCIADOR DE MÍDIA: Handle
   const handleMediaUploadSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -603,29 +639,6 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
     } finally {
       if (type === 'desktop') setUploadDesktopLoading(false);
       else setUploadMobileLoading(false);
-    }
-  };
-
-  // Upload Logo Helper
-  const handleLogoUpload = async (file: File) => {
-    if (!empresaDetail) return;
-    setUploadLogoLoading(true);
-
-    try {
-      const fileName = `logo_${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
-      const url = await uploadFile('logos', fileName, file);
-      
-      setEmpresaDetail(prev => prev ? {
-        ...prev,
-        logo_url: url
-      } : null);
-
-      showAlert('Logo da empresa foi carregado com sucesso!');
-    } catch (err) {
-      console.error(err);
-      showAlert('Erro ao carregar imagem contendo logo. Tente novamente.', 'error');
-    } finally {
-      setUploadLogoLoading(false);
     }
   };
 
@@ -861,7 +874,7 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
         
         <div className="relative max-w-sm w-full bg-white border border-slate-200 p-8 sm:p-10 rounded-3xl shadow-xl">
           <div className="text-center mb-8 flex flex-col items-center">
-            <Logo size="lg" className="mb-4" />
+            <Logo size="lg" className="mb-4" logoUrl={empresaDetail?.logo_url} nomeEmpresa={empresaDetail?.nome_empresa} />
             <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest bg-slate-100 px-3 py-1 rounded-full">
               {isForgotPasswordMode ? 'Recuperação de Acesso' : 'Portal do Administrador'}
             </span>
@@ -1049,9 +1062,12 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
           {/* Menu Title */}
           <div className="flex items-center mb-6 pl-1.5 pb-4 border-b border-slate-100 overflow-hidden">
             {!isSidebarCollapsed ? (
-              <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider">GESTÃO DA PLATAfORMA</span>
+              <div className="flex flex-col">
+                <Logo size="sm" logoUrl={empresaDetail?.logo_url} nomeEmpresa={empresaDetail?.nome_empresa} />
+                <span className="text-[8px] font-black uppercase text-slate-400 tracking-[0.2em] mt-1 ml-1">Painel Admin</span>
+              </div>
             ) : (
-              <Logo size="sm" variant="icon" />
+              <Logo size="sm" variant="icon" logoUrl={empresaDetail?.logo_url} nomeEmpresa={empresaDetail?.nome_empresa} />
             )}
           </div>
 
@@ -1062,6 +1078,7 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
               { id: 'banners', label: 'Banners Slideshow', icon: ImageIcon },
               { id: 'conteudo', label: 'Conteúdo Site', icon: Edit3 },
               { id: 'empresa', label: 'Dados da Empresa', icon: Settings },
+              { id: 'logo', label: 'Logotipos e Identidade', icon: ImageIcon },
               { id: 'planos', label: 'Planos de Fibra', icon: Wifi },
               { id: 'cobertura', label: 'Cobertura Cidades', icon: Globe },
               { id: 'rodape', label: 'Rodapé Site', icon: ArrowDownToLine },
@@ -1151,6 +1168,7 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
               className="p-2.5 text-xs font-bold border border-slate-205 rounded-xl bg-slate-50 focus:outline-[#005BFF] cursor-pointer w-full text-slate-700"
             >
               <option value="dashboard">📊 Dashboard Geral</option>
+              <option value="logo">🎨 Logotipos e Identidade</option>
               <option value="banners">🖼️ Banners Slideshow</option>
               <option value="conteudo">📝 Conteúdo do Site</option>
               <option value="empresa">🏢 Dados da Empresa</option>
@@ -2500,45 +2518,6 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
                   placeholder="gigatelfiberofc"
                 />
               </div>
-
-              <div className="flex flex-col space-y-1 sm:col-span-2">
-                <label className="font-bold text-slate-400 uppercase text-[10px]">Logomarca da Empresa (Logo URL)</label>
-                <div className="flex space-x-2">
-                  <input 
-                    type="text" 
-                    value={empresaDetail.logo_url || ''}
-                    onChange={(e) => setEmpresaDetail({ ...empresaDetail, logo_url: e.target.value })}
-                    className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white flex-grow"
-                    placeholder="https://..."
-                  />
-                  <label className="flex items-center space-x-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 rounded-xl cursor-pointer text-xs font-bold text-slate-700 border border-slate-200 shrink-0 select-none">
-                    {uploadLogoLoading ? (
-                      <span className="animate-spin mr-1">⌛</span>
-                    ) : '📁 Upload Logo'}
-                    <input 
-                      type="file" 
-                      accept="image/*" 
-                      className="hidden" 
-                      onChange={(e) => {
-                        if (e.target.files && e.target.files[0]) {
-                          handleLogoUpload(e.target.files[0]);
-                        }
-                      }}
-                    />
-                  </label>
-                </div>
-                {empresaDetail.logo_url && (
-                  <div className="mt-2 p-3 bg-slate-50 rounded-xl border border-dashed border-slate-200 inline-flex items-center space-x-2 self-start">
-                    <span className="text-[10px] uppercase font-bold text-slate-400">Pré-visualização do Logo:</span>
-                    <img 
-                      src={empresaDetail.logo_url} 
-                      alt="Logo Preview" 
-                      className="h-9 object-contain max-w-[150px]"
-                      referrerPolicy="no-referrer"
-                    />
-                  </div>
-                )}
-              </div>
             </div>
 
             <div className="pt-3 border-t flex justify-end">
@@ -2548,6 +2527,157 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
               >
                 <Save size={14} />
                 <span>Salvar e Atualizar Site</span>
+              </button>
+            </div>
+          </form>
+        )}
+
+        {/* ========================================================
+            TAB: LOGOTIPOS E IDENTIDADE
+            ======================================================== */}
+        {activeTab === 'logo' && empresaDetail && (
+          <form onSubmit={handleEmpresaSaveSubmit} className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm space-y-8 animate-fade-in">
+            <div className="pb-4 border-b border-slate-100">
+              <h3 className="font-display font-black text-xs text-slate-800 uppercase tracking-wider">Identidade Visual</h3>
+              <p className="text-[11px] text-slate-500 mt-0.5">Gerencie os logotipos principais, favicon e variações de cor do seu site.</p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Logo Principal (Dark Mode / Normal) */}
+              <div className="space-y-4">
+                <div className="flex flex-col space-y-1">
+                  <label className="font-bold text-slate-800 uppercase text-[10px]">Logo Principal (Colorida)</label>
+                  <p className="text-[10px] text-slate-500 mb-2">Usado em fundos claros (Painel, Login, Menu Branco).</p>
+                  <div className="flex flex-col space-y-3">
+                    <div className="flex space-x-2">
+                      <input 
+                        type="text" 
+                        value={empresaDetail.logo_url || ''}
+                        onChange={(e) => setEmpresaDetail({ ...empresaDetail, logo_url: e.target.value })}
+                        className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white flex-grow text-xs font-mono"
+                        placeholder="URL do Logo"
+                      />
+                      <label className="flex items-center space-x-1.5 px-3 py-2 bg-slate-900 hover:bg-slate-800 rounded-xl cursor-pointer text-[10px] font-bold text-white shrink-0 select-none transition-colors">
+                        {uploadLogoLoading ? <span className="animate-spin">⌛</span> : <Upload size={12} />}
+                        <span>Upload</span>
+                        <input type="file" className="hidden" accept="image/*" onChange={(e) => e.target.files && handleLogoIdentityUpload('logo_url', e.target.files[0])} />
+                      </label>
+                    </div>
+                    
+                    <div className="relative group aspect-video bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200 flex items-center justify-center p-4 overflow-hidden">
+                      {empresaDetail.logo_url ? (
+                        <>
+                          <img src={empresaDetail.logo_url} alt="Logo Principal" className="max-h-full object-contain" referrerPolicy="no-referrer" />
+                          <button 
+                            type="button"
+                            onClick={() => setEmpresaDetail({...empresaDetail, logo_url: ''})}
+                            className="absolute top-2 right-2 p-1 bg-red-100 text-red-600 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <Trash2 size={12} />
+                          </button>
+                        </>
+                      ) : (
+                        <span className="text-[10px] font-bold text-slate-400">Nenhum logo carregado</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Logo Branca (Light Version) */}
+              <div className="space-y-4">
+                <div className="flex flex-col space-y-1">
+                  <label className="font-bold text-slate-800 uppercase text-[10px]">Logo Secundária (Branca / Negativa)</label>
+                  <p className="text-[10px] text-slate-500 mb-2">Usado em fundos escuros (Menu Transparente, Rodapé).</p>
+                  <div className="flex flex-col space-y-3">
+                    <div className="flex space-x-2">
+                      <input 
+                        type="text" 
+                        value={empresaDetail.logo_branca_url || ''}
+                        onChange={(e) => setEmpresaDetail({ ...empresaDetail, logo_branca_url: e.target.value })}
+                        className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white flex-grow text-xs font-mono"
+                        placeholder="URL do Logo Branco"
+                      />
+                      <label className="flex items-center space-x-1.5 px-3 py-2 bg-slate-900 hover:bg-slate-800 rounded-xl cursor-pointer text-[10px] font-bold text-white shrink-0 select-none transition-colors">
+                        {uploadLogoBrancaLoading ? <span className="animate-spin">⌛</span> : <Upload size={12} />}
+                        <span>Upload</span>
+                        <input type="file" className="hidden" accept="image/*" onChange={(e) => e.target.files && handleLogoIdentityUpload('logo_branca_url', e.target.files[0])} />
+                      </label>
+                    </div>
+                    
+                    <div className="relative group aspect-video bg-[#0A1F44] rounded-2xl border-2 border-dashed border-white/10 flex items-center justify-center p-4 overflow-hidden">
+                      {empresaDetail.logo_branca_url ? (
+                        <>
+                          <img src={empresaDetail.logo_branca_url} alt="Logo Branca" className="max-h-full object-contain" referrerPolicy="no-referrer" />
+                          <button 
+                            type="button"
+                            onClick={() => setEmpresaDetail({...empresaDetail, logo_branca_url: ''})}
+                            className="absolute top-2 right-2 p-1 bg-red-100 text-red-600 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <Trash2 size={12} />
+                          </button>
+                        </>
+                      ) : (
+                        <span className="text-[10px] font-bold text-white/20">Nenhum logo branco carregado</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Favicon */}
+              <div className="space-y-4">
+                <div className="flex flex-col space-y-1">
+                  <label className="font-bold text-slate-800 uppercase text-[10px]">Favicon (Ícone da Aba)</label>
+                  <p className="text-[10px] text-slate-500 mb-2">Ícone pequeno exibido na aba do navegador (PNG/ICO).</p>
+                  <div className="flex flex-col space-y-3">
+                    <div className="flex space-x-2">
+                      <input 
+                        type="text" 
+                        value={empresaDetail.favicon_url || ''}
+                        onChange={(e) => setEmpresaDetail({ ...empresaDetail, favicon_url: e.target.value })}
+                        className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white flex-grow text-xs font-mono"
+                        placeholder="URL do Favicon"
+                      />
+                      <label className="flex items-center space-x-1.5 px-3 py-2 bg-slate-900 hover:bg-slate-800 rounded-xl cursor-pointer text-[10px] font-bold text-white shrink-0 select-none transition-colors">
+                        {uploadFaviconLoading ? <span className="animate-spin">⌛</span> : <Upload size={12} />}
+                        <span>Upload</span>
+                        <input type="file" className="hidden" accept="image/*" onChange={(e) => e.target.files && handleLogoIdentityUpload('favicon_url', e.target.files[0])} />
+                      </label>
+                    </div>
+                    
+                    <div className="relative group w-24 h-24 bg-white rounded-2xl border-2 border-dashed border-slate-200 flex items-center justify-center p-4 self-center overflow-hidden">
+                      {empresaDetail.favicon_url ? (
+                        <>
+                          <img src={empresaDetail.favicon_url} alt="Favicon" className="w-12 h-12 object-contain" referrerPolicy="no-referrer" />
+                          <button 
+                            type="button"
+                            onClick={() => setEmpresaDetail({...empresaDetail, favicon_url: ''})}
+                            className="absolute top-2 right-2 p-1 bg-red-100 text-red-600 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <Trash2 size={12} />
+                          </button>
+                        </>
+                      ) : (
+                        <span className="text-[10px] font-bold text-slate-400 text-center leading-tight">Sem Favicon</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-6 border-t flex items-center justify-between">
+              <div className="flex items-center space-x-2 text-slate-400">
+                <CheckCircle size={14} className="text-emerald-500" />
+                <span className="text-[10px] font-bold uppercase">As logos serão atualizadas em tempo real em todo o ecossistema.</span>
+              </div>
+              <button 
+                type="submit" 
+                className="px-8 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-black rounded-2xl flex items-center space-x-2 shadow-xl shadow-emerald-500/20 uppercase tracking-tighter text-xs transition-all hover:scale-[1.02] active:scale-95"
+              >
+                <Save size={16} />
+                <span>Salvar Identidade Visual</span>
               </button>
             </div>
           </form>

@@ -2,6 +2,8 @@ export interface SiteConfig {
   id?: string | number;
   nome_empresa: string;
   logo_url: string;
+  logo_branca_url?: string;
+  favicon_url?: string;
   whatsapp: string;
   telefone: string;
   email: string;
@@ -106,6 +108,8 @@ export interface Empresa {
   instagram?: string;
   facebook?: string;
   logo_url?: string;
+  logo_branca_url?: string;
+  favicon_url?: string;
   created_at?: string;
   updated_at?: string;
 }

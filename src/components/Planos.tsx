@@ -184,20 +184,7 @@ export default function Planos({ config, planos }: PlanosProps) {
                     </div>
                   </div>
 
-                  {/* Purchase CTA button */}
-                  <a
-                    href={getWhatsAppPlanoLink(plano)}
-                    target="_blank"
-                    referrerPolicy="no-referrer"
-                    rel="noopener noreferrer"
-                    className={`w-full py-4 rounded-xl font-black uppercase text-xs tracking-widest text-center transition-all duration-300 shadow-sm block ${
-                      isFeatured
-                        ? 'bg-[#E53935] hover:bg-[#c62828] text-white shadow-xl'
-                        : 'bg-[#0057FF] hover:bg-[#004ccb] text-white'
-                    }`}
-                  >
-                    CONTRATAR AGORA
-                  </a>
+                  {/* Purchase CTA button - REMOVED AS REQUESTED */}
                 </div>
 
               </div>

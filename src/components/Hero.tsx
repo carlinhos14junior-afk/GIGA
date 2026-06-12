@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowRight, MessageCircle, CheckCircle, Users, Zap, Headphones, Activity, ChevronLeft, ChevronRight } from 'lucide-react';
+import { MessageCircle, CheckCircle, Users, Zap, Headphones, Activity, ChevronLeft, ChevronRight } from 'lucide-react';
 import { SiteConfig, Banner } from '../types';
 
 interface HeroProps {
@@ -46,17 +46,6 @@ export default function Hero({ config, banners = [] }: HeroProps) {
     `Olá GIGATEL FIBER! Quero contratar internet fibra ultraveloz agora de forma rápida.`
   )}`;
 
-  const handleContractClick = (link: string) => {
-    if (link.startsWith('#')) {
-      const element = document.getElementById(link.substring(1));
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
-      }
-    } else {
-      window.open(link, '_blank');
-    }
-  };
-
   const stats = [
     {
       value: '+5.000',
@@ -91,7 +80,7 @@ export default function Hero({ config, banners = [] }: HeroProps) {
   return (
     <section
       id="inicio"
-      className="relative h-screen min-h-[600px] w-full overflow-hidden text-white flex items-center"
+      className="relative min-h-screen w-full overflow-hidden text-white flex items-center"
     >
       {/* Background Banner Slider */}
       <div className="absolute inset-0 z-0">
@@ -144,14 +133,6 @@ export default function Hero({ config, banners = [] }: HeroProps) {
 
           {/* CTA buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-6">
-            <button
-              onClick={() => handleContractClick(currentBanner.link_botao || '#planos')}
-              className="group flex items-center justify-center space-x-3 bg-[#E53935] hover:bg-[#c62828] text-white font-black text-xs sm:text-sm uppercase tracking-widest px-8 py-5 rounded-2xl shadow-2xl hover:shadow-[#E53935]/20 transition-all duration-300 transform hover:-translate-y-1 active:translate-y-0 cursor-pointer"
-            >
-              <span>{currentBanner.texto_botao || 'Contratar Agora'}</span>
-              <ArrowRight size={18} className="group-hover:translate-x-2 transition-transform" />
-            </button>
-
             <a
               href={whatsAppLink}
               target="_blank"

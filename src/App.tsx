@@ -50,7 +50,9 @@ export default function App() {
           cnpj: emp.cnpj,
           instagram: emp.instagram,
           facebook: emp.facebook,
-          logo_url: emp.logo_url
+          logo_url: emp.logo_url,
+          logo_branca_url: emp.logo_branca_url,
+          favicon_url: emp.favicon_url
         } : {})
       };
       setSiteConfig(mergedConfig);
@@ -103,6 +105,40 @@ export default function App() {
   useEffect(() => {
     loadData();
   }, []);
+
+  // Sync Favicon
+  useEffect(() => {
+    if (siteConfig?.favicon_url) {
+      let link: HTMLLinkElement | null = document.querySelector("link[rel~='icon']");
+      if (!link) {
+        link = document.createElement('link');
+        link.rel = 'icon';
+        document.getElementsByTagName('head')[0].appendChild(link);
+      }
+      link.href = siteConfig.favicon_url;
+    }
+  }, [siteConfig?.favicon_url]);
+
+  // Sync Open Graph & SEO Tags
+  useEffect(() => {
+    if (!siteConfig) return;
+
+    // Helper to update or create meta tags
+    const updateMetaTag = (property: string, content: string, attr: 'property' | 'name' = 'property') => {
+      let tag = document.querySelector(`meta[${attr}='${property}']`);
+      if (!tag) {
+        tag = document.createElement('meta');
+        tag.setAttribute(attr, property);
+        document.head.appendChild(tag);
+      }
+      tag.setAttribute('content', content);
+    };
+
+    if (siteConfig.logo_url) {
+      updateMetaTag('og:image', siteConfig.logo_url);
+      updateMetaTag('twitter:image', siteConfig.logo_url, 'name');
+    }
+  }, [siteConfig]);
 
   const handleNavigate = (newView: 'main' | 'admin') => {
     const isAdminLogged = localStorage.getItem('admin_logged') === 'true';

@@ -17,6 +17,8 @@ export const supabase = isRealSupabase ? createClient(supabaseUrl, supabaseAnonK
 const DEFAULT_CONFIG: SiteConfig = {
   nome_empresa: 'GIGATEL FIBER',
   logo_url: '',
+  logo_branca_url: '',
+  favicon_url: '',
   whatsapp: '5511910050121',
   telefone: '(11) 91005-0121',
   email: 'contato@gigatelfiber.com.br',
@@ -152,6 +154,8 @@ const DEFAULT_EMPRESA: Empresa = {
   instagram: 'gigatelfiberofc',
   facebook: 'gigatelfiberofc',
   logo_url: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&q=80&w=200',
+  logo_branca_url: '',
+  favicon_url: '',
   created_at: new Date().toISOString()
 };
 
