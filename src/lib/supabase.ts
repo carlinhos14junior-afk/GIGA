@@ -123,20 +123,7 @@ const DEFAULT_PLANOS: Plano[] = [
   }
 ];
 
-const DEFAULT_BANNERS: Banner[] = [
-  {
-    id: '1',
-    titulo: 'INTERNET FIBRA ÓPTICA ULTRARRÁPIDA',
-    subtitulo: 'Mais velocidade. Mais estabilidade. Mais tecnologia para sua casa.',
-    texto_botao: 'Contratar Agora',
-    link_botao: '#planos',
-    image_url: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&q=80&w=1200',
-    mobile_image_url: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&q=80&w=600',
-    ordem: 1,
-    status: 'ativo',
-    created_at: new Date().toISOString()
-  }
-];
+const DEFAULT_BANNERS: Banner[] = [];
 
 const DEFAULT_EMPRESA: Empresa = {
   nome_empresa: 'GIGATEL FIBER',

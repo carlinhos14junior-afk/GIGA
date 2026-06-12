@@ -33,12 +33,12 @@ export default function Hero({ config, banners = [] }: HeroProps) {
 
   // Fallback banner if database results empty
   const currentBanner = activeBanners.length > 0 ? activeBanners[currentSlide] : {
-    titulo: config.hero_titulo || 'INTERNET FIBRA ÓPTICA\nULTRARRÁPIDA',
-    subtitulo: config.hero_subtitulo || 'Mais velocidade.\nMais estabilidade.\nMais tecnologia para sua casa.',
-    texto_botao: config.hero_texto_botao || 'Contratar Agora',
-    link_botao: config.hero_link_botao || '#planos',
-    image_url: '/src/assets/images/gigatel_premium_hero_1781266310979.jpg',
-    mobile_image_url: '/src/assets/images/gigatel_premium_hero_1781266310979.jpg'
+    titulo: config.hero_titulo || 'Aguardando Banners',
+    subtitulo: config.hero_subtitulo || 'Adicione banners no painel admin.',
+    texto_botao: config.hero_texto_botao || 'Painel Admin',
+    link_botao: '#admin',
+    image_url: '',
+    mobile_image_url: ''
   };
 
   const cleanWhatsapp = config.whatsapp ? config.whatsapp.replace(/\D/g, '') : '5511910050121';

@@ -298,8 +298,8 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
         subtitulo: editingBanner.subtitulo || '',
         texto_botao: editingBanner.texto_botao || 'Contratar',
         link_botao: editingBanner.link_botao || '#planos',
-        image_url: editingBanner.image_url || 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&q=80&w=1200',
-        mobile_image_url: editingBanner.mobile_image_url || 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&q=80&w=600',
+        image_url: editingBanner.image_url || '',
+        mobile_image_url: editingBanner.mobile_image_url || '',
         ordem: Number(editingBanner.ordem || 1),
         status: editingBanner.status || 'ativo'
       });
@@ -1552,7 +1552,7 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
                     <p className="text-[11px] text-slate-500 mt-0.5">Gerencie os slides exibidos na seção de apresentação principal do site.</p>
                   </div>
                   <button 
-                    onClick={() => setEditingBanner({ titulo: '', subtitulo: '', texto_botao: 'Contratar Agora', link_botao: '#planos', image_url: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&q=80&w=1200', mobile_image_url: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&q=80&w=600', ordem: bannersList.length + 1, status: 'ativo' })}
+                    onClick={() => setEditingBanner({ titulo: '', subtitulo: '', texto_botao: 'Contratar Agora', link_botao: '#planos', image_url: '', mobile_image_url: '', ordem: bannersList.length + 1, status: 'ativo' })}
                     className="px-3.5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-850 text-white font-bold text-xs flex items-center space-x-1.5"
                   >
                     <Plus size={14} />
