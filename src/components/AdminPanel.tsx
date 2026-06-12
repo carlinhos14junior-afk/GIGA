@@ -307,16 +307,21 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
     }
   };
 
-  const handleDeleteBannerClick = async (id: string | number) => {
-    if (confirm('Deseja deletar este banner?')) {
-      try {
-        await deleteBanner(id);
-        setBannersList(bannersList.filter(b => b.id !== id));
-        onConfigChange();
-        showAlert('Banner deletado.');
-      } catch (err) {
-        showAlert('Erro ao deletar banner.', 'error');
-      }
+  const excluirBanner = async (id: string | number) => {
+    const confirmar = window.confirm(
+      "Deseja realmente excluir este banner?"
+    );
+
+    if (!confirmar) return;
+
+    try {
+      await deleteBanner(id);
+      setBannersList(prev => prev.filter(banner => banner.id !== id));
+      onConfigChange();
+      showAlert('Banner excluído com sucesso!');
+    } catch (error) {
+      console.error(error);
+      showAlert('Erro ao excluir banner', 'error');
     }
   };
 
@@ -1466,7 +1471,7 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
                     {editingBanner.id && (
                       <button 
                         type="button" 
-                        onClick={() => handleDeleteBannerClick(editingBanner.id!)}
+                        onClick={() => excluirBanner(editingBanner.id!)}
                         className="px-4 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 text-xs font-bold flex items-center space-x-1.5 border border-red-100"
                       >
                         <Trash2 size={13} />
@@ -1526,7 +1531,7 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
                             <Edit3 size={13} /> Editar
                           </button>
                           <button 
-                            onClick={() => handleDeleteBannerClick(banner.id)}
+                            onClick={() => excluirBanner(banner.id)}
                             className="p-1 px-3 py-1.5 rounded-xl bg-red-50 hover:bg-red-600 hover:text-white border border-red-100 text-red-650 font-bold flex items-center gap-1.5 transition-all"
                           >
                             <Trash2 size={13} /> Excluir
