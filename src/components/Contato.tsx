@@ -49,7 +49,7 @@ export default function Contato({ config }: ContatoProps) {
   return (
     <section 
       id="contato" 
-      className="relative py-28 bg-[#E53935] overflow-hidden text-white border-b border-black/5"
+      className="relative py-28 bg-gradient-to-br from-blue-600 via-blue-700 to-emerald-500 overflow-hidden text-white border-b border-black/5"
     >
       {/* Visual Tech Overlays */}
       <div className="absolute inset-0 opacity-[0.05] pointer-events-none mix-blend-overlay">
@@ -87,7 +87,7 @@ export default function Contato({ config }: ContatoProps) {
                 )}
               </h2>
 
-              <p className="text-red-50 text-sm sm:text-base leading-relaxed font-bold">
+              <p className="text-blue-50 text-sm sm:text-base leading-relaxed font-bold">
                 {config.contato_descricao || `Fale hoje mesmo com um consultor da ${config.nome_empresa} e garanta instalação prioritária qualificada em seu logradouro. Não sofra mais com quedas de sinal ou uploads lentos! Estabilidade real está aqui.`}
               </p>
 
@@ -98,7 +98,7 @@ export default function Contato({ config }: ContatoProps) {
                 </div>
                 <div>
                   <h4 className="text-xs font-black uppercase text-white tracking-wider">Canais 100% Ativos</h4>
-                  <div className="text-xs text-red-50 mt-1 font-bold whitespace-pre-line">
+                  <div className="text-xs text-blue-50 mt-1 font-bold whitespace-pre-line">
                     {config.horario_funcionamento || 'Segunda a Sexta: 08h às 20h\nSábado: 08h às 14h'}
                   </div>
                 </div>
@@ -106,7 +106,7 @@ export default function Contato({ config }: ContatoProps) {
             </div>
 
             {/* Security trust badge */}
-            <div className="text-[10px] text-red-100/75 max-w-sm pt-4 border-t border-white/10 lg:block hidden leading-relaxed font-semibold">
+            <div className="text-[10px] text-blue-100/75 max-w-sm pt-4 border-t border-white/10 lg:block hidden leading-relaxed font-semibold">
               {config.contato_legal || '* Todas as suas conversações e simulações são confidenciais e regidas conforme a Lei Geral de Proteção de Dados (LGPD) garantindo criptografia ponta a ponta.'}
             </div>
           </div>
@@ -128,7 +128,7 @@ export default function Contato({ config }: ContatoProps) {
                   >
                     <div className="flex items-center space-x-4 pr-4">
                       {/* Brand blue or dark blue icon bubble for absolute premium contrast */}
-                      <div className="p-3.5 rounded-xl bg-red-50 text-[#E53935] group-hover:bg-[#E53935] group-hover:text-white transition-all border border-red-100">
+                      <div className="p-3.5 rounded-xl bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all border border-blue-100">
                         <Icon size={20} />
                       </div>
                       <div>
@@ -137,18 +137,18 @@ export default function Contato({ config }: ContatoProps) {
                             {item.title}
                           </span>
                           {item.badge && (
-                            <span className="text-[8px] bg-red-50 text-[#E53935] font-black px-2 py-0.5 rounded uppercase tracking-wider font-mono">
+                            <span className="text-[8px] bg-blue-50 text-blue-600 font-black px-2 py-0.5 rounded uppercase tracking-wider font-mono">
                               {item.badge}
                             </span>
                           )}
                         </div>
-                        <p className="text-sm sm:text-base font-black text-[#0A1F44] group-hover:text-[#E53935] transition-colors mt-1.5 break-all">
+                        <p className="text-sm sm:text-base font-black text-[#0A1F44] group-hover:text-blue-600 transition-colors mt-1.5 break-all">
                           {item.val}
                         </p>
                       </div>
                     </div>
 
-                    <ExternalLink size={14} className="text-slate-400 group-hover:text-[#E53935] transition-all group-hover:translate-x-0.5" />
+                    <ExternalLink size={14} className="text-slate-400 group-hover:text-blue-600 transition-all group-hover:translate-x-0.5" />
                   </a>
                 );
               })}
