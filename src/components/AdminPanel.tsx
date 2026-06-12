@@ -268,9 +268,10 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
     if (confirm('Deseja excluir este lead permanentemente?')) {
       try {
         await deleteLead(id);
-        setLeadsList(leadsList.filter(l => l.id !== id));
+        setLeadsList(prev => prev.filter(l => l.id !== id));
         showAlert('Lead removido com sucesso!');
       } catch (err) {
+        console.error('Error deleting lead:', err);
         showAlert('Houve um erro ao processar exclusão.', 'error');
       }
     }
@@ -424,10 +425,11 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
     if (confirm('Tem certeza que deseja excluir permanentemente este plano de internet?')) {
       try {
         await deletePlano(id);
-        setPlanosList(planosList.filter(p => p.id !== id));
+        setPlanosList(prev => prev.filter(p => p.id !== id));
         onPlanosChange();
-        showAlert('Plano excluído.');
+        showAlert('Plano excluído com sucesso!');
       } catch (err) {
+        console.error('Error deleting plan:', err);
         showAlert('Erro ao excluir plano.', 'error');
       }
     }
@@ -546,9 +548,10 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
     if (confirm('Deletar acesso administrativo para este usuário?')) {
       try {
         await deleteUsuario(id);
-        setUsuariosList(usuariosList.filter(u => u.id !== id));
-        showAlert('Usuário deletado.');
+        setUsuariosList(prev => prev.filter(u => u.id !== id));
+        showAlert('Usuário deletado com sucesso!');
       } catch (err) {
+        console.error('Error deleting user:', err);
         showAlert('Erro de exclusão.', 'error');
       }
     }
@@ -642,9 +645,10 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
     if (confirm('Deseja excluir permanentemente este arquivo de mídia?')) {
       try {
         await deleteUpload(id);
-        setUploadsList(uploadsList.filter(u => u.id !== id));
-        showAlert('Arquivo de mídia removido.');
+        setUploadsList(prev => prev.filter(u => u.id !== id));
+        showAlert('Arquivo de mídia removido com sucesso!');
       } catch (err) {
+        console.error('Error deleting upload:', err);
         showAlert('Falha ao remover mídia.', 'error');
       }
     }
@@ -839,7 +843,7 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
         
         <div className="relative max-w-sm w-full bg-white border border-slate-200 p-8 sm:p-10 rounded-3xl shadow-xl">
           <div className="text-center mb-8 flex flex-col items-center">
-            <Logo size="lg" className="mb-4" logoUrl={empresaDetail?.logo_url} nomeEmpresa={empresaDetail?.nome_empresa} />
+            <Logo size="lg" className="mb-4" logoUrl={brandSettingsDetail?.logo_url || empresaDetail?.logo_url} nomeEmpresa={empresaDetail?.nome_empresa} />
             <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest bg-slate-100 px-3 py-1 rounded-full">
               {isForgotPasswordMode ? 'Recuperação de Acesso' : 'Portal do Administrador'}
             </span>
@@ -1028,11 +1032,11 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
           <div className="flex items-center mb-6 pl-1.5 pb-4 border-b border-slate-100 overflow-hidden">
             {!isSidebarCollapsed ? (
               <div className="flex flex-col">
-                <Logo size="sm" logoUrl={empresaDetail?.logo_url} nomeEmpresa={empresaDetail?.nome_empresa} />
+                <Logo size="sm" logoUrl={brandSettingsDetail?.logo_url || empresaDetail?.logo_url} nomeEmpresa={empresaDetail?.nome_empresa} />
                 <span className="text-[8px] font-black uppercase text-slate-400 tracking-[0.2em] mt-1 ml-1">Painel Admin</span>
               </div>
             ) : (
-              <Logo size="sm" variant="icon" logoUrl={empresaDetail?.logo_url} nomeEmpresa={empresaDetail?.nome_empresa} />
+              <Logo size="sm" variant="icon" logoUrl={brandSettingsDetail?.logo_url || empresaDetail?.logo_url} nomeEmpresa={empresaDetail?.nome_empresa} />
             )}
           </div>
 

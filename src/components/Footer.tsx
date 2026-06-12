@@ -49,7 +49,7 @@ export default function Footer({ config, onNavigate }: FooterProps) {
               size="md" 
               lightVersion={true} 
               logoUrl={config.logo_footer_url || config.logo_url} 
-              logoBrancaUrl={config.logo_white_url} 
+              logoWhiteUrl={config.logo_white_url} 
               nomeEmpresa={config.nome_empresa} 
             />
             

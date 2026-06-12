@@ -746,13 +746,8 @@ export async function saveUpload(upload: Omit<UploadMedia, 'id'> & { id?: string
 export async function deleteUpload(id: string | number): Promise<void> {
   updateTimestamp();
   if (isRealSupabase && supabase) {
-    try {
-      const { error } = await supabase.from('uploads').delete().eq('id', id);
-      if (error) throw error;
-    } catch (e) {
-      const list = getLocal<UploadMedia[]>('giganet_media_uploads', DEFAULT_UPLOADS);
-      setLocal('giganet_media_uploads', list.filter(item => String(item.id) !== String(id)));
-    }
+    const { error } = await supabase.from('uploads').delete().eq('id', id);
+    if (error) throw error;
   } else {
     const list = getLocal<UploadMedia[]>('giganet_media_uploads', DEFAULT_UPLOADS);
     setLocal('giganet_media_uploads', list.filter(item => String(item.id) !== String(id)));
@@ -948,17 +943,11 @@ export async function updateLeadStatus(id: string | number, status: Lead['status
 export async function deleteLead(id: string | number): Promise<void> {
   updateTimestamp();
   if (isRealSupabase && supabase) {
-    try {
-      const { error } = await supabase
-        .from('leads')
-        .delete()
-        .eq('id', id);
-      if (error) throw error;
-    } catch (e) {
-      const leads = getLocal<Lead[]>('giganet_leads', []);
-      const filtered = leads.filter(l => String(l.id) !== String(id));
-      setLocal('giganet_leads', filtered);
-    }
+    const { error } = await supabase
+      .from('leads')
+      .delete()
+      .eq('id', id);
+    if (error) throw error;
   } else {
     const leads = getLocal<Lead[]>('giganet_leads', []);
     const filtered = leads.filter(l => String(l.id) !== String(id));
@@ -1036,13 +1025,8 @@ export async function saveUsuario(usuario: Omit<Usuario, 'id'> & { id?: string }
 export async function deleteUsuario(id: string): Promise<void> {
   updateTimestamp();
   if (isRealSupabase && supabase) {
-    try {
-      const { error } = await supabase.from('usuarios').delete().eq('id', id);
-      if (error) throw error;
-    } catch (e) {
-      const users = getLocal<Usuario[]>('giganet_usuarios', DEFAULT_USUARIOS);
-      setLocal('giganet_usuarios', users.filter(u => u.id !== id));
-    }
+    const { error } = await supabase.from('usuarios').delete().eq('id', id);
+    if (error) throw error;
   } else {
     const users = getLocal<Usuario[]>('giganet_usuarios', DEFAULT_USUARIOS);
     setLocal('giganet_usuarios', users.filter(u => u.id !== id));

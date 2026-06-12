@@ -6,7 +6,7 @@ interface LogoProps {
   size?: 'sm' | 'md' | 'lg' | 'xl';
   lightVersion?: boolean;
   logoUrl?: string;
-  logoBrancaUrl?: string;
+  logoWhiteUrl?: string;
   nomeEmpresa?: string;
 }
 
@@ -16,10 +16,10 @@ export default function Logo({
   size = 'md', 
   lightVersion = false, 
   logoUrl,
-  logoBrancaUrl,
+  logoWhiteUrl,
   nomeEmpresa = 'GIGATEL FIBER'
 }: LogoProps) {
-  const activeLogo = lightVersion ? (logoBrancaUrl || logoUrl) : logoUrl;
+  const activeLogo = lightVersion ? (logoWhiteUrl || logoUrl) : logoUrl;
 
   if (activeLogo && activeLogo.trim() !== '') {
     const heightMap = {
