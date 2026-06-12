@@ -18,6 +18,7 @@ export interface SiteConfig {
   numero?: string;
   horario_funcionamento?: string;
   created_at?: string;
+  site_status?: 'Ativo' | 'Manutenção';
 
   // Hero and general site texts
   hero_titulo?: string;

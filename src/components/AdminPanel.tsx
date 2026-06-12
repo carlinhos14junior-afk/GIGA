@@ -4,7 +4,7 @@ import {
   Activity, Calendar, Users, CheckSquare, Settings, Wifi, 
   Database, LogOut, ChevronLeft, ChevronRight, Grid, 
   LockKeyhole, Key, BadgeInfo, Image as ImageIcon, Globe, 
-  Share2, CheckCircle, X, Lock, Check, Copy, Eye, Sun, Moon
+  Share2, CheckCircle, X, Lock, Check, Copy, Eye, Sun, Moon, Star
 } from 'lucide-react';
 import { 
   getSiteConfig, saveSiteConfig, getBanners, saveBanner, deleteBanner, 
@@ -139,6 +139,9 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
         getUploads()
       ]);
 
+      if (cfg && cfg.site_status) {
+        setSiteStatus(cfg.site_status);
+      }
       setSiteConfig(cfg);
       setBannersList(bans);
       setEmpresaDetail(emp);
@@ -238,10 +241,21 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
   };
 
   // Save Site general status preference
-  const handleSaveSiteStatus = (status: 'Ativo' | 'Manutenção') => {
+  const handleSaveSiteStatus = async (status: 'Ativo' | 'Manutenção') => {
     setSiteStatus(status);
-    localStorage.setItem('giganet_site_status', status);
-    showAlert(`Status do site alterado para "${status}"!`);
+    if (siteConfig) {
+      try {
+        const updated = { ...siteConfig, site_status: status };
+        await saveSiteConfig(updated);
+        setSiteConfig(updated);
+        showAlert(`Status do site alterado para "${status}" e salvo na nuvem!`);
+      } catch (e) {
+        showAlert('Falha ao sincronizar status na nuvem.', 'error');
+      }
+    } else {
+      localStorage.setItem('giganet_site_status', status);
+      showAlert(`Status do site alterado para "${status}" localmente!`);
+    }
   };
 
   // CRM: Delete Lead
@@ -1601,14 +1615,63 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
                     />
                   </div>
                   <div className="flex flex-col space-y-1">
-                    <label className="font-bold text-slate-400 uppercase text-[10px]">Lista de Diferenciais (JSON Format)</label>
-                    <textarea 
-                      rows={5}
-                      value={siteConfig.vantagens_lista_json || ''}
-                      onChange={(e) => setSiteConfig({ ...siteConfig, vantagens_lista_json: e.target.value })}
-                      className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white font-mono text-[10px]"
-                    />
-                    <p className="text-[10px] text-slate-400">Formato: [ {"{"} "titulo": "...", "descricao": "..." {"}"}, ... ]</p>
+                    <label className="font-bold text-slate-400 uppercase text-[10px]">Lista de Diferenciais</label>
+                    <div className="space-y-2">
+                      {(() => {
+                        let list: any[] = [];
+                        try { list = JSON.parse(siteConfig.vantagens_lista_json || '[]'); } catch(e) {}
+                        return (
+                          <>
+                            {list.map((item, idx) => (
+                              <div key={idx} className="flex flex-col p-3 bg-white border rounded-xl gap-2 relative group">
+                                <button 
+                                  type="button"
+                                  onClick={() => {
+                                    const newList = list.filter((_, i) => i !== idx);
+                                    setSiteConfig({ ...siteConfig, vantagens_lista_json: JSON.stringify(newList) });
+                                  }}
+                                  className="absolute top-2 right-2 text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                                >
+                                  <X size={14} />
+                                </button>
+                                <input 
+                                  type="text" 
+                                  placeholder="Título do Diferencial"
+                                  value={item.titulo || ''}
+                                  onChange={(e) => {
+                                    const newList = [...list];
+                                    newList[idx] = { ...newList[idx], titulo: e.target.value };
+                                    setSiteConfig({ ...siteConfig, vantagens_lista_json: JSON.stringify(newList) });
+                                  }}
+                                  className="p-1.5 border-b font-bold focus:outline-none"
+                                />
+                                <textarea 
+                                  placeholder="Descrição detalhada"
+                                  rows={2}
+                                  value={item.descricao || ''}
+                                  onChange={(e) => {
+                                    const newList = [...list];
+                                    newList[idx] = { ...newList[idx], descricao: e.target.value };
+                                    setSiteConfig({ ...siteConfig, vantagens_lista_json: JSON.stringify(newList) });
+                                  }}
+                                  className="p-1.5 text-[10px] focus:outline-none resize-none"
+                                />
+                              </div>
+                            ))}
+                            <button 
+                              type="button"
+                              onClick={() => {
+                                const newList = [...list, { titulo: '', descricao: '' }];
+                                setSiteConfig({ ...siteConfig, vantagens_lista_json: JSON.stringify(newList) });
+                              }}
+                              className="w-full py-2 border-2 border-dashed border-slate-200 rounded-xl text-slate-400 hover:text-slate-600 hover:border-slate-400 text-[10px] font-bold flex items-center justify-center gap-1"
+                            >
+                              <Plus size={12} /> Incluir Novo Diferencial
+                            </button>
+                          </>
+                        );
+                      })()}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1784,14 +1847,63 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
                     />
                   </div>
                   <div className="flex flex-col space-y-1">
-                    <label className="font-bold text-slate-400 uppercase text-[10px]">Lista de FAQ (JSON Format)</label>
-                    <textarea 
-                      rows={5}
-                      value={siteConfig.faq_lista_json || ''}
-                      onChange={(e) => setSiteConfig({ ...siteConfig, faq_lista_json: e.target.value })}
-                      className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white font-mono text-[10px]"
-                    />
-                    <p className="text-[10px] text-slate-400">Formato: [ {"{"} "pergunta": "...", "resposta": "..." {"}"}, ... ]</p>
+                    <label className="font-bold text-slate-400 uppercase text-[10px]">Lista de FAQ (Interativo)</label>
+                    <div className="space-y-2 text-[11px]">
+                      {(() => {
+                        let list: any[] = [];
+                        try { list = JSON.parse(siteConfig.faq_lista_json || '[]'); } catch(e) {}
+                        return (
+                          <>
+                            {list.map((item, idx) => (
+                              <div key={idx} className="flex flex-col p-3 bg-white border rounded-xl gap-2 relative group shadow-sm">
+                                <button 
+                                  type="button"
+                                  onClick={() => {
+                                    const newList = list.filter((_, i) => i !== idx);
+                                    setSiteConfig({ ...siteConfig, faq_lista_json: JSON.stringify(newList) });
+                                  }}
+                                  className="absolute top-2 right-2 text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                                >
+                                  <X size={14} />
+                                </button>
+                                <input 
+                                  type="text" 
+                                  placeholder="Pergunta do Cliente"
+                                  value={item.pergunta || ''}
+                                  onChange={(e) => {
+                                    const newList = [...list];
+                                    newList[idx] = { ...newList[idx], pergunta: e.target.value };
+                                    setSiteConfig({ ...siteConfig, faq_lista_json: JSON.stringify(newList) });
+                                  }}
+                                  className="p-1.5 border-b font-bold focus:outline-none"
+                                />
+                                <textarea 
+                                  placeholder="Resposta detalhada"
+                                  rows={2}
+                                  value={item.resposta || ''}
+                                  onChange={(e) => {
+                                    const newList = [...list];
+                                    newList[idx] = { ...newList[idx], resposta: e.target.value };
+                                    setSiteConfig({ ...siteConfig, faq_lista_json: JSON.stringify(newList) });
+                                  }}
+                                  className="p-1.5 text-[10px] focus:outline-none resize-none"
+                                />
+                              </div>
+                            ))}
+                            <button 
+                              type="button"
+                              onClick={() => {
+                                const newList = [...list, { pergunta: '', resposta: '' }];
+                                setSiteConfig({ ...siteConfig, faq_lista_json: JSON.stringify(newList) });
+                              }}
+                              className="w-full py-2 border-2 border-dashed border-slate-200 rounded-xl text-slate-400 hover:text-slate-600 hover:border-slate-400 text-[10px] font-bold flex items-center justify-center gap-1"
+                            >
+                              <Plus size={12} /> Excluir ou Incluir FAQ
+                            </button>
+                          </>
+                        );
+                      })()}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1822,14 +1934,101 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
                     />
                   </div>
                   <div className="flex flex-col space-y-1">
-                    <label className="font-bold text-slate-400 uppercase text-[10px]">Lista de Depoimentos (JSON Format)</label>
-                    <textarea 
-                      rows={5}
-                      value={siteConfig.depoimentos_lista_json || ''}
-                      onChange={(e) => setSiteConfig({ ...siteConfig, depoimentos_lista_json: e.target.value })}
-                      className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white font-mono text-[10px]"
-                    />
-                    <p className="text-[10px] text-slate-400">Formato: [ {"{"} "nome": "...", "texto": "...", "cargo": "...", "plano": "...", "estrelas": 5, "avatar": "..." {"}"}, ... ]</p>
+                    <label className="font-bold text-slate-400 uppercase text-[10px]">Lista de Depoimentos (Interativo)</label>
+                    <div className="space-y-3">
+                      {(() => {
+                        let list: any[] = [];
+                        try { list = JSON.parse(siteConfig.depoimentos_lista_json || '[]'); } catch(e) {}
+                        return (
+                          <>
+                            {list.map((item, idx) => (
+                              <div key={idx} className="flex flex-col p-4 bg-white border rounded-2xl gap-2 relative group shadow-sm border-slate-100">
+                                <button 
+                                  type="button"
+                                  onClick={() => {
+                                    const newList = list.filter((_, i) => i !== idx);
+                                    setSiteConfig({ ...siteConfig, depoimentos_lista_json: JSON.stringify(newList) });
+                                  }}
+                                  className="absolute top-3 right-3 text-red-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                                >
+                                  <X size={16} />
+                                </button>
+                                <div className="grid grid-cols-2 gap-2">
+                                  <input 
+                                    type="text" placeholder="Nome do Cliente"
+                                    value={item.nome || ''}
+                                    onChange={(e) => {
+                                      const newList = [...list];
+                                      newList[idx] = { ...newList[idx], nome: e.target.value };
+                                      setSiteConfig({ ...siteConfig, depoimentos_lista_json: JSON.stringify(newList) });
+                                    }}
+                                    className="p-1 px-2 border rounded-lg font-bold focus:outline-none text-[11px]"
+                                  />
+                                  <input 
+                                    type="text" placeholder="Cargo / Perfil"
+                                    value={item.cargo || ''}
+                                    onChange={(e) => {
+                                      const newList = [...list];
+                                      newList[idx] = { ...newList[idx], cargo: e.target.value };
+                                      setSiteConfig({ ...siteConfig, depoimentos_lista_json: JSON.stringify(newList) });
+                                    }}
+                                    className="p-1 px-2 border rounded-lg focus:outline-none text-[10px]"
+                                  />
+                                </div>
+                                <input 
+                                  type="text" placeholder="Plano assinado"
+                                  value={item.plano || ''}
+                                  onChange={(e) => {
+                                    const newList = [...list];
+                                    newList[idx] = { ...newList[idx], plano: e.target.value };
+                                    setSiteConfig({ ...siteConfig, depoimentos_lista_json: JSON.stringify(newList) });
+                                  }}
+                                  className="p-1 px-2 border rounded-lg focus:outline-none text-[10px] text-blue-600 font-bold"
+                                />
+                                <textarea 
+                                  placeholder="Relato do cliente"
+                                  rows={2}
+                                  value={item.texto || ''}
+                                  onChange={(e) => {
+                                    const newList = [...list];
+                                    newList[idx] = { ...newList[idx], texto: e.target.value };
+                                    setSiteConfig({ ...siteConfig, depoimentos_lista_json: JSON.stringify(newList) });
+                                  }}
+                                  className="p-1 px-2 border rounded-lg text-[11px] focus:outline-none resize-none leading-tight"
+                                />
+                                <div className="flex items-center gap-2">
+                                  <input 
+                                    type="text" placeholder="Avatar URL"
+                                    value={item.avatar || ''}
+                                    onChange={(e) => {
+                                      const newList = [...list];
+                                      newList[idx] = { ...newList[idx], avatar: e.target.value };
+                                      setSiteConfig({ ...siteConfig, depoimentos_lista_json: JSON.stringify(newList) });
+                                    }}
+                                    className="p-1 px-2 border rounded-lg focus:outline-none text-[9px] flex-grow font-mono"
+                                  />
+                                  <div className="flex gap-1 text-amber-400">
+                                    {[1,2,3,4,5].map(s => (
+                                      <Star key={s} size={10} fill={item.estrelas >= s ? "currentColor" : "none"} />
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                            <button 
+                              type="button"
+                              onClick={() => {
+                                const newList = [...list, { nome: '', cargo: '', plano: '', texto: '', estrelas: 5, avatar: '' }];
+                                setSiteConfig({ ...siteConfig, depoimentos_lista_json: JSON.stringify(newList) });
+                              }}
+                              className="w-full py-3 border-2 border-dashed border-slate-200 rounded-2xl text-slate-400 hover:text-slate-600 hover:border-slate-400 text-[10px] font-bold flex items-center justify-center gap-1"
+                            >
+                              <Plus size={14} /> Incluir Nova Avaliação de Cliente
+                            </button>
+                          </>
+                        );
+                      })()}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1969,14 +2168,65 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
               </div>
 
               <div className="flex flex-col space-y-1 sm:col-span-2">
-                <label className="font-bold text-slate-400 uppercase text-[10px]">Links Rápidos (Slug: Label, uma por linha)</label>
-                <textarea 
-                  rows={4}
-                  value={siteConfig.footer_links_rapidos || ''}
-                  onChange={(e) => setSiteConfig({ ...siteConfig, footer_links_rapidos: e.target.value })}
-                  className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white font-mono"
-                  placeholder="Início: #inicio\nPlanos: #planos"
-                />
+                <label className="font-bold text-slate-400 uppercase text-[10px]">Links Rápidos</label>
+                <div className="space-y-2">
+                  {(() => {
+                    const lines = (siteConfig.footer_links_rapidos || '').split('\n').filter(Boolean);
+                    return (
+                      <>
+                        {lines.map((line, idx) => {
+                          const [label, slug] = line.split(':').map(s => s.trim());
+                          return (
+                            <div key={idx} className="flex items-center gap-2">
+                              <input 
+                                type="text"
+                                placeholder="Página (ex: Planos)"
+                                value={label || ''}
+                                onChange={(e) => {
+                                  const newLines = [...lines];
+                                  newLines[idx] = `${e.target.value}: ${slug || ''}`;
+                                  setSiteConfig({ ...siteConfig, footer_links_rapidos: newLines.join('\n') });
+                                }}
+                                className="p-2 border rounded-xl flex-grow focus:outline-slate-400"
+                              />
+                              <input 
+                                type="text"
+                                placeholder="URL (ex: #planos)"
+                                value={slug || ''}
+                                onChange={(e) => {
+                                  const newLines = [...lines];
+                                  newLines[idx] = `${label || ''}: ${e.target.value}`;
+                                  setSiteConfig({ ...siteConfig, footer_links_rapidos: newLines.join('\n') });
+                                }}
+                                className="p-2 border rounded-xl w-1/3 focus:outline-slate-400 font-mono"
+                              />
+                              <button 
+                                type="button"
+                                onClick={() => {
+                                  const newLines = lines.filter((_, i) => i !== idx);
+                                  setSiteConfig({ ...siteConfig, footer_links_rapidos: newLines.join('\n') });
+                                }}
+                                className="text-red-400 hover:text-red-600 p-2"
+                              >
+                                <X size={14} />
+                              </button>
+                            </div>
+                          );
+                        })}
+                        <button 
+                          type="button"
+                          onClick={() => {
+                            const newLines = [...lines, 'Novo Link: #'];
+                            setSiteConfig({ ...siteConfig, footer_links_rapidos: newLines.join('\n') });
+                          }}
+                          className="w-full py-2 border-2 border-dashed border-slate-200 rounded-xl text-slate-400 hover:text-slate-600 text-[10px] font-bold"
+                        >
+                          + Incluir Link no Rodapé
+                        </button>
+                      </>
+                    );
+                  })()}
+                </div>
               </div>
             </div>
 
@@ -2315,15 +2565,56 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
                   </div>
 
                   <div className="flex flex-col space-y-1 sm:col-span-2">
-                    <label className="font-bold text-slate-400 uppercase text-[10px]">Benefícios e Recursos inclusos (Um por linha)</label>
-                    <textarea 
-                      rows={4}
-                      value={Array.isArray(editingPlano.beneficios) ? editingPlano.beneficios.join('\n') : editingPlano.beneficios || ''}
-                      onChange={(e) => setEditingPlano({ ...editingPlano, beneficios: e.target.value })}
-                      className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white font-mono"
-                      placeholder="Instalação Premium Grátis&#10;Download ultraveloz&#10;Melhor suporte técnico"
-                    />
-                    <span className="text-[9px] text-slate-400 mt-1 leading-none">Insira uma vantagem ou recurso por linha.</span>
+                    <label className="font-bold text-slate-400 uppercase text-[10px]">Benefícios e Recursos (Vantagens do Plano)</label>
+                    <div className="space-y-2">
+                      {(() => {
+                        const benefits = Array.isArray(editingPlano.beneficios) 
+                          ? editingPlano.beneficios 
+                          : typeof editingPlano.beneficios === 'string'
+                            ? (editingPlano.beneficios as string).split('\n').filter(Boolean)
+                            : [];
+                        
+                        return (
+                          <>
+                            {benefits.map((benefit, idx) => (
+                              <div key={idx} className="flex items-center gap-2">
+                                <input 
+                                  type="text"
+                                  value={benefit}
+                                  onChange={(e) => {
+                                    const newBenefits = [...benefits];
+                                    newBenefits[idx] = e.target.value;
+                                    setEditingPlano({ ...editingPlano, beneficios: newBenefits });
+                                  }}
+                                  className="p-2 border rounded-xl flex-grow focus:outline-slate-400"
+                                  placeholder="Ex: Wi-Fi Gigabit Incluso"
+                                />
+                                <button 
+                                  type="button"
+                                  onClick={() => {
+                                    const newBenefits = benefits.filter((_, i) => i !== idx);
+                                    setEditingPlano({ ...editingPlano, beneficios: newBenefits });
+                                  }}
+                                  className="text-red-400 hover:text-red-600 p-2"
+                                >
+                                  <X size={14} />
+                                </button>
+                              </div>
+                            ))}
+                            <button 
+                              type="button"
+                              onClick={() => {
+                                const newBenefits = [...benefits, ''];
+                                setEditingPlano({ ...editingPlano, beneficios: newBenefits });
+                              }}
+                              className="w-full py-2 border-2 border-dashed border-slate-200 rounded-xl text-slate-400 hover:text-slate-600 text-[10px] font-bold"
+                            >
+                              + Incluir Novo Benefício no Plano
+                            </button>
+                          </>
+                        );
+                      })()}
+                    </div>
                   </div>
 
                   <div className="flex items-center space-x-6 sm:col-span-2 pt-1 font-bold">
