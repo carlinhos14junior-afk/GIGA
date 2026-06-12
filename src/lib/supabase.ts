@@ -1079,25 +1079,45 @@ export async function signIn(email: string, pass: string) {
 
   if (isRealSupabase && supabase) {
     try {
+      // 13. Verificar se o Supabase está lendo a tabela correta:
+      // select * from admin_users where email = emailDigitado limit 1
       const { data, error } = await supabase
         .from('admin_users')
         .select('*')
-        .eq('email', cleanEmail)
+        .ilike('email', cleanEmail)
         .maybeSingle();
 
-      if (error) throw error;
+      // 14. Exibir no console o resultado retornado pelo Supabase
+      console.log('Resultado retornado pelo Supabase para a query na tabela admin_users:', { data, error });
+
+      if (error) {
+        throw error;
+      }
 
       if (!data) {
+        // 9. Caso não encontre usuário
+        console.error('Usuário não encontrado');
         return { user: null, session: null, error: { message: 'Usuário ou senha inválidos' } };
       }
 
+      // 8.1 Usuário encontrado
+      console.log('Usuário encontrado');
+
       if (data.senha !== pass) {
+        // 10. Caso senha incorreta
+        console.error('Senha incorreta');
         return { user: null, session: null, error: { message: 'Usuário ou senha inválidos' } };
       }
+
+      // 8.2 Senha válida
+      console.log('Senha válida');
 
       if (data.ativo !== true) {
         return { user: null, session: null, error: { message: 'Seu acesso está inativo. Contrate o administrador.' } };
       }
+
+      // 8.3 Login realizado
+      console.log('Login realizado');
 
       const user = {
         id: data.id || 'supa-admin-user',
@@ -1107,7 +1127,17 @@ export async function signIn(email: string, pass: string) {
       };
 
       const session = { access_token: 'supabase-db-token-' + Date.now(), user };
+      
+      // 11. Após login válido
+      localStorage.setItem('admin_logged', 'true');
+      localStorage.setItem('admin_email', email);
       localStorage.setItem('giganet_session', JSON.stringify(session));
+
+      // Redirecionar para: /admin/dashboard
+      setTimeout(() => {
+        window.history.pushState({}, '', '/admin/dashboard');
+        window.dispatchEvent(new Event('popstate'));
+      }, 50);
 
       return { user, session, needsPasswordChange: pass === '123456', error: null };
     } catch (e: any) {
@@ -1115,13 +1145,25 @@ export async function signIn(email: string, pass: string) {
       const localAdmins = getLocal<AdminUser[]>('giganet_admin_users', []);
       const match = localAdmins.find(u => u.email.toLowerCase().trim() === cleanEmail);
       
-      if (!match || match.senha !== pass) {
+      if (!match) {
+        console.error('Usuário não encontrado');
         return { user: null, session: null, error: { message: 'Usuário ou senha inválidos' } };
       }
+
+      console.log('Usuário encontrado');
+
+      if (match.senha !== pass) {
+        console.error('Senha incorreta');
+        return { user: null, session: null, error: { message: 'Usuário ou senha inválidos' } };
+      }
+
+      console.log('Senha válida');
 
       if (match.ativo !== true) {
         return { user: null, session: null, error: { message: 'Seu acesso está inativo.' } };
       }
+
+      console.log('Login realizado');
 
       const user = {
         id: match.id || 'local-admin-user',
@@ -1131,7 +1173,15 @@ export async function signIn(email: string, pass: string) {
       };
 
       const session = { access_token: 'local-token-' + Date.now(), user };
+      
+      localStorage.setItem('admin_logged', 'true');
+      localStorage.setItem('admin_email', email);
       localStorage.setItem('giganet_session', JSON.stringify(session));
+
+      setTimeout(() => {
+        window.history.pushState({}, '', '/admin/dashboard');
+        window.dispatchEvent(new Event('popstate'));
+      }, 50);
 
       return { user, session, needsPasswordChange: pass === '123456', error: null };
     }
@@ -1139,13 +1189,25 @@ export async function signIn(email: string, pass: string) {
     const localAdmins = getLocal<AdminUser[]>('giganet_admin_users', []);
     const match = localAdmins.find(u => u.email.toLowerCase().trim() === cleanEmail);
     
-    if (!match || match.senha !== pass) {
+    if (!match) {
+      console.error('Usuário não encontrado');
       return { user: null, session: null, error: { message: 'Usuário ou senha inválidos' } };
     }
+
+    console.log('Usuário encontrado');
+
+    if (match.senha !== pass) {
+      console.error('Senha incorreta');
+      return { user: null, session: null, error: { message: 'Usuário ou senha inválidos' } };
+    }
+
+    console.log('Senha válida');
 
     if (match.ativo !== true) {
       return { user: null, session: null, error: { message: 'Seu acesso está inativo.' } };
     }
+
+    console.log('Login realizado');
 
     const user = {
       id: match.id || 'local-admin-user',
@@ -1155,7 +1217,15 @@ export async function signIn(email: string, pass: string) {
     };
 
     const session = { access_token: 'local-token-' + Date.now(), user };
+    
+    localStorage.setItem('admin_logged', 'true');
+    localStorage.setItem('admin_email', email);
     localStorage.setItem('giganet_session', JSON.stringify(session));
+
+    setTimeout(() => {
+      window.history.pushState({}, '', '/admin/dashboard');
+      window.dispatchEvent(new Event('popstate'));
+    }, 50);
 
     return { user, session, needsPasswordChange: pass === '123456', error: null };
   }
@@ -1226,6 +1296,13 @@ export async function resetPassword(email: string) {
 
 export async function signOut() {
   localStorage.removeItem('giganet_session');
+  localStorage.removeItem('admin_logged');
+  localStorage.removeItem('admin_email');
+  
+  setTimeout(() => {
+    window.history.pushState({}, '', '/');
+    window.dispatchEvent(new Event('popstate'));
+  }, 50);
 }
 
 export async function getCurrentUser() {

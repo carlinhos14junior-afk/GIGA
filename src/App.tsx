@@ -36,9 +36,58 @@ export default function App() {
     }
   };
 
+  // Route monitoring and protection
+  useEffect(() => {
+    const handleLocationChange = () => {
+      const path = window.location.pathname;
+      const isAdminLogged = localStorage.getItem('admin_logged') === 'true';
+
+      if (path === '/admin/dashboard') {
+        if (isAdminLogged) {
+          setView('admin');
+        } else {
+          // 12. Criar proteção de rota: Se admin_logged != true redirecionar para login
+          window.history.replaceState({}, '', '/');
+          setView('admin');
+        }
+      } else if (path === '/admin' || path.startsWith('/admin/')) {
+        if (isAdminLogged) {
+          window.history.replaceState({}, '', '/admin/dashboard');
+          setView('admin');
+        } else {
+          window.history.replaceState({}, '', '/');
+          setView('admin');
+        }
+      }
+    };
+
+    handleLocationChange();
+
+    window.addEventListener('popstate', handleLocationChange);
+    return () => {
+      window.removeEventListener('popstate', handleLocationChange);
+    };
+  }, []);
+
   useEffect(() => {
     loadData();
   }, []);
+
+  const handleNavigate = (newView: 'main' | 'admin') => {
+    const isAdminLogged = localStorage.getItem('admin_logged') === 'true';
+    if (newView === 'admin') {
+      if (isAdminLogged) {
+        window.history.pushState({}, '', '/admin/dashboard');
+      } else {
+        window.history.pushState({}, '', '/');
+      }
+    } else {
+      window.history.pushState({}, '', '/');
+    }
+    // Inform the listeners
+    window.dispatchEvent(new Event('popstate'));
+    setView(newView);
+  };
 
   if (loading) {
     return (
@@ -85,7 +134,7 @@ export default function App() {
       {/* Sticky Navigation Header */}
       <Header 
         config={activeConfig} 
-        onNavigate={(newView) => setView(newView)} 
+        onNavigate={handleNavigate} 
         currentView={view}
       />
 
@@ -129,7 +178,7 @@ export default function App() {
       </main>
 
       {/* Global Interactive footer */}
-      <Footer config={activeConfig} onNavigate={(newView) => setView(newView)} />
+      <Footer config={activeConfig} onNavigate={handleNavigate} />
 
       {/* Floating Action Buttons */}
       <div className="fixed bottom-6 right-6 z-50 flex flex-col items-center space-y-3">
