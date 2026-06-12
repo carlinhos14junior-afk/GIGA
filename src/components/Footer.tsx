@@ -137,12 +137,21 @@ export default function Footer({ config, onNavigate }: FooterProps) {
 
           {/* Links e Modais triggers */}
           <div className="flex items-center space-x-6">
-            <button
-              onClick={() => setActiveModal('privacy')}
-              className="text-slate-400 hover:text-white font-medium cursor-pointer transition-colors text-[11px]"
-            >
-              Política de Privacidade
-            </button>
+            <div className="flex flex-col items-center sm:items-start space-y-1">
+              <button
+                onClick={() => setActiveModal('privacy')}
+                className="text-slate-400 hover:text-white font-medium cursor-pointer transition-colors text-[11px]"
+              >
+                Política de Privacidade
+              </button>
+              <button
+                onClick={() => { onNavigate('admin'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                className="text-[#22C55E] hover:text-white font-black text-[9px] uppercase tracking-wider cursor-pointer transition-colors text-left"
+                title="Acesso Administrador"
+              >
+                Painel ADM
+              </button>
+            </div>
             
             <button
               onClick={() => setActiveModal('terms')}
@@ -157,16 +166,6 @@ export default function Footer({ config, onNavigate }: FooterProps) {
               className="p-2 bg-white/10 border border-white/10 rounded-lg text-slate-300 hover:text-white hover:border-white/20 transition-colors cursor-pointer"
             >
               <ArrowUp size={12} />
-            </button>
-
-            {/* Discreet Admin Link */}
-            <button
-              onClick={() => { onNavigate('admin'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-              style={{ color: '#6889B3', fontSize: '10px' }}
-              className="font-mono cursor-pointer transition-colors hover:text-white bg-transparent border-0 p-0 shadow-none outline-none leading-none select-none uppercase tracking-widest pl-2"
-              title="Portal de Administração"
-            >
-              Admin
             </button>
           </div>
 
