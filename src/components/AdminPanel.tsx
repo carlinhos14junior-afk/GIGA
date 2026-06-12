@@ -248,6 +248,7 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
         const updated = { ...siteConfig, site_status: status };
         await saveSiteConfig(updated);
         setSiteConfig(updated);
+        onConfigChange();
         showAlert(`Status do site alterado para "${status}" e salvo na nuvem!`);
       } catch (e) {
         showAlert('Falha ao sincronizar status na nuvem.', 'error');
@@ -301,6 +302,7 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
       const refreshed = await getBanners();
       setBannersList(refreshed);
       setEditingBanner(null);
+      onConfigChange();
       showAlert('Banner salvo com sucesso!');
     } catch (err) {
       showAlert('Erro ao registrar o banner.', 'error');
@@ -312,6 +314,7 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
       try {
         await deleteBanner(id);
         setBannersList(bannersList.filter(b => b.id !== id));
+        onConfigChange();
         showAlert('Banner deletado.');
       } catch (err) {
         showAlert('Erro ao deletar banner.', 'error');
@@ -425,6 +428,7 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
       const refreshed = await getCidadesCobertura();
       setCoberturaList(refreshed);
       setEditingCidade(null);
+      onConfigChange();
       showAlert('Cidade adicionada à malha de cobertura!');
     } catch (err) {
       showAlert('Não foi possível gravar a cidade.', 'error');
@@ -436,6 +440,7 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
       try {
         await deleteCidadeCobertura(id);
         setCoberturaList(coberturaList.filter(c => c.id !== id));
+        onConfigChange();
         showAlert('Cidade removida.');
       } catch (err) {
         showAlert('Erro ao apagar cidade.', 'error');
@@ -483,6 +488,7 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
         metaDesc.setAttribute('content', saved.meta_description);
       }
       
+      onConfigChange();
       showAlert('Metadados de SEO atualizados! (Os spiders do Google lerão estes dados informados)');
     } catch (err) {
       showAlert('Erro de SEO.', 'error');
