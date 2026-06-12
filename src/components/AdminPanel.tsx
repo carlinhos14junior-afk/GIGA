@@ -96,7 +96,9 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
   // Trigger helper Alert popup
   const showAlert = (text: string, type: 'success' | 'error' = 'success') => {
     setAlertMessage({ text, type });
-    setTimeout(() => setAlertMessage(null), 4000);
+    // Keep success messages a bit longer for visibility
+    const duration = type === 'success' ? 3500 : 5000;
+    setTimeout(() => setAlertMessage(null), duration);
   };
 
   // Check persistent session on load
@@ -985,15 +987,55 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
     <div className={`min-h-screen bg-slate-50 pt-28 pb-20 flex relative ${theme === 'dark' ? 'dark-theme-admin' : ''}`}>
       {darkThemeStyles}
       
-      {/* Dynamic Popups */}
+      {/* 🚀 Dynamic Success/Error Popup - More prominent for user feedback */}
       {alertMessage && (
-        <div className={`fixed top-24 right-6 z-50 p-4 rounded-xl border-l-4 shadow-xl flex items-center space-x-3 text-xs font-black animate-fade-in ${
-          alertMessage.type === 'success' 
-            ? 'bg-white border-l-emerald-500 text-slate-800' 
-            : 'bg-white border-l-red-500 text-red-850'
-        }`}>
-          {alertMessage.type === 'success' ? <CheckCircle size={16} className="text-emerald-500" /> : <X size={16} className="text-red-500" />}
-          <span>{alertMessage.text}</span>
+        <div className="fixed inset-0 flex items-center justify-center z-[100] px-4 pointer-events-none animate-in fade-in zoom-in duration-300">
+          <div className={`max-w-md w-full p-6 rounded-3xl shadow-2xl flex flex-col items-center text-center space-y-4 border pointer-events-auto ${
+            alertMessage.type === 'success' 
+              ? 'bg-white border-emerald-100' 
+              : 'bg-white border-red-100'
+          }`}>
+            <div className={`p-4 rounded-full ${
+              alertMessage.type === 'success' ? 'bg-emerald-50 text-emerald-500' : 'bg-red-50 text-red-500'
+            }`}>
+              {alertMessage.type === 'success' ? (
+                <div className="relative">
+                  <CheckCircle size={48} className="relative z-10" />
+                  <div className="absolute inset-0 bg-emerald-400/20 blur-xl rounded-full scale-150 animate-pulse"></div>
+                </div>
+              ) : (
+                <X size={48} />
+              )}
+            </div>
+            
+            <div>
+              <h3 className={`text-lg font-black uppercase tracking-tight ${
+                alertMessage.type === 'success' ? 'text-emerald-600' : 'text-red-600'
+              }`}>
+                {alertMessage.type === 'success' ? 'Sucesso Total!' : 'Ops! Ocorreu um Erro'}
+              </h3>
+              <p className="text-sm font-bold text-slate-700 mt-2 leading-relaxed">
+                {alertMessage.text}
+              </p>
+            </div>
+
+            {alertMessage.type === 'success' && (
+              <div className="text-[10px] uppercase font-black text-slate-400 bg-slate-50 px-4 py-1.5 rounded-full tracking-tighter">
+                O site já atualizou automaticamente
+              </div>
+            )}
+
+            <button 
+              onClick={() => setAlertMessage(null)}
+              className={`px-8 py-2.5 rounded-xl text-xs font-black transition-all ${
+                alertMessage.type === 'success' 
+                  ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-lg shadow-emerald-500/20' 
+                  : 'bg-red-500 hover:bg-red-600 text-white'
+              }`}
+            >
+              Entendido
+            </button>
+          </div>
         </div>
       )}
 
