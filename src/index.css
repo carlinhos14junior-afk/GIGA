@@ -1,17 +1,22 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=Satisfy&display=swap');
 @import "tailwindcss";
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Outfit", sans-serif;
   
-  --color-brand-dark-blue: #0F172A; /* Slate 900 - dark blue */
-  --color-brand-primary: #0284C7; /* Sky 600 - telecom blue */
-  --color-brand-primary-dark: #0369A1; /* Sky 700 */
-  --color-brand-green: #10B981; /* Emerald 500 - green accents */
-  --color-brand-green-hover: #059669; /* Emerald 600 */
-  --color-bg-light: #F8FAFC; /* Slate 50 - very light gray */
-  --color-border-light: #E2E8F0; /* Slate 200 */
+  --color-brand-blue-royal: #0A2F8F; /* Azul Royal */
+  --color-brand-red: #E30613; /* Vermelho */
+  --color-brand-cyan: #00A8FF; /* Azul Claro para detalhes */
+  --color-brand-gray-light: #F4F6F9; /* Cinza claro para fundos secundários */
+  
+  --color-brand-dark-blue: #0A1E54;
+  --color-brand-primary: #0A2F8F;
+  --color-brand-primary-dark: #072166;
+  --color-brand-green: #22C55E;
+  --color-brand-green-hover: #16A34A;
+  --color-bg-light: #FFFFFF;
+  --color-border-light: #E2E8F0;
 }
 
 @layer base {

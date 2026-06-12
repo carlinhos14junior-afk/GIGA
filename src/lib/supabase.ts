@@ -12,61 +12,45 @@ export const supabase = isRealSupabase ? createClient(supabaseUrl, supabaseAnonK
 
 // Initial seeds
 const DEFAULT_CONFIG: SiteConfig = {
-  nome_empresa: 'GIGANET',
+  nome_empresa: 'GIGATEL FIBER',
   logo_url: '',
-  whatsapp: '5511999999999',
-  telefone: '(11) 4004-9999',
-  email: 'contato@giganetfibra.com.br',
-  endereco: 'Av. Paulista, 1000 - Bela Vista, São Paulo - SP, CEP 01311-100',
-  instagram: 'giganet_fibra',
-  facebook: 'giganetfibra'
+  whatsapp: '5562999999999',
+  telefone: '(62) 3333-3333',
+  email: 'contato@gigatelfiber.com.br',
+  endereco: 'Rua das Conexões, 123, Centro - Goiânia/GO, CEP 74000-000',
+  instagram: 'gigatel_fiber',
+  facebook: 'gigatelfiber'
 };
 
 const DEFAULT_PLANOS: Plano[] = [
   {
     id: '1',
-    nome: 'Plano Smart 500 Mega',
+    nome: 'Plano 500 Mega',
     velocidade: '500 MEGA',
     preco: 99.90,
     beneficios: [
       '100% Fibra Óptica',
-      'Wi-Fi incluso',
+      'Wi-Fi Incluso',
       'Download ilimitado',
-      'Suporte técnico humanizado'
+      'Suporte Técnico',
+      'Ideal para sua casa'
     ],
     destaque: false,
     ativo: true
   },
   {
     id: '2',
-    nome: 'Plano Ultra 800 Mega',
+    nome: 'Plano 800 Mega',
     velocidade: '800 MEGA',
     preco: 129.90,
     beneficios: [
       '100% Fibra Óptica',
-      'Wi-Fi Dual Band incluso',
-      'Download e Upload de alta performance',
-      'Ideal para jogos, streaming e Home Office',
-      'Suporte prioritário 24h',
-      'Instalação rápida e gratuita'
+      'Wi-Fi Incluso',
+      'Download ilimitado',
+      'Suporte Técnico',
+      'Ideal para casa e empresa'
     ],
     destaque: true,
-    ativo: true
-  },
-  {
-    id: '3',
-    nome: 'Plano Premium 1 Giga',
-    velocidade: '1 GIGA',
-    preco: 199.90,
-    beneficios: [
-      '100% Fibra Óptica simétrica',
-      'Roteador Wi-Fi 6 topo de linha',
-      'Perfeito para múltiplos dispositivos',
-      'Altíssima taxa de upload',
-      'Suporte VIP com técnico dedicado',
-      'IP Fixo disponível'
-    ],
-    destaque: false,
     ativo: true
   }
 ];
@@ -74,8 +58,8 @@ const DEFAULT_PLANOS: Plano[] = [
 const DEFAULT_USUARIOS: Usuario[] = [
   {
     id: 'admin-user-id',
-    nome: 'Administrador Giganet',
-    email: 'admin@giganet.com.br',
+    nome: 'Administrador GIGATEL',
+    email: 'admin@gigatel.com.br',
     perfil: 'admin'
   }
 ];

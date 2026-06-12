@@ -1,4 +1,4 @@
-import { Check, Star, Zap, Info } from 'lucide-react';
+import { Check, Wifi, ArrowDown, Headphones, Home, Star, Zap } from 'lucide-react';
 import { SiteConfig, Plano } from '../types';
 
 interface PlanosProps {
@@ -10,32 +10,45 @@ export default function Planos({ config, planos }: PlanosProps) {
   const activePlanos = planos.filter(p => p.ativo);
 
   const getWhatsAppPlanoLink = (plano: Plano) => {
-    const text = `Olá! Quero consultar cobertura e assinar o plano ${plano.velocidade} (${plano.nome}) por R$ ${plano.preco.toFixed(2).replace('.', ',')}/mês na Giganet. Pode me ajudar?`;
+    const text = `Olá! Quero consultar cobertura e assinar o plano ${plano.velocidade} (${plano.nome}) por R$ ${plano.preco.toFixed(2).replace('.', ',')}/mês na GIGATEL FIBER. Pode me ajudar?`;
     return `https://wa.me/${config.whatsapp}?text=${encodeURIComponent(text)}`;
   };
 
+  // Helper to obtain corresponding benefit icons
+  const getBenefitIcon = (text: string) => {
+    const lower = text.toLowerCase();
+    if (lower.includes('wi-fi') || lower.includes('wifi')) {
+      return <Wifi size={14} />;
+    }
+    if (lower.includes('download') || lower.includes('ilimitado')) {
+      return <ArrowDown size={14} />;
+    }
+    if (lower.includes('suporte') || lower.includes('técnico')) {
+      return <Headphones size={14} />;
+    }
+    if (lower.includes('casa') || lower.includes('residên') || lower.includes('empresa')) {
+      return <Home size={14} />;
+    }
+    return <Check size={14} />;
+  };
+
   return (
-    <section id="planos" className="relative py-28 bg-slate-50 border-b border-slate-200">
+    <section id="planos" className="relative py-20 bg-[#F4F6F9] border-b border-slate-205">
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 z-10">
         
         {/* Section Heading */}
-        <div className="text-center max-w-3xl mx-auto mb-20 animate-fade-in">
-          <div className="inline-flex items-center space-x-1.5 bg-sky-50 border border-sky-200 px-3 py-1 rounded-full text-sky-700 font-bold text-xs uppercase mb-4 tracking-wider">
-            <Zap size={12} className="text-sky-600 fill-current" />
-            <span>Nossos Planos Fibra</span>
-          </div>
-
-          <h2 className="font-display font-extrabold text-3xl sm:text-4xl lg:text-5xl text-slate-900 mb-4 tracking-tight leading-tight">
-            Escolha o Plano Ideal para a sua Necessidade
+        <div className="text-center max-w-3xl mx-auto mb-14 animate-fade-in">
+          <h2 className="font-display font-black text-3xl sm:text-4xl lg:text-5xl text-[#0A2F8F] mb-3 tracking-tighter leading-tight uppercase">
+            PLANOS QUE CABEM <span className="text-[#E30613]">NO SEU MUNDO</span>
           </h2>
           
-          <p className="text-slate-600 text-base sm:text-lg">
-            Navegue com estabilidade garantida, sem pegadinhas ou limites de dados. Encontre planos perfeitos com Wi-Fi inteligente de última geração.
+          <p className="text-slate-600 text-sm sm:text-base font-medium">
+            Escolha o plano ideal e conecte-se ao que realmente importa.
           </p>
         </div>
 
         {/* Plans Container Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch max-w-6xl mx-auto pt-2">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch max-w-5xl mx-auto pt-2">
           {activePlanos.map((plano) => {
             const isFeatured = plano.destaque;
             
@@ -43,122 +56,95 @@ export default function Planos({ config, planos }: PlanosProps) {
               <div
                 id={`plano-card-${plano.id}`}
                 key={plano.id}
-                className={`relative flex flex-col justify-between rounded-3xl transition-all duration-300 ${
+                className={`relative flex flex-col justify-between rounded-3xl transition-all duration-300 bg-white ${
                   isFeatured
-                    ? 'bg-white border-2 border-slate-900 shadow-xl md:scale-105 z-10'
-                    : 'bg-white border border-slate-200 hover:border-slate-350 shadow-sm hover:translate-y-[-4px]'
-                } p-8`}
+                    ? 'border-2 border-[#E30613] shadow-lg lg:scale-103 z-10'
+                    : 'border border-slate-200/90 shadow-sm hover:translate-y-[-3px] hover:border-brand-blue-royal/30'
+                } p-6 sm:p-8`}
               >
-                {/* Popular Highlight Badge */}
+                {/* Popular Highlight Tag/Banner */}
                 {isFeatured && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-4 py-1 rounded-full text-xs font-bold tracking-wider flex items-center space-x-1 shadow-md">
-                    <Star size={12} fill="#eab308" className="text-yellow-400 fill-current" />
-                    <span>Plano Mais Vendido</span>
+                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-[#E30613] text-white px-8 py-1 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center space-x-1 shadow-md">
+                    <Star size={10} className="text-white fill-current" />
+                    <span>MAIS VENDIDO</span>
                   </div>
                 )}
 
-                <div>
-                  {/* Card Title & Speed */}
-                  <div className="flex justify-between items-start mb-6">
+                {/* Split internal layout inside each card on desktop */}
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch h-full">
+                  
+                  {/* Left block: speed details and custom bullets checkmarks */}
+                  <div className="md:col-span-7 flex flex-col justify-between pr-0 md:pr-4">
                     <div>
-                      <h3 className="text-sm font-bold text-slate-500 uppercase tracking-widest">{plano.nome}</h3>
-                      <p className="text-3xl sm:text-4xl font-display font-black tracking-tight text-slate-900 mt-1">
+                      {/* Speed */}
+                      <p className={`text-4xl sm:text-5xl font-display font-black tracking-tight mb-6 mt-1 uppercase ${
+                        isFeatured ? 'text-[#E30613]' : 'text-[#0A2F8F]'
+                      }`}>
                         {plano.velocidade}
                       </p>
-                    </div>
-                    <div className={`p-2 rounded-xl ${isFeatured ? 'bg-sky-50 text-sky-600' : 'bg-slate-100 text-slate-600'}`}>
-                      <Zap size={22} className="fill-current" />
+
+                      {/* Customized Checklist */}
+                      <ul className="space-y-4">
+                        {plano.beneficios && plano.beneficios.map((ben, idx) => (
+                          <li key={idx} className="flex items-center space-x-3 text-xs text-slate-700">
+                            <div className={`shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-white ${
+                              isFeatured ? 'bg-[#E30613]' : 'bg-[#0A2F8F]'
+                            }`}>
+                              {getBenefitIcon(ben)}
+                            </div>
+                            <span className="font-semibold text-slate-800">{ben}</span>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
                   </div>
 
-                  {/* Pricing block */}
-                  <div className="mb-6 flex items-baseline border-b border-slate-100 pb-6">
-                    <span className="text-slate-600 text-sm font-bold mr-1">R$</span>
-                    <span className="text-slate-900 text-5xl font-display font-black tracking-tighter">
-                      {Math.floor(plano.preco)}
-                    </span>
-                    <span className="text-slate-950 text-2xl font-display font-bold">
-                      ,{((plano.preco % 1) * 100).toFixed(0).padStart(2, '0')}
-                    </span>
-                    <span className="text-slate-500 text-xs ml-1.5 uppercase font-bold tracking-wider">/ mês</span>
+                  {/* Right block: standalone price and large CTA button */}
+                  <div className="md:col-span-5 flex flex-col justify-between items-center md:items-stretch border-t md:border-t-0 md:border-l border-slate-100 pt-6 md:pt-0 md:pl-6 text-center md:text-left h-full">
+                    
+                    {/* Price structure */}
+                    <div className="mb-4">
+                      <p className="text-[10px] font-bold text-slate-450 uppercase tracking-widest text-[#0A2F8F] mb-1">
+                        por apenas
+                      </p>
+                      
+                      <div className="flex items-baseline justify-center md:justify-start">
+                        <span className="text-slate-800 text-xs font-bold mr-1 self-start mt-2">R$</span>
+                        <span className="text-slate-900 text-6xl font-display font-black tracking-tighter">
+                          {Math.floor(plano.preco)}
+                        </span>
+                        
+                        <div className="flex flex-col ml-1 align-bottom self-end pb-1.5 leading-none">
+                          <span className="text-slate-900 text-lg font-display font-bold">
+                            ,{((plano.preco % 1) * 105).toFixed(0).padStart(2, '0').substring(0, 2)}
+                          </span>
+                          <span className="text-slate-500 text-[10px] uppercase font-bold tracking-wider mt-0.5">/mês</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Standalone card submit button */}
+                    <a
+                      href={getWhatsAppPlanoLink(plano)}
+                      target="_blank"
+                      referrerPolicy="no-referrer"
+                      rel="noopener noreferrer"
+                      className={`w-full py-4 px-4 rounded-lg font-black uppercase text-xs tracking-wider text-center transition-all duration-200 shadow shadow-sm active:scale-97 block ${
+                        isFeatured
+                          ? 'bg-[#E30613] hover:bg-opacity-92 text-white'
+                          : 'bg-[#0A2F8F] hover:bg-opacity-92 text-white'
+                      }`}
+                    >
+                      QUERO ESSE PLANO
+                    </a>
+
                   </div>
 
-                  {/* Core checklist */}
-                  <ul className="space-y-3.5 mb-8">
-                    <li className="flex items-center space-x-3 text-sm text-slate-700">
-                      <div className="min-w-5 h-5 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                        <Check size={12} className="stroke-[3]" />
-                      </div>
-                      <span className="font-bold text-slate-900">Tecnologia 100% Fibra Óptica</span>
-                    </li>
-                    <li className="flex items-center space-x-3 text-sm text-slate-700">
-                      <div className="min-w-5 h-5 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                        <Check size={12} className="stroke-[3]" />
-                      </div>
-                      <span className="text-slate-700">Roteador Wi-Fi Incluso</span>
-                    </li>
-                    <li className="flex items-center space-x-3 text-sm text-slate-700">
-                      <div className="min-w-5 h-5 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                        <Check size={12} className="stroke-[3]" />
-                      </div>
-                      <span className="text-slate-700">Download Ilimitado, Sem Franquia</span>
-                    </li>
-                    <li className="flex items-center space-x-3 text-sm text-slate-700">
-                      <div className="min-w-5 h-5 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                        <Check size={12} className="stroke-[3]" />
-                      </div>
-                      <span className="text-slate-700">Instalação Facilitada / Gratuita</span>
-                    </li>
-
-                    {/* Custom database benefits */}
-                    {plano.beneficios && plano.beneficios.map((b, idx) => {
-                      const lowercaseB = b.toLowerCase();
-                      if (
-                        lowercaseB.includes('100% fibra') || 
-                        lowercaseB.includes('wi-fi incluso') || 
-                        lowercaseB.includes('download ilimitado') || 
-                        lowercaseB.includes('suporte técnico')
-                      ) return null;
-
-                      return (
-                        <li key={idx} className="flex items-center space-x-3 text-sm text-slate-700">
-                          <div className="min-w-5 h-5 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                            <Check size={12} className="stroke-[3]" />
-                          </div>
-                          <span>{b}</span>
-                        </li>
-                      );
-                    })}
-                  </ul>
                 </div>
-
-                {/* Submit button - Emerald green only inside button action! */}
-                <a
-                  href={getWhatsAppPlanoLink(plano)}
-                  target="_blank"
-                  referrerPolicy="no-referrer"
-                  rel="noopener noreferrer"
-                  className={`w-full py-4 px-4 rounded-xl font-bold flex items-center justify-center space-x-2 transition-all duration-200 text-sm shadow-sm ${
-                    isFeatured
-                      ? 'bg-emerald-500 hover:bg-emerald-605 text-white hover:scale-101 shadow-emerald-500/15'
-                      : 'bg-slate-900 hover:bg-slate-800 text-white hover:scale-101'
-                  }`}
-                >
-                  <span>Quero assinar</span>
-                  <Zap size={14} className="text-green-200 fill-current" />
-                </a>
 
               </div>
             );
           })}
-        </div>
-
-        {/* Small installation tip bar */}
-        <div className="flex items-center justify-center space-x-2.5 mt-20 max-w-xl mx-auto bg-slate-100/70 border border-slate-200 rounded-2xl p-4 text-center">
-          <Info size={16} className="text-sky-600 shrink-0" />
-          <p className="text-xs text-slate-500">
-            * Sujeito à análise de viabilidade técnica. Equipamentos em regime de comodato. Suporte 100% humanizado no WhatsApp com equipe local.
-          </p>
         </div>
 
       </div>

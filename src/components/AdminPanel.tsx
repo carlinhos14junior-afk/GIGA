@@ -12,6 +12,7 @@ import {
   deleteUsuario, uploadFile, changePassword
 } from '../lib/supabase';
 import { SiteConfig, Plano, Lead, Usuario } from '../types';
+import Logo from './Logo';
 
 interface AdminPanelProps {
   onConfigChange: () => void;
@@ -21,7 +22,7 @@ interface AdminPanelProps {
 export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPanelProps) {
   const [user, setUser] = useState<any>(null);
   const [authLoading, setAuthLoading] = useState(true);
-  const [loginEmail, setLoginEmail] = useState('admin@giganet.com.br');
+  const [loginEmail, setLoginEmail] = useState('admin@gigatel.com.br');
   const [loginPassword, setLoginPassword] = useState('Admin@123');
   const [loginError, setLoginError] = useState('');
   const [loginLoading, setLoginLoading] = useState(false);
@@ -82,8 +83,8 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
         setUser(u);
         if (u) {
           // Check if admin is still logging in with default password
-          const initialPwdChanged = localStorage.getItem('giganet_simulated_password_changed') === 'true';
-          if (u.email === 'admin@giganet.com.br' && !initialPwdChanged) {
+          const initialPwdChanged = localStorage.getItem('gigatel_simulated_password_changed') === 'true';
+          if (u.email === 'admin@gigatel.com.br' && !initialPwdChanged) {
             setMustChangePassword(true);
           } else {
             loadDashboardData();
@@ -132,8 +133,8 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
         setLoginError(error.message);
       } else {
         // Double check forced password change on first login containing default "Admin@123"
-        const initialPwdChanged = localStorage.getItem('giganet_simulated_password_changed') === 'true';
-        if ((loginEmail === 'admin@giganet.com.br' && loginPassword === 'Admin@123') || (!isRealSupabase && loginEmail === 'admin@giganet.com.br' && !initialPwdChanged)) {
+        const initialPwdChanged = localStorage.getItem('gigatel_simulated_password_changed') === 'true';
+        if ((loginEmail === 'admin@gigatel.com.br' && loginPassword === 'Admin@123') || (!isRealSupabase && loginEmail === 'admin@gigatel.com.br' && !initialPwdChanged)) {
           setUser(loggedIn);
           setMustChangePassword(true);
         } else {
@@ -186,7 +187,7 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
     await signOut();
     setUser(null);
     setMustChangePassword(false);
-    setLoginEmail('admin@giganet.com.br');
+    setLoginEmail('admin@gigatel.com.br');
     setLoginPassword('Admin@123');
   };
 
@@ -374,7 +375,7 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
       const publicUrl = await uploadFile('banners', fileName, file);
       
       // Update local storage configuration backup for mock resolution, if applicable!
-      localStorage.setItem('giganet_banner_url', publicUrl);
+      localStorage.setItem('gigatel_banner_url', publicUrl);
       alert('Banner atualizado com sucesso no Supabase Bucket! Você pode consumi-lo em apresentações de fundo.');
     } catch (err) {
       alert('Erro ao subir banner.');
@@ -411,7 +412,7 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
     
     const link = document.createElement('a');
     link.setAttribute('href', url);
-    link.setAttribute('download', `leads_giganet_${new Date().toISOString().substring(0, 10)}.csv`);
+    link.setAttribute('download', `leads_gigatel_${new Date().toISOString().substring(0, 10)}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -523,12 +524,11 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
         
         <div className="relative max-w-md w-full bg-white border border-slate-200 p-8 sm:p-10 rounded-3xl shadow-xl overflow-hidden">
           
-          <div className="text-center mb-8">
-            <div className="inline-flex p-3.5 rounded-2xl bg-slate-50 text-slate-800 mb-3 border border-slate-100">
-              <Lock size={24} className="text-slate-900" />
-            </div>
-            <h2 className="font-display font-extrabold text-2xl text-slate-900 uppercase tracking-tight">Giganet Admin</h2>
-            <p className="text-xs text-slate-500 mt-1.5 uppercase tracking-wide">Área Administrativa do Provedor</p>
+          <div className="text-center mb-8 flex flex-col items-center">
+            <Logo size="lg" className="mb-4" />
+            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest bg-slate-50 border border-slate-100 px-3 py-1 rounded-full">
+              Portal do Administrador
+            </p>
           </div>
 
           {loginError && (
@@ -544,7 +544,7 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
                 type="email"
                 value={loginEmail}
                 onChange={(e) => setLoginEmail(e.target.value)}
-                placeholder="Ex e-mail ou admin@giganet.com.br"
+                placeholder="Ex e-mail ou admin@gigatel.com.br"
                 required
                 className="w-full bg-white border border-slate-200 hover:border-slate-300 focus:border-slate-400 focus:outline-none rounded-xl py-3 px-4 text-sm text-slate-900"
               />
@@ -576,12 +576,12 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
           <div className="mt-8 pt-6 border-t border-slate-100 text-center">
             <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl">
               <div className="flex items-center space-x-1.5 justify-center mb-1 text-slate-600">
-                <BadgeInfo size={14} className="text-emerald-500" />
+                <BadgeInfo size={14} className="text-[#0A2F8F]" />
                 <span className="text-[10px] font-semibold uppercase tracking-wider">AMBIENTE EM PRODUÇÃO</span>
               </div>
               <p className="text-[10px] text-slate-500 leading-relaxed text-center">
                 Para testar agora em simulação, use o login homologado:<br />
-                E-mail: <strong className="text-slate-900">admin@giganet.com.br</strong><br />
+                E-mail: <strong className="text-slate-900">admin@gigatel.com.br</strong><br />
                 Senha: <strong className="text-slate-900">Admin@123</strong>
               </p>
             </div>
@@ -604,12 +604,11 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
       >
         <div>
           {/* Logo brand */}
-          <div className="flex items-center space-x-3 mb-8 px-2 pb-4 border-b border-slate-100">
-            <div className="w-8 h-8 rounded-lg bg-slate-900 text-white flex items-center justify-center font-black">
-              G
-            </div>
-            {!isSidebarCollapsed && (
-              <span className="font-display font-black text-sm text-slate-900 uppercase">Giganet Admin</span>
+          <div className="flex items-center mb-8 px-1.5 pb-4 border-b border-slate-100 overflow-hidden">
+            {isSidebarCollapsed ? (
+              <Logo size="sm" variant="icon" />
+            ) : (
+              <Logo size="sm" />
             )}
           </div>
 

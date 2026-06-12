@@ -10,6 +10,7 @@ import FAQ from './components/FAQ';
 import Contato from './components/Contato';
 import Footer from './components/Footer';
 import AdminPanel from './components/AdminPanel';
+import Logo from './components/Logo';
 import { getSiteConfig, getPlanos } from './lib/supabase';
 import { SiteConfig, Plano } from './types';
 
@@ -40,14 +41,14 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-8">
         <div className="flex flex-col items-center">
-          {/* Elegant modern GIGANET loader */}
-          <div className="relative flex items-center justify-center w-16 h-16 rounded-2xl bg-slate-900 shadow-md overflow-hidden animate-pulse">
-            <span className="font-display font-black text-white text-3xl">G</span>
+          {/* Elegant modern GIGATEL FIBER loader */}
+          <div className="relative transform hover:scale-105 transition-transform duration-300">
+            <Logo size="lg" className="animate-pulse" />
           </div>
-          <p className="text-xs font-bold text-slate-800 tracking-widest mt-6 uppercase animate-pulse">
-            Giganet Fibra • Carregando...
+          <p className="text-[11px] font-bold text-slate-400 tracking-widest mt-8 uppercase animate-pulse font-mono">
+            GIGATEL FIBER • Conectando você ao mundo...
           </p>
         </div>
       </div>
@@ -56,14 +57,14 @@ export default function App() {
 
   // Backup fallback config if none somehow loaded
   const activeConfig = siteConfig || {
-    nome_empresa: 'GIGANET',
+    nome_empresa: 'GIGATEL FIBER',
     logo_url: '',
     whatsapp: '5511999999999',
     telefone: '(11) 4004-9999',
-    email: 'contato@giganetfibra.com.br',
+    email: 'contato@gigatelfibra.com.br',
     endereco: 'Av. Paulista, 1000 - Bela Vista - SP, CEP 01311-100',
-    instagram: 'giganet_fibra',
-    facebook: 'giganetfibra'
+    instagram: 'gigatel_fibra',
+    facebook: 'gigatelfibra'
   };
 
   return (

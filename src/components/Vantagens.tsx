@@ -1,61 +1,57 @@
-import { Zap, HelpCircle, UserCheck, Wifi, Building2, Tv, ShieldCheck } from 'lucide-react';
+import { Zap, Gamepad, Unlock, Wifi, Headphones, CheckCircle } from 'lucide-react';
 
 export default function Vantagens() {
   const vantagens = [
     {
-      titulo: 'Fibra Óptica 100% Pura',
-      descricao: 'Velocidade e transmissão simétrica completa até dentro do roteador, reduzindo oscilações e quedas bruscas.',
+      titulo: 'Fibra Óptica de Verdade',
+      descricao: '100% fibra ultra estável até dentro da sua residência, reduzindo oscilações e quedas bruscas.',
       icon: Zap,
-      cor: 'text-sky-600 bg-sky-50'
+      cor: 'text-[#0A2F8F] bg-blue-50'
     },
     {
-      titulo: 'Instalação Ágil',
+      titulo: 'Sem Limite de Franquia',
+      descricao: 'Navegue de forma ilimitada sem qualquer tipo de redução de velocidade ou cobranças surpresas.',
+      icon: Unlock,
+      cor: 'text-[#E30613] bg-red-50'
+    },
+    {
+      titulo: 'Wi-Fi Inteligente Incluso',
+      descricao: 'Seu roteador Dual Band de última geração incluso gratuitamente em comodato nos planos ativos.',
+      icon: Wifi,
+      cor: 'text-[#0A2F8F] bg-blue-50'
+    },
+    {
+      titulo: 'Instalação Agilizada',
       descricao: 'Processo rápido ideal para você não perder tempo. Agendamento facilitado e técnicos qualificados.',
-      icon: ShieldCheck,
-      cor: 'text-emerald-600 bg-emerald-50'
+      icon: CheckCircle,
+      cor: 'text-[#E30613] bg-red-50'
     },
     {
       titulo: 'Suporte Humanizado',
-      descricao: 'Sem robôs chatos. Atendimento rápido por WhatsApp com técnicos locais prontos para solucionar seu caso.',
-      icon: UserCheck,
-      cor: 'text-pink-600 bg-pink-50'
+      descricao: 'Atendimento extremamente rápido pelo WhatsApp com nossa equipe local sem robôs chatos.',
+      icon: Headphones,
+      cor: 'text-[#0A2F8F] bg-blue-50'
     },
     {
-      titulo: 'Wi-Fi Dual Band de Alta Performance',
-      descricao: 'Equipamento inteligente Dual Band que equilibra conexões nos canais 2.4Ghz e 5Ghz de forma automática.',
-      icon: Wifi,
-      cor: 'text-indigo-600 bg-indigo-50'
-    },
-    {
-      titulo: 'Residencial & Corporativo',
-      descricao: 'Sinal otimizado sob medida seja para conectar as TVs da sua família ou manter redes de empresas rodando sem quedas.',
-      icon: Building2,
-      cor: 'text-amber-600 bg-amber-50'
-    },
-    {
-      titulo: 'Ideal para Games & Streaming',
-      descricao: 'Latência baixíssima (Ping ideal) perfeito para streaming em 4K e jogos competitivos em tempo real.',
-      icon: Tv,
-      cor: 'text-violet-600 bg-violet-50'
+      titulo: 'Ideal para Jogos & Streaming',
+      descricao: 'Velocidade e conectividade com latência mínima (baixo ping) perfeito para seu 4K e games competitivos.',
+      icon: Gamepad,
+      cor: 'text-[#E30613] bg-red-50'
     },
   ];
 
   return (
-    <section id="vantagens" className="relative py-28 bg-[#F8FAFC] border-b border-slate-200">
+    <section id="vantagens" className="relative py-20 bg-white border-b border-slate-205">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Section Title */}
-        <div className="text-center max-w-3xl mx-auto mb-20">
-          <div className="inline-flex items-center space-x-1 border border-slate-200 bg-white px-3 py-1 rounded-full text-slate-500 font-bold text-xs uppercase mb-4 tracking-wider">
-            <span>Diferenciais Giganet</span>
-          </div>
-
-          <h2 className="font-display font-extrabold text-3xl sm:text-4xl text-slate-900 tracking-tight mb-4 leading-tight">
-            Por que escolher a internet Fibra da Giganet?
+        <div className="text-center max-w-3xl mx-auto mb-14">
+          <h2 className="font-display font-black text-3xl sm:text-4xl text-[#0A2F8F] tracking-tighter mb-3 uppercase">
+            POR QUE ESCOLHER A <span className="text-[#E30613]">GIGATEL FIBER</span>?
           </h2>
 
-          <p className="text-slate-600 text-sm sm:text-base">
-            Combinamos uma infraestrutura de telecom moderna com suporte ao cliente dedicado e ágil perto de você.
+          <p className="text-slate-650 text-sm sm:text-base font-medium">
+            Combinamos uma infraestrutura de telecom moderna com suporte ao cliente dedicado e ágil bem pertinho de você.
           </p>
         </div>
 
@@ -67,19 +63,19 @@ export default function Vantagens() {
             return (
               <div
                 key={idx}
-                className="group relative rounded-3xl bg-white border border-slate-200/80 p-8 shadow-sm hover:shadow-md hover:border-slate-350 transition-all duration-200"
+                className="group relative rounded-2xl bg-[#F4F6F9] border border-slate-200 p-7 shadow-sm hover:shadow-md hover:bg-white transition-all duration-200"
               >
                 {/* Card Icon */}
-                <div className={`p-3 rounded-2xl w-14 h-14 flex items-center justify-center mb-6 ${item.cor}`}>
-                  <IconComponent size={24} />
+                <div className={`p-3 rounded-xl w-12 h-12 flex items-center justify-center mb-5 ${item.cor}`}>
+                  <IconComponent size={22} />
                 </div>
 
                 {/* Content */}
-                <h3 className="font-display font-bold text-lg text-slate-905 mb-3">
+                <h3 className="font-display font-bold text-base text-slate-900 mb-2">
                   {item.titulo}
                 </h3>
                 
-                <p className="text-slate-500 text-sm leading-relaxed">
+                <p className="text-slate-500 text-xs sm:text-sm leading-relaxed font-medium">
                   {item.descricao}
                 </p>
               </div>

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Mail, Phone, Landmark, Lock, FileText, ArrowUp, MapPin } from 'lucide-react';
 import { SiteConfig } from '../types';
+import Logo from './Logo';
 
 interface FooterProps {
   config: SiteConfig;
@@ -27,15 +28,10 @@ export default function Footer({ config, onNavigate }: FooterProps) {
           
           {/* Logo / Brand block */}
           <div className="flex flex-col space-y-4">
-            <div className="flex items-center space-x-2">
-              <div className="relative flex items-center justify-center w-8 h-8 rounded-lg bg-slate-900 font-display font-black text-white text-base">
-                G
-              </div>
-              <span className="font-display font-black text-xl text-slate-900 tracking-wider uppercase">{config.nome_empresa}</span>
-            </div>
+            <Logo size="md" />
             
-            <p className="text-xs text-slate-500 leading-relaxed">
-              Alta performance, suporte humanizado de verdade e fibra óptica pura de ponta a ponta para conectar você ao que mais importa.
+            <p className="text-xs text-slate-550 leading-relaxed font-medium">
+              Conexões ultrarrápidas, 100% fibra óptica de ponta a ponta e suporte humanizado qualificado para você navegar, jogar e assistir sem travamentos.
             </p>
 
             {/* Social channels */}
@@ -106,12 +102,12 @@ export default function Footer({ config, onNavigate }: FooterProps) {
 
           {/* Corporate hours summary */}
           <div>
-            <h4 className="font-display font-bold text-xs text-slate-900 uppercase tracking-wider mb-4">Giganet Provedor</h4>
+            <h4 className="font-display font-bold text-xs text-slate-900 uppercase tracking-wider mb-4">GIGATEL FIBER</h4>
             <p className="text-xs text-slate-500 leading-relaxed mb-2">
-              Sinal estável sem franquias de download para casas, negócios e redes corporativas sob medida.
+              Sinal estável sem franquias de download para residências, comércios e corporações sob medida.
             </p>
             <p className="text-[11px] text-slate-400 font-mono">
-              Suporte das 08h às 20h pelo WhatsApp Comercial.
+              Suporte das 08h às 21h pelo WhatsApp Comercial GIGATEL.
             </p>
           </div>
 
@@ -121,22 +117,22 @@ export default function Footer({ config, onNavigate }: FooterProps) {
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
           
           <div className="text-center sm:text-left text-slate-400">
-            <p>© {currentYear} {config.nome_empresa}. Todos os direitos reservados.</p>
-            <p className="mt-1 font-mono text-[10px]/none text-slate-400">CNPJ: 12.345.678/0001-99</p>
+            <p>© {currentYear} GIGATEL FIBER. Todos os direitos reservados.</p>
+            <p className="mt-1 font-mono text-[10px]/none text-slate-450">CNPJ: 12.345.678/0001-99</p>
           </div>
 
           {/* Links e Modais triggers */}
           <div className="flex items-center space-x-6">
             <button
               onClick={() => setActiveModal('privacy')}
-              className="text-slate-450 hover:text-slate-900 font-medium cursor-pointer transition-colors text-[11px] text-slate-400"
+              className="text-slate-400 hover:text-slate-700 font-medium cursor-pointer transition-colors text-[11px]"
             >
               Política de Privacidade
             </button>
             
             <button
               onClick={() => setActiveModal('terms')}
-              className="text-slate-450 hover:text-slate-900 font-medium cursor-pointer transition-colors text-[11px] text-slate-400"
+              className="text-slate-400 hover:text-slate-700 font-medium cursor-pointer transition-colors text-[11px]"
             >
               Termos de Uso
             </button>
@@ -144,7 +140,7 @@ export default function Footer({ config, onNavigate }: FooterProps) {
             <button
               onClick={handleScrollToTop}
               title="Voltar ao Topo"
-              className="p-2 bg-white border border-slate-200 rounded-lg text-slate-500 hover:text-slate-950 hover:border-slate-350 transition-colors"
+              className="p-2 bg-white border border-slate-205 rounded-lg text-slate-500 hover:text-slate-950 hover:border-slate-350 transition-colors"
             >
               <ArrowUp size={12} />
             </button>
@@ -152,7 +148,8 @@ export default function Footer({ config, onNavigate }: FooterProps) {
             {/* VERY DISCREET ADMIN LINK (requested: Colocar o link “Admin” bem discreto no rodapé, no canto inferior direito. Texto pequeno, quase imperceptível. Cor cinza claro. Sem botão chamativo. Também permitir acesso direto pela URL: /admin) */}
             <button
               onClick={() => { onNavigate('admin'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-              className="text-slate-200/50 hover:text-slate-300 font-mono text-[9px]/tight cursor-pointer uppercase transition-all tracking-widest pl-2"
+              style={{ color: '#BDBDBD', fontSize: '10px' }}
+              className="font-mono cursor-pointer transition-colors hover:text-slate-500 bg-transparent border-0 p-0 shadow-none outline-none leading-none select-none uppercase tracking-widest pl-2"
               title="Portal de Administração"
             >
               Admin

@@ -48,15 +48,15 @@ export default function Contato({ config }: ContatoProps) {
             {/* Left Column: text statement and details */}
             <div className="lg:col-span-6 flex flex-col justify-between">
               <div>
-                <div className="inline-flex items-center space-x-1 border border-slate-200 bg-white px-3 py-1.5 rounded-full text-slate-500 font-bold text-xs uppercase mb-4 tracking-wider">
-                  <span>Atendimento Central</span>
+                <div className="inline-flex items-center space-x-1 border border-red-200 bg-red-50 text-[#E30613] px-3 py-1.5 rounded-full font-bold text-xs uppercase mb-4 tracking-wider">
+                  <span>ATENDIMENTO CENTRAL</span>
                 </div>
 
-                <h2 className="font-display font-extrabold text-3xl sm:text-4xl text-slate-900 tracking-tight mb-4 leading-tight">
-                  Fale com um Especialista da Giganet agora mesmo
+                <h2 className="font-display font-black text-3xl sm:text-4xl text-[#0A2F8F] tracking-tighter mb-4 leading-tight uppercase">
+                  FALE COM UM ESPECIALISTA DA <span className="text-[#E30613]">GIGATEL FIBER</span> AGORA MESMO
                 </h2>
 
-                <p className="text-slate-600 text-sm sm:text-base leading-relaxed mb-8 max-w-xl">
+                <p className="text-slate-600 text-sm sm:text-base leading-relaxed mb-8 max-w-xl font-medium">
                   Estamos à sua inteira disposição para tirar dúvidas, realizar consultas de viabilidade avançada ou agendar a instalação da sua internet fibra óptica. Pode contar conosco!
                 </p>
 
