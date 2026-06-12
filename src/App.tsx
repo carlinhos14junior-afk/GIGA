@@ -183,7 +183,7 @@ export default function App() {
             <CoberturaForm />
 
             {/* 4. Core corporate differential advantages */}
-            <Vantagens />
+            <Vantagens config={activeConfig} />
 
             {/* 5. Company description block */}
             <SobreNos config={activeConfig} />

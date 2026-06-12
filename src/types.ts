@@ -18,6 +18,49 @@ export interface SiteConfig {
   numero?: string;
   horario_funcionamento?: string;
   created_at?: string;
+
+  // Hero and general site texts
+  hero_titulo?: string;
+  hero_subtitulo?: string;
+  hero_texto_botao?: string;
+  hero_link_botao?: string;
+  
+  // Advantages / Benefits Section
+  vantagens_titulo?: string;
+  vantagens_subtitulo?: string;
+  vantagens_lista_json?: string;
+  
+  // Sobre Nós
+  sobre_titulo_tag?: string;
+  sobre_titulo?: string;
+  sobre_destaque?: string;
+  sobre_descricao?: string;
+  sobre_proposito_titulo?: string;
+  sobre_proposito_desc?: string;
+  sobre_valor_titulo?: string;
+  sobre_valor_desc?: string;
+  sobre_imagem_url?: string;
+  
+  // Contato
+  contato_titulo?: string;
+  contato_subtitulo?: string;
+  contato_descricao?: string;
+  contato_legal?: string;
+  
+  // Footer custom edit fields (Rodapé aba)
+  footer_titulo?: string;
+  footer_descricao?: string;
+  footer_endereco?: string;
+  footer_telefone?: string;
+  footer_whatsapp?: string;
+  footer_email?: string;
+  footer_instagram?: string;
+  footer_facebook?: string;
+  footer_links_rapidos?: string;
+  footer_copyright?: string;
+  footer_cnpj?: string;
+  footer_horario?: string;
+  footer_texto_legal?: string;
 }
 
 export interface Banner {

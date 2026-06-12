@@ -20,8 +20,8 @@ export default function SobreNos({ config }: SobreNosProps) {
           <div className="lg:col-span-5 relative">
             <div className="relative rounded-[2.5rem] overflow-hidden border border-slate-200 p-1.5 bg-white shadow-xl">
               <img
-                src="https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&q=80&w=800"
-                alt="Equipe Técnica GIGATEL FIBER Conectando Clientes"
+                src={config.sobre_imagem_url || "https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&q=80&w=800"}
+                alt={`Equipe Técnica ${config.nome_empresa} Conectando Clientes`}
                 referrerPolicy="no-referrer"
                 className="rounded-[2.2rem] w-full object-cover aspect-[4/3] brightness-95 shadow-sm"
               />
@@ -45,22 +45,28 @@ export default function SobreNos({ config }: SobreNosProps) {
           <div className="lg:col-span-7 flex flex-col space-y-6">
             <div className="inline-flex items-center space-x-2 bg-blue-50 border border-blue-100 px-4 py-1.5 rounded-full text-[#0057FF] font-black text-xs uppercase self-start tracking-widest">
               <Heart size={12} className="text-[#0057FF] fill-current" />
-              <span>Sobre Nós</span>
+              <span>{config.sobre_titulo_tag || 'Sobre Nós'}</span>
             </div>
 
             <h2 className="font-display font-black text-4xl sm:text-5xl text-slate-900 tracking-tighter leading-none uppercase">
-              CONECTANDO PESSOAS AO QUE <br />
-              <span className="text-[#0057FF] font-extrabold bg-gradient-to-r from-[#0057FF] to-[#00AEEF] bg-clip-text text-transparent">
-                REALMENTE IMPORTA
-              </span>
+              {config.sobre_titulo ? (
+                <span className="whitespace-pre-line">{config.sobre_titulo}</span>
+              ) : (
+                <>
+                  CONECTANDO PESSOAS AO QUE <br />
+                  <span className="text-[#0057FF] font-extrabold bg-gradient-to-r from-[#0057FF] to-[#00AEEF] bg-clip-text text-transparent">
+                    REALMENTE IMPORTA
+                  </span>
+                </>
+              )}
             </h2>
 
             <p className="text-slate-800 text-base sm:text-lg leading-relaxed font-bold">
-              A {config.nome_empresa} nasceu para entregar internet de qualidade real, estabilidade extrema e atendimento próximo. Nosso compromisso inabalável é conectar famílias e empresas com tecnologia de ponta e suporte eficiente.
+              {config.sobre_destaque || `A ${config.nome_empresa} nasceu para entregar internet de qualidade real, estabilidade extrema e atendimento próximo. Nosso compromisso inabalável é conectar famílias e empresas com tecnologia de ponta e suporte eficiente.`}
             </p>
 
             <p className="text-slate-650 text-xs sm:text-sm leading-relaxed font-semibold">
-              Trabalhamos incansavelmente para que nossos clientes tenham uma experiência de navegação livre de travamentos ou de atendimentos comerciais demorados. Acreditamos que a conectividade premium deve vir acompanhada por relações de total respeito e rapidez. Por isso, investimos em redes robustas e preparamos equipes capacitadas prontas para te responder imediatamente.
+              {config.sobre_descricao || 'Trabalhamos incansavelmente para que nossos clientes tenham uma experiência de navegação livre de travamentos ou de atendimentos comerciais demorados. Acreditamos que a conectividade premium deve vir acompanhada por relações de total respeito e rapidez. Por isso, investimos em redes robustas e preparamos equipes capacitadas prontas para te responder imediatamente.'}
             </p>
 
             {/* Core Pillars */}
@@ -70,8 +76,12 @@ export default function SobreNos({ config }: SobreNosProps) {
                   <Target size={18} />
                 </div>
                 <div>
-                  <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight">Nosso Propósito</h4>
-                  <p className="text-xs text-slate-500 mt-1.5 leading-relaxed font-semibold">Garantir estabilidade real que potencialize o crescimento pessoal e digital de cada usuário.</p>
+                  <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight">
+                    {config.sobre_proposito_titulo || 'Nosso Propósito'}
+                  </h4>
+                  <p className="text-xs text-slate-500 mt-1.5 leading-relaxed font-semibold">
+                    {config.sobre_proposito_desc || 'Garantir estabilidade real que potencialize o crescimento pessoal e digital de cada usuário.'}
+                  </p>
                 </div>
               </div>
 
@@ -80,12 +90,17 @@ export default function SobreNos({ config }: SobreNosProps) {
                   <Sparkles size={18} />
                 </div>
                 <div>
-                  <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight">Principal Valor</h4>
-                  <p className="text-xs text-slate-500 mt-1.5 leading-relaxed font-semibold">Conexão 100% fibra de ponta a ponta construída sobre transparência, clareza e respeito absoluto aos prazos.</p>
+                  <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight">
+                    {config.sobre_valor_titulo || 'Principal Valor'}
+                  </h4>
+                  <p className="text-xs text-slate-500 mt-1.5 leading-relaxed font-semibold">
+                    {config.sobre_valor_desc || 'Conexão 100% fibra de ponta a ponta construída sobre transparência, clareza e respeito absoluto aos prazos.'}
+                  </p>
                 </div>
               </div>
             </div>
 
+          </div>
           </div>
 
         </div>

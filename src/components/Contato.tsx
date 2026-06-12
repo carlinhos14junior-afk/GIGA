@@ -71,18 +71,24 @@ export default function Contato({ config }: ContatoProps) {
           <div className="lg:col-span-6 flex flex-col justify-between space-y-8">
             <div className="space-y-6">
               <div className="inline-flex items-center space-x-2 bg-white/10 border border-white/20 px-4 py-1.5 rounded-full text-white font-black text-xs uppercase self-start tracking-widest">
-                <span>CONECTE-SE AGORA</span>
+                <span>{config.contato_subtitulo || 'CONECTE-SE AGORA'}</span>
               </div>
 
               <h2 className="font-display font-black text-4xl sm:text-5xl text-white tracking-tighter leading-none uppercase">
-                PRONTO PARA NAVEGAR <br />
-                <span className="text-yellow-300 font-extrabold bg-gradient-to-r from-yellow-300 via-white to-white bg-clip-text text-transparent">
-                  NA ULTRA VELOCIDADE?
-                </span>
+                {config.contato_titulo ? (
+                  <span className="whitespace-pre-line">{config.contato_titulo}</span>
+                ) : (
+                  <>
+                    PRONTO PARA NAVEGAR <br />
+                    <span className="text-yellow-300 font-extrabold bg-gradient-to-r from-yellow-300 via-white to-white bg-clip-text text-transparent">
+                      NA ULTRA VELOCIDADE?
+                    </span>
+                  </>
+                )}
               </h2>
 
               <p className="text-red-50 text-sm sm:text-base leading-relaxed font-bold">
-                Fale hoje mesmo com um consultor da GIGATEL FIBER e garanta instalação prioritária qualificada em seu logradouro. Não sofra mais com quedas de sinal ou uploads lentos! Estabilidade real está aqui.
+                {config.contato_descricao || `Fale hoje mesmo com um consultor da ${config.nome_empresa} e garanta instalação prioritária qualificada em seu logradouro. Não sofra mais com quedas de sinal ou uploads lentos! Estabilidade real está aqui.`}
               </p>
 
               {/* Working hours section */}
@@ -101,7 +107,7 @@ export default function Contato({ config }: ContatoProps) {
 
             {/* Security trust badge */}
             <div className="text-[10px] text-red-100/75 max-w-sm pt-4 border-t border-white/10 lg:block hidden leading-relaxed font-semibold">
-              * Todas as suas conversações e simulações são confidenciais e regidas conforme a Lei Geral de Proteção de Dados (LGPD) garantindo criptografia ponta a ponta.
+              {config.contato_legal || '* Todas as suas conversações e simulações são confidenciais e regidas conforme a Lei Geral de Proteção de Dados (LGPD) garantindo criptografia ponta a ponta.'}
             </div>
           </div>
 

@@ -28,7 +28,57 @@ const DEFAULT_CONFIG: SiteConfig = {
   tempo_carro: '15 min de carro',
   tempo_moto: '5 min de moto',
   instagram: 'gigatelfiberofc',
-  facebook: 'gigatelfiberofc'
+  facebook: 'gigatelfiberofc',
+  
+  // Hero fallbacks
+  hero_titulo: 'INTERNET FIBRA ÓPTICA\nULTRARRÁPIDA',
+  hero_subtitulo: 'Mais velocidade.\nMais estabilidade.\nMais tecnologia para sua casa.',
+  hero_texto_botao: 'Contratar Agora',
+  hero_link_botao: '#planos',
+
+  // Advantages / Benefits fallbacks
+  vantagens_titulo: 'POR QUE ESCOLHER A',
+  vantagens_subtitulo: 'Unimos excelente infraestrutura tecnológica de fibra óptica com pós-venda humanizado de altíssima velocidade.',
+  vantagens_lista_json: JSON.stringify([
+    { titulo: 'Fibra Óptica de Ponta', descricao: 'Conexão 100% fibra óptica FTTH diretamente dentro do seu roteador, minimizando perdas de sinal e atrasos.' },
+    { titulo: 'Instalação Rápida', descricao: 'Nossa equipe técnica qualificada realiza a implantação de forma ágil e segura sem complicações na sua casa.' },
+    { titulo: 'Suporte Especializado', descricao: 'Central técnica qualificada com analistas prontos para monitorar e manter sua estabilidade 24 horas por dia.' },
+    { titulo: 'Alta Estabilidade', descricao: 'Navegue sem oscilações climáticas ou gargalos de horário de pico graças à nossa rota de alta capacidade.' },
+    { titulo: 'Atendimento Humanizado', descricao: 'Esqueça robôs chatos. Fale direto com profissionais paulistanos focados em resolver o seu problema em minutos.' },
+    { titulo: 'Tecnologia de Ponta', descricao: 'Equipamentos de rede de última geração e roteadores dual band inteligentes inclusos na sua assinatura.' }
+  ]),
+
+  // Sobre nós fallbacks
+  sobre_titulo_tag: 'Sobre Nós',
+  sobre_titulo: 'CONECTANDO PESSOAS AO QUE \nREALMENTE IMPORTA',
+  sobre_destaque: 'A GIGATEL FIBER nasceu para entregar internet de qualidade real, estabilidade extrema e atendimento próximo. Nosso compromisso inabalável é conectar famílias e empresas com tecnologia de ponta e suporte eficiente.',
+  sobre_descricao: 'Trabalhamos incansavelmente para que nossos clientes tenham uma experiência de navegação livre de travamentos ou de atendimentos comerciais demorados. Acreditamos que a conectividade premium deve vir acompanhada por relações de total respeito e rapidez. Por isso, investimos em redes robustas e preparamos equipes capacitadas prontas para te responder imediatamente.',
+  sobre_proposito_titulo: 'Nosso Propósito',
+  sobre_proposito_desc: 'Garantir estabilidade real que potencialize o crescimento pessoal e digital de cada usuário.',
+  sobre_valor_titulo: 'Principal Valor',
+  sobre_valor_desc: 'Conexão 100% fibra de ponta a ponta construída sobre transparência, clareza e respeito absoluto aos prazos.',
+  sobre_imagem_url: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&q=80&w=800',
+
+  // Contato fallbacks
+  contato_titulo: 'PRONTO PARA NAVEGAR \nNA ULTRA VELOCIDADE?',
+  contato_subtitulo: 'CONECTE-SE AGORA',
+  contato_descricao: 'Fale hoje mesmo com um consultor da GIGATEL FIBER e garanta instalação prioritária qualificada em seu logradouro. Não sofra mais com quedas de sinal ou uploads lentos! Estabilidade real está aqui.',
+  contato_legal: '* Todas as suas conversações e simulações são confidenciais e regidas conforme a Lei Geral de Proteção de Dados (LGPD) garantindo criptografia ponta a ponta.',
+
+  // Footer fallbacks
+  footer_titulo: 'Navegação',
+  footer_descricao: 'Conexões ultrarrápidas, 100% fibra óptica de ponta a ponta e suporte humanizado qualificado para você navegar, jogar e assistir sem travamentos.',
+  footer_endereco: 'Rua Antônio Ferraciolli, 331, Jardim Catarina, São Paulo - SP',
+  footer_telefone: '(11) 91005-0121',
+  footer_whatsapp: '5511910050121',
+  footer_email: 'contato@gigatelfiber.com.br',
+  footer_instagram: 'gigatelfiberofc',
+  footer_facebook: 'gigatelfiberofc',
+  footer_links_rapidos: 'Início: #inicio\nPlanos: #planos\nDiferenciais: #vantagens\nCobertura: #cobertura\nFAQ: #faq',
+  footer_copyright: 'Todos os direitos reservados.',
+  footer_cnpj: '45.182.293/0001-90',
+  footer_horario: 'Suporte das 08h às 21h pelo WhatsApp Comercial.',
+  footer_texto_legal: 'Sinal estável sem franquias de download para residências, comércios e corporações sob medida.'
 };
 
 const DEFAULT_PLANOS: Plano[] = [

@@ -33,10 +33,10 @@ export default function Hero({ config, banners = [] }: HeroProps) {
 
   // Fallback banner if database results empty
   const currentBanner = activeBanners.length > 0 ? activeBanners[currentSlide] : {
-    titulo: 'INTERNET FIBRA ÓPTICA\nULTRARRÁPIDA',
-    subtitulo: 'Mais velocidade.\nMais estabilidade.\nMais tecnologia para sua casa.',
-    texto_botao: 'Contratar Agora',
-    link_botao: '#planos',
+    titulo: config.hero_titulo || 'INTERNET FIBRA ÓPTICA\nULTRARRÁPIDA',
+    subtitulo: config.hero_subtitulo || 'Mais velocidade.\nMais estabilidade.\nMais tecnologia para sua casa.',
+    texto_botao: config.hero_texto_botao || 'Contratar Agora',
+    link_botao: config.hero_link_botao || '#planos',
     imagem_desktop: '/src/assets/images/gigatel_premium_hero_1781266310979.jpg',
     imagem_mobile: '/src/assets/images/gigatel_premium_hero_1781266310979.jpg'
   };

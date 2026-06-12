@@ -1,38 +1,50 @@
 import { Zap, Activity, Shield, Headphones, Cpu, CheckCircle } from 'lucide-react';
+import { SiteConfig } from '../types';
 
-export default function Vantagens() {
-  const vantagens = [
-    {
-      titulo: 'Fibra Óptica de Ponta',
-      descricao: 'Conexão 100% fibra óptica FTTH diretamente dentro do seu roteador, minimizando perdas de sinal e atrasos.',
-      icon: Zap,
-    },
-    {
-      titulo: 'Instalação Rápida',
-      descricao: 'Nossa equipe técnica qualificada realiza a implantação de forma ágil e segura sem complicações na sua casa.',
-      icon: CheckCircle,
-    },
-    {
-      titulo: 'Suporte Especializado',
-      descricao: 'Central técnica qualificada com analistas prontos para monitorar e manter sua estabilidade 24 horas por dia.',
-      icon: Shield,
-    },
-    {
-      titulo: 'Alta Estabilidade',
-      descricao: 'Navegue sem oscilações climáticas ou gargalos de horário de pico graças à nossa rota de alta capacidade.',
-      icon: Activity,
-    },
-    {
-      titulo: 'Atendimento Humanizado',
-      descricao: 'Esqueça robôs chatos. Fale direto com profissionais paulistanos focados em resolver o seu problema em minutos.',
-      icon: Headphones,
-    },
-    {
-      titulo: 'Tecnologia de Ponta',
-      descricao: 'Equipamentos de rede de última geração e roteadores dual band inteligentes inclusos na sua assinatura.',
-      icon: Cpu,
-    },
-  ];
+interface VantagensProps {
+  config: SiteConfig;
+}
+
+const icons = [Zap, CheckCircle, Shield, Activity, Headphones, Cpu];
+
+export default function Vantagens({ config }: VantagensProps) {
+  let vantagens: { titulo: string; descricao: string }[] = [];
+  try {
+    if (config.vantagens_lista_json) {
+      vantagens = JSON.parse(config.vantagens_lista_json);
+    }
+  } catch (e) {
+    console.error("Error parsing vantagens JSON", e);
+  }
+
+  if (!vantagens || vantagens.length === 0) {
+    vantagens = [
+      {
+        titulo: 'Fibra Óptica de Ponta',
+        descricao: 'Conexão 100% fibra óptica FTTH diretamente dentro do seu roteador, minimizando perdas de sinal e atrasos.',
+      },
+      {
+        titulo: 'Instalação Rápida',
+        descricao: 'Nossa equipe técnica qualificada realiza a implantação de forma ágil e segura sem complicações na sua casa.',
+      },
+      {
+        titulo: 'Suporte Especializado',
+        descricao: 'Central técnica qualificada com analistas prontos para monitorar e manter sua estabilidade 24 horas por dia.',
+      },
+      {
+        titulo: 'Alta Estabilidade',
+        descricao: 'Navegue sem oscilações climáticas ou gargalos de horário de pico graças à nossa rota de alta capacidade.',
+      },
+      {
+        titulo: 'Atendimento Humanizado',
+        descricao: 'Esqueça robôs chatos. Fale direto com profissionais paulistanos focados em resolver o seu problema em minutos.',
+      },
+      {
+        titulo: 'Tecnologia de Ponta',
+        descricao: 'Equipamentos de rede de última geração e roteadores dual band inteligentes inclusos na sua assinatura.',
+      },
+    ];
+  }
 
   return (
     <section 
@@ -47,21 +59,27 @@ export default function Vantagens() {
             <span>Diferenciais Premium</span>
           </div>
           <h2 className="font-display font-black text-4xl sm:text-5xl lg:text-6xl text-slate-900 tracking-tighter mb-6 leading-none uppercase">
-            POR QUE ESCOLHER A <br />
-            <span className="text-[#0057FF] font-extrabold bg-gradient-to-r from-[#0057FF] to-[#00AEEF] bg-clip-text text-transparent">
-              GIGATEL FIBRA
-            </span>?
+            {config.vantagens_titulo ? (
+              <span className="whitespace-pre-line">{config.vantagens_titulo}</span>
+            ) : (
+              <>
+                POR QUE ESCOLHER A <br />
+                <span className="text-[#0057FF] font-extrabold bg-gradient-to-r from-[#0057FF] to-[#00AEEF] bg-clip-text text-transparent">
+                  {config.nome_empresa}
+                </span>?
+              </>
+            )}
           </h2>
  
           <p className="text-slate-650 text-sm sm:text-base font-semibold max-w-2xl mx-auto leading-relaxed">
-            Unimos excelente infraestrutura tecnológica de fibra óptica com pós-venda humanizado de altíssima velocidade.
+            {config.vantagens_subtitulo || 'Unimos excelente infraestrutura tecnológica de fibra óptica com pós-venda humanizado de altíssima velocidade.'}
           </p>
         </div>
  
         {/* Benefits Grid */}
         <div id="vantagens-grid" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {vantagens.map((item, idx) => {
-            const IconComponent = item.icon;
+            const IconComponent = icons[idx % icons.length];
             
             return (
               <div
@@ -85,7 +103,7 @@ export default function Vantagens() {
             );
           })}
         </div>
-
+ 
       </div>
     </section>
   );
