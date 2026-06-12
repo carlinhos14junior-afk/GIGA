@@ -298,8 +298,8 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
         subtitulo: editingBanner.subtitulo || '',
         texto_botao: editingBanner.texto_botao || 'Contratar',
         link_botao: editingBanner.link_botao || '#planos',
-        imagem_desktop: editingBanner.imagem_desktop || 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&q=80&w=1200',
-        imagem_mobile: editingBanner.imagem_mobile || 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&q=80&w=600',
+        image_url: editingBanner.image_url || 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&q=80&w=1200',
+        mobile_image_url: editingBanner.mobile_image_url || 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&q=80&w=600',
         ordem: Number(editingBanner.ordem || 1),
         status: editingBanner.status || 'ativo'
       });
@@ -309,6 +309,10 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
       setEditingBanner(null);
       onConfigChange();
       showAlert('Banner salvo com sucesso!');
+      
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     } catch (err) {
       showAlert('Erro ao registrar o banner.', 'error');
     }
@@ -592,8 +596,10 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
       onConfigChange();
       showAlert(`Item de identidade atualizado com sucesso!`);
       
-      // User requested Pattern: Potential Reload
-      // We'll skip forced reload for better UX unless specifically forced by state issues
+      // Auto-reload to apply changes across the site
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     } catch (err: any) {
       console.error('Error uploading logo:', err);
       showAlert(err.message || 'Erro ao subir logotipo.', 'error');
@@ -626,7 +632,7 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
     setUploadLoading(true);
     try {
       const fileName = `${Date.now()}_${mediaFile.name.replace(/\s+/g, '_')}`;
-      const url = await uploadFile('uploads', fileName, mediaFile);
+      const url = await uploadFile('site-images', fileName, mediaFile);
       
       const mockUpload: Omit<UploadMedia, 'id'> = {
         nome: mediaFile.name,
@@ -673,11 +679,11 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
 
     try {
       const fileName = `banner_${type}_${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
-      const url = await uploadFile('banners', fileName, file);
+      const url = await uploadFile('site-images', fileName, file);
       
       setEditingBanner(prev => prev ? {
         ...prev,
-        [type === 'desktop' ? 'imagem_desktop' : 'imagem_mobile']: url
+        [type === 'desktop' ? 'image_url' : 'mobile_image_url']: url
       } : null);
 
       showAlert(`Imagem ${type === 'desktop' ? 'Desktop' : 'Mobile'} do banner carregada!`);
@@ -1431,8 +1437,8 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
                       <input 
                         type="text" 
                         required
-                        value={editingBanner.imagem_desktop || ''}
-                        onChange={(e) => setEditingBanner({ ...editingBanner, imagem_desktop: e.target.value })}
+                        value={editingBanner.image_url || ''}
+                        onChange={(e) => setEditingBanner({ ...editingBanner, image_url: e.target.value })}
                         className="p-2.5 text-xs border border-slate-200 rounded-xl focus:outline-slate-400 bg-white flex-grow"
                         placeholder="https://..."
                       />
@@ -1460,8 +1466,8 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
                       <input 
                         type="text" 
                         required
-                        value={editingBanner.imagem_mobile || ''}
-                        onChange={(e) => setEditingBanner({ ...editingBanner, imagem_mobile: e.target.value })}
+                        value={editingBanner.mobile_image_url || ''}
+                        onChange={(e) => setEditingBanner({ ...editingBanner, mobile_image_url: e.target.value })}
                         className="p-2.5 text-xs border border-slate-200 rounded-xl focus:outline-slate-400 bg-white flex-grow"
                         placeholder="https://..."
                       />
@@ -1511,7 +1517,7 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
                 <div className="p-4 bg-slate-50 border border-slate-150 rounded-2xl">
                   <span className="text-[9px] uppercase font-black text-slate-400 block mb-2 tracking-widest">Pré-visualização em Tempo Real</span>
                   <div className="relative rounded-xl border overflow-hidden bg-white p-6 max-w-full">
-                    <div className="absolute top-0 right-0 w-[40%] h-full bg-cover bg-center opacity-25" style={{ backgroundImage: `url(${editingBanner.imagem_desktop || ''})` }} />
+                    <div className="absolute top-0 right-0 w-[40%] h-full bg-cover bg-center opacity-25" style={{ backgroundImage: `url(${editingBanner.image_url || ''})` }} />
                     <span className="inline-block bg-blue-50 text-[#005BFF] text-[8px] font-extrabold uppercase px-2 py-0.5 rounded-full mb-2 border border-blue-105">Slide Banner Ativo</span>
                     <h3 className="font-display font-black text-slate-900 text-sm md:text-md leading-tight uppercase max-w-xs">{editingBanner.titulo || 'SEM TÍTULO'}</h3>
                     <p className="text-[10px] text-slate-500 mt-1 max-w-xs">{editingBanner.subtitulo || 'Sem subtítulo configurado.'}</p>
@@ -1546,7 +1552,7 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
                     <p className="text-[11px] text-slate-500 mt-0.5">Gerencie os slides exibidos na seção de apresentação principal do site.</p>
                   </div>
                   <button 
-                    onClick={() => setEditingBanner({ titulo: '', subtitulo: '', texto_botao: 'Contratar Agora', link_botao: '#planos', imagem_desktop: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&q=80&w=1200', imagem_mobile: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&q=80&w=600', ordem: bannersList.length + 1, status: 'ativo' })}
+                    onClick={() => setEditingBanner({ titulo: '', subtitulo: '', texto_botao: 'Contratar Agora', link_botao: '#planos', image_url: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&q=80&w=1200', mobile_image_url: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&q=80&w=600', ordem: bannersList.length + 1, status: 'ativo' })}
                     className="px-3.5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-850 text-white font-bold text-xs flex items-center space-x-1.5"
                   >
                     <Plus size={14} />
@@ -1561,7 +1567,7 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
                     {bannersList.map((banner) => (
                       <div key={banner.id} className="p-4 border rounded-2xl flex flex-col md:flex-row md:items-center md:justify-between bg-[#F8FAFC] border-slate-200 text-xs gap-4 hover:border-slate-300">
                         <div className="flex items-start space-x-4">
-                          <img src={banner.imagem_desktop} alt={banner.titulo} className="w-16 h-12 rounded-lg object-cover border border-slate-200 shadow-sm" referrerPolicy="no-referrer" />
+                          <img src={banner.image_url} alt={banner.titulo} className="w-16 h-12 rounded-lg object-cover border border-slate-200 shadow-sm" referrerPolicy="no-referrer" />
                           <div>
                             <span className="font-mono text-[9px] text-[#005BFF] bg-blue-50 px-1.5 py-0.5 rounded font-black">Slide Ordem: {banner.ordem}</span>
                             <h4 className="font-bold text-slate-900 text-sm mt-1 uppercase max-w-sm truncate">{banner.titulo}</h4>

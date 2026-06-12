@@ -37,8 +37,8 @@ export default function Hero({ config, banners = [] }: HeroProps) {
     subtitulo: config.hero_subtitulo || 'Mais velocidade.\nMais estabilidade.\nMais tecnologia para sua casa.',
     texto_botao: config.hero_texto_botao || 'Contratar Agora',
     link_botao: config.hero_link_botao || '#planos',
-    imagem_desktop: '/src/assets/images/gigatel_premium_hero_1781266310979.jpg',
-    imagem_mobile: '/src/assets/images/gigatel_premium_hero_1781266310979.jpg'
+    image_url: '/src/assets/images/gigatel_premium_hero_1781266310979.jpg',
+    mobile_image_url: '/src/assets/images/gigatel_premium_hero_1781266310979.jpg'
   };
 
   const cleanWhatsapp = config.whatsapp ? config.whatsapp.replace(/\D/g, '') : '5511910050121';
@@ -85,9 +85,9 @@ export default function Hero({ config, banners = [] }: HeroProps) {
       {/* Background Banner Slider */}
       <div className="absolute inset-0 z-0">
         <picture className="w-full h-full">
-          <source media="(max-width: 640px)" srcSet={currentBanner.imagem_mobile || currentBanner.imagem_desktop} />
+          <source media="(max-width: 640px)" srcSet={currentBanner.mobile_image_url || currentBanner.image_url} />
           <img 
-            src={currentBanner.imagem_desktop} 
+            src={currentBanner.image_url} 
             alt={currentBanner.titulo}
             referrerPolicy="no-referrer"
             className="w-full h-full object-cover brightness-[0.4] transition-all duration-1000 animate-fade-in"

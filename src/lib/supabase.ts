@@ -6,8 +6,8 @@ import {
 } from '../types';
 
 // Support both NEXT_PUBLIC_ styles as well as VITE_ styles
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+const supabaseUrl = (import.meta as any).env.VITE_SUPABASE_URL || '';
+const supabaseAnonKey = (import.meta as any).env.VITE_SUPABASE_ANON_KEY || '';
 
 // Detect if we have real credentials
 export const isRealSupabase = supabaseUrl && supabaseAnonKey && supabaseUrl !== 'YOUR_SUPABASE_URL' && !supabaseUrl.includes('placeholder');
@@ -130,8 +130,8 @@ const DEFAULT_BANNERS: Banner[] = [
     subtitulo: 'Mais velocidade. Mais estabilidade. Mais tecnologia para sua casa.',
     texto_botao: 'Contratar Agora',
     link_botao: '#planos',
-    imagem_desktop: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&q=80&w=1200',
-    imagem_mobile: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&q=80&w=600',
+    image_url: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&q=80&w=1200',
+    mobile_image_url: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&q=80&w=600',
     ordem: 1,
     status: 'ativo',
     created_at: new Date().toISOString()
@@ -495,35 +495,12 @@ export async function saveBanner(banner: Omit<Banner, 'id'> & { id?: string | nu
       }
       return result;
     } catch (e) {
-      const list = getLocal<Banner[]>('giganet_banners', DEFAULT_BANNERS);
-      let updated: Banner;
-      if (banner.id) {
-        updated = { ...banner, id: banner.id } as Banner;
-        const index = list.findIndex(item => String(item.id) === String(banner.id));
-        if (index > -1) list[index] = updated;
-        else list.push(updated);
-      } else {
-        updated = { ...banner, id: Date.now().toString(), created_at: new Date().toISOString() } as Banner;
-        list.push(updated);
-      }
-      setLocal('giganet_banners', list);
-      return updated;
+      console.error('Error saving banner:', e);
+      throw e;
     }
-  } else {
-    const list = getLocal<Banner[]>('giganet_banners', DEFAULT_BANNERS);
-    let updated: Banner;
-    if (banner.id) {
-      updated = { ...banner, id: banner.id } as Banner;
-      const index = list.findIndex(item => String(item.id) === String(banner.id));
-      if (index > -1) list[index] = updated;
-      else list.push(updated);
-    } else {
-      updated = { ...banner, id: Date.now().toString(), created_at: new Date().toISOString() } as Banner;
-      list.push(updated);
-    }
-    setLocal('giganet_banners', list);
-    return updated;
   }
+  
+  throw new Error('Supabase credentials not configured');
 }
 
 export async function deleteBanner(id: string | number): Promise<void> {
@@ -1208,13 +1185,11 @@ export async function saveBrandSettings(settings: BrandSettings): Promise<BrandS
       return result;
     } catch (e) {
       console.error('Error saving brand settings to Supabase:', e);
-      setLocal('giganet_brand_settings', settings);
-      return settings;
+      throw e;
     }
-  } else {
-    setLocal('giganet_brand_settings', settings);
-    return settings;
   }
+  
+  throw new Error('Supabase credentials not configured');
 }
 
 // --- FILE UPLOAD / STORAGE ---
@@ -1230,31 +1205,23 @@ export async function uploadFile(bucket: 'logos' | 'banners' | 'uploads' | 'site
           cacheControl: '3600'
         });
       
-      if (error) throw error;
+      if (error) {
+        console.error("Upload error details:", error);
+        throw error;
+      }
 
       const { data: { publicUrl } } = supabase.storage
         .from(bucket)
         .getPublicUrl(path);
 
       return publicUrl;
-    } catch (e) {
-      return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          resolve(reader.result as string);
-        };
-        reader.readAsDataURL(file);
-      });
+    } catch (e: any) {
+      console.error('Error uploading to Supabase:', e);
+      throw new Error(`Failed to upload file: ${e?.message || 'Unknown error'}`);
     }
-  } else {
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        resolve(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    });
   }
+  
+  throw new Error('Supabase credentials not configured');
 }
 
 // --- AUTH LAYER ---

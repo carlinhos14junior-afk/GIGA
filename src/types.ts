@@ -93,8 +93,8 @@ export interface Banner {
   subtitulo: string;
   texto_botao: string;
   link_botao: string;
-  imagem_desktop: string;
-  imagem_mobile: string;
+  image_url: string;
+  mobile_image_url: string;
   ordem: number;
   status: 'ativo' | 'inativo';
   created_at?: string;
