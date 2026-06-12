@@ -6,8 +6,8 @@ import {
 } from '../types';
 
 // Support both NEXT_PUBLIC_ styles as well as VITE_ styles
-const supabaseUrl = (import.meta as any).env.NEXT_PUBLIC_SUPABASE_URL || (import.meta as any).env.VITE_SUPABASE_URL || '';
-const supabaseAnonKey = (import.meta as any).env.NEXT_PUBLIC_SUPABASE_ANON_KEY || (import.meta as any).env.VITE_SUPABASE_ANON_KEY || '';
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
 // Detect if we have real credentials
 export const isRealSupabase = supabaseUrl && supabaseAnonKey && supabaseUrl !== 'YOUR_SUPABASE_URL' && !supabaseUrl.includes('placeholder');
@@ -226,7 +226,7 @@ const DEFAULT_USUARIOS: Usuario[] = [
 ];
 
 const DEFAULT_BRAND_SETTINGS: BrandSettings = {
-  logo_url: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&q=80&w=200',
+  logo_url: '',
   logo_white_url: '',
   logo_footer_url: '',
   logo_mobile_url: '',

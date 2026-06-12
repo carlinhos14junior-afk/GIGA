@@ -25,11 +25,13 @@ export default function App() {
   // Load site variables
   const loadData = async () => {
     try {
+      setLoading(true);
       const cfg = await getSiteConfig();
       let emp = null;
       let brands: BrandSettings | null = null;
 
       try {
+        // Parallel fetch for company and brand settings
         const [empData, brandData] = await Promise.all([
           getEmpresa(),
           getBrandSettings()
@@ -40,6 +42,7 @@ export default function App() {
         console.warn('Could not load company or brand info from database:', err);
       }
 
+      // Merge all configuration sources
       const mergedConfig: SiteConfig = {
         ...cfg,
         ...(emp ? {
@@ -59,19 +62,21 @@ export default function App() {
           facebook: emp.facebook,
         } : {}),
         ...(brands ? {
-          logo_url: brands.logo_url,
-          logo_white_url: brands.logo_white_url,
-          logo_footer_url: brands.logo_footer_url,
-          logo_mobile_url: brands.logo_mobile_url,
-          favicon_url: brands.favicon_url
+          logo_url: brands.logo_url || cfg.logo_url,
+          logo_white_url: brands.logo_white_url || cfg.logo_white_url,
+          logo_footer_url: brands.logo_footer_url || cfg.logo_footer_url,
+          logo_mobile_url: brands.logo_mobile_url || cfg.logo_mobile_url,
+          favicon_url: brands.favicon_url || cfg.favicon_url
         } : {})
       };
+      
       setSiteConfig(mergedConfig);
 
-      const pls = await getPlanos();
+      const [pls, bans] = await Promise.all([
+        getPlanos(),
+        getBanners()
+      ]);
       setPlanosList(pls);
-
-      const bans = await getBanners();
       setBannersList(bans);
     } catch (e) {
       console.error('Falha ao carregar informações de banco:', e);
