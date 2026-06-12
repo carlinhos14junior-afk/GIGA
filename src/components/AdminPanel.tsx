@@ -12,7 +12,8 @@ import {
   getCidadesCobertura, saveCidadeCobertura, deleteCidadeCobertura, getPlanos, 
   savePlano, deletePlano, getLeads, deleteLead, updateLeadStatus, 
   getUsuarios, saveUsuario, deleteUsuario, uploadFile, signIn, changePassword, 
-  getCurrentUser, getLastUpdate, isRealSupabase, getUploads, saveUpload, deleteUpload
+  getCurrentUser, getLastUpdate, isRealSupabase, getUploads, saveUpload, deleteUpload,
+  signOut, resetPassword
 } from '../lib/supabase';
 import { 
   SiteConfig, Plano, Lead, Usuario, Banner, 
@@ -40,6 +41,13 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
   const [loginPassword, setLoginPassword] = useState('');
   const [loginLoading, setLoginLoading] = useState(false);
   const [loginError, setLoginError] = useState('');
+  
+  // Forgot Password States
+  const [isForgotPasswordMode, setIsForgotPasswordMode] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [forgotSuccess, setForgotSuccess] = useState('');
+  const [forgotError, setForgotError] = useState('');
   
   // Force change password
   const [mustChangePassword, setMustChangePassword] = useState(false);
@@ -158,6 +166,27 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
     }
   };
 
+  // Forgot Password submit
+  const handleForgotPasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setForgotLoading(true);
+    setForgotError('');
+    setForgotSuccess('');
+    try {
+      const response = await resetPassword(forgotEmail);
+      if (response.error) {
+        setForgotError(response.error.message || 'Erro ao recuperar acesso.');
+      } else {
+        setForgotSuccess(response.message || 'Instruções enviadas com sucesso!');
+        showAlert(response.message || 'Instruções enviadas com sucesso!');
+      }
+    } catch (err: any) {
+      setForgotError(err.message || 'Erro inesperado.');
+    } finally {
+      setForgotLoading(false);
+    }
+  };
+
   // Forced password change submit
   const handleForcePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -189,7 +218,7 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
 
   // Sign out handle
   const handleLogout = async () => {
-    await LogOut();
+    await signOut();
     setUser(null);
     setMustChangePassword(false);
     setLoginPassword('');
@@ -560,7 +589,7 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
             </div>
             <h2 className="font-display font-black text-xl text-slate-900 uppercase">Alteração de Senha</h2>
             <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">
-              Sua conta utiliza a senha provisória padrão (<code className="text-slate-900 font-bold">adm123</code>). Altere-a para prosseguir com segurança.
+              Sua conta utiliza a senha provisória padrão (<code className="text-slate-900 font-bold">123456</code>). Altere-a para prosseguir com segurança.
             </p>
           </div>
 
@@ -626,58 +655,120 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
           <div className="text-center mb-8 flex flex-col items-center">
             <Logo size="lg" className="mb-4" />
             <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest bg-slate-100 px-3 py-1 rounded-full">
-              Portal do Administrador
+              {isForgotPasswordMode ? 'Recuperação de Acesso' : 'Portal do Administrador'}
             </span>
           </div>
 
-          {loginError && (
-            <div className="p-3.5 bg-red-50 border border-red-205 text-red-700 rounded-xl text-xs font-bold mb-6 text-center leading-normal">
-              {loginError}
+          {isForgotPasswordMode ? (
+            // --- FORGOT PASSWORD FORM ---
+            <div className="space-y-4">
+              <p className="text-xs text-slate-500 leading-relaxed mb-4">
+                Informe o seu e-mail cadastrado na tabela de administradores para recuperar ou restaurar as suas credenciais.
+              </p>
+
+              {forgotError && (
+                <div className="p-3.5 bg-red-50 border border-red-200 text-red-700 rounded-xl text-xs font-bold text-center leading-normal">
+                  {forgotError}
+                </div>
+              )}
+
+              {forgotSuccess && (
+                <div className="p-3.5 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-xs font-bold text-center leading-normal">
+                  {forgotSuccess}
+                </div>
+              )}
+
+              <form onSubmit={handleForgotPasswordSubmit} className="space-y-4">
+                <div className="flex flex-col space-y-1.5">
+                  <label className="text-[10px] font-bold uppercase text-slate-500">Seu E-mail de Administrador</label>
+                  <input
+                    type="email"
+                    required
+                    value={forgotEmail}
+                    onChange={(e) => setForgotEmail(e.target.value)}
+                    placeholder="adm@gigatelfiber.com.br"
+                    className="w-full bg-white border border-slate-200 hover:border-slate-350 focus:border-slate-505 focus:outline-none rounded-xl py-3 px-4 text-sm text-slate-900"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={forgotLoading}
+                  className="w-full py-3.5 bg-[#005BFF] hover:bg-[#004ccb] text-white text-xs font-bold uppercase tracking-widest rounded-xl transition-all disabled:opacity-50 mt-3 flex items-center justify-center space-x-2"
+                >
+                  <span>{forgotLoading ? 'Processando...' : 'Recuperar Acesso'}</span>
+                </button>
+              </form>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setIsForgotPasswordMode(false);
+                  setForgotError('');
+                  setForgotSuccess('');
+                }}
+                className="w-full text-center text-xs font-semibold text-slate-500 hover:text-slate-800 mt-2 hover:underline"
+              >
+                Voltar para o Login
+              </button>
+            </div>
+          ) : (
+            // --- STANDARD LOGIN FORM ---
+            <div>
+              {loginError && (
+                <div className="p-3.5 bg-red-50 border border-red-205 text-red-700 rounded-xl text-xs font-bold mb-6 text-center leading-normal">
+                  {loginError}
+                </div>
+              )}
+
+              <form onSubmit={handleLoginSubmit} className="space-y-4">
+                <div className="flex flex-col space-y-1.5">
+                  <label className="text-[10px] font-bold uppercase text-slate-500">E-mail de Operador</label>
+                  <input
+                    type="email"
+                    required
+                    value={loginEmail}
+                    onChange={(e) => setLoginEmail(e.target.value)}
+                    placeholder="adm@gigatelfiber.com.br"
+                    className="w-full bg-white border border-slate-200 hover:border-slate-350 focus:border-slate-500 focus:outline-none rounded-xl py-3 px-4 text-sm text-slate-900"
+                  />
+                </div>
+
+                <div className="flex flex-col space-y-1.5">
+                  <div className="flex justify-between items-center">
+                    <label className="text-[10px] font-bold uppercase text-slate-500">Senha Secreta</label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsForgotPasswordMode(true);
+                        setForgotEmail(loginEmail);
+                      }}
+                      className="text-[10px] font-bold text-[#005BFF] hover:underline"
+                    >
+                      Esqueci minha senha
+                    </button>
+                  </div>
+                  <input
+                    type="password"
+                    required
+                    value={loginPassword}
+                    onChange={(e) => setLoginPassword(e.target.value)}
+                    placeholder="Sua senha secreta"
+                    className="w-full bg-white border border-slate-200 hover:border-slate-350 focus:border-slate-505 focus:outline-none rounded-xl py-3 px-4 text-sm text-slate-900"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loginLoading}
+                  className="w-full py-3.5 bg-[#005BFF] hover:bg-[#004ccb] text-white text-xs font-bold uppercase tracking-widest rounded-xl transition-all disabled:opacity-50 mt-3 flex items-center justify-center space-x-2"
+                >
+                  <Key size={13} />
+                  <span>{loginLoading ? 'Conectando...' : 'Entrar no Painel'}</span>
+                </button>
+              </form>
             </div>
           )}
-
-          <form onSubmit={handleLoginSubmit} className="space-y-4">
-            <div className="flex flex-col space-y-1.5">
-              <label className="text-[10px] font-bold uppercase text-slate-500">E-mail de Operador</label>
-              <input
-                type="email"
-                required
-                value={loginEmail}
-                onChange={(e) => setLoginEmail(e.target.value)}
-                placeholder="admin@gigatel.com.br"
-                className="w-full bg-white border border-slate-200 hover:border-slate-350 focus:border-slate-500 focus:outline-none rounded-xl py-3 px-4 text-sm text-slate-900"
-              />
-            </div>
-
-            <div className="flex flex-col space-y-1.5">
-              <label className="text-[10px] font-bold uppercase text-slate-500">Senha Secreta</label>
-              <input
-                type="password"
-                required
-                value={loginPassword}
-                onChange={(e) => setLoginPassword(e.target.value)}
-                placeholder="Sua senha secreta"
-                className="w-full bg-white border border-slate-200 hover:border-slate-350 focus:border-slate-500 focus:outline-none rounded-xl py-3 px-4 text-sm text-slate-900"
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={loginLoading}
-              className="w-full py-3.5 bg-[#005BFF] hover:bg-[#004ccb] text-white text-xs font-bold uppercase tracking-widest rounded-xl transition-all disabled:opacity-50 mt-3 flex items-center justify-center space-x-2"
-            >
-              <Key size={13} />
-              <span>{loginLoading ? 'Conectando...' : 'Entrar no Painel'}</span>
-            </button>
-          </form>
-
-          <div className="mt-8 pt-5 border-t border-slate-100 text-center">
-            <p className="text-[11px] text-slate-400 font-medium leading-relaxed">
-              Login homologado padrão:<br />
-              E-mail: <strong className="text-slate-700">admin@gigatel.com.br</strong><br />
-              Senha: <strong className="text-slate-700">adm123</strong>
-            </p>
-          </div>
         </div>
       </div>
     );

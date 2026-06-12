@@ -1015,118 +1015,220 @@ export async function uploadFile(bucket: 'logos' | 'banners' | 'uploads', path: 
 }
 
 // --- AUTH LAYER ---
+
+export interface AdminUser {
+  id?: string | number;
+  email: string;
+  senha?: string;
+  ativo: boolean;
+  nivel: string;
+  created_at?: string;
+}
+
+const DEFAULT_ADMIN: AdminUser = {
+  email: 'adm@gigatelfiber.com.br',
+  senha: '123456',
+  ativo: true,
+  nivel: 'admin'
+};
+
+export async function ensureDefaultAdmin() {
+  const cleanEmail = DEFAULT_ADMIN.email.toLowerCase().trim();
+  if (isRealSupabase && supabase) {
+    try {
+      const { data, error } = await supabase
+        .from('admin_users')
+        .select('email')
+        .eq('email', cleanEmail)
+        .maybeSingle();
+      
+      if (error) {
+        console.warn('admin_users query error or table does not exist:', error);
+        return;
+      }
+      
+      if (!data) {
+        const { error: insError } = await supabase
+          .from('admin_users')
+          .insert([DEFAULT_ADMIN]);
+        if (insError) {
+          console.error('Failed to auto-seed default admin into Supabase:', insError);
+        } else {
+          console.log('Seeded default administrator into admin_users Supabase table.');
+        }
+      }
+    } catch (e) {
+      console.error('Error in ensureDefaultAdmin:', e);
+    }
+  } else {
+    const localAdmins = getLocal<AdminUser[]>('giganet_admin_users', []);
+    const exists = localAdmins.some(u => u.email.toLowerCase().trim() === cleanEmail);
+    if (!exists) {
+      localAdmins.push(DEFAULT_ADMIN);
+      setLocal('giganet_admin_users', localAdmins);
+      console.log('Seeded default administrator locally in giganet_admin_users key.');
+    }
+  }
+}
+
 export async function signIn(email: string, pass: string) {
-  const savedSimulatedPassword = localStorage.getItem('giganet_simulated_password') || 'adm123';
-  const hasChangedSimulated = localStorage.getItem('giganet_simulated_password_changed') === 'true';
+  const cleanEmail = email.toLowerCase().trim();
+  
+  // Ensure default administrator is registered
+  await ensureDefaultAdmin();
 
   if (isRealSupabase && supabase) {
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password: pass
-      });
-      if (error) {
-        // Fallback to simulator if credentials are admin@gigatel.com.br / adm123 and database is not set up
-        if (email.toLowerCase().trim() === 'admin@gigatel.com.br' && pass === 'adm123') {
-          const user = { email: 'admin@gigatel.com.br', id: 'simulated-admin-user', user_metadata: { nome: 'Administrador Giganet' } };
-          const session = { access_token: 'mock-token', user };
-          localStorage.setItem('giganet_session', JSON.stringify(session));
-          return { user, session, needsPasswordChange: false, error: null };
-        }
-        throw error;
+      const { data, error } = await supabase
+        .from('admin_users')
+        .select('*')
+        .eq('email', cleanEmail)
+        .maybeSingle();
+
+      if (error) throw error;
+
+      if (!data) {
+        return { user: null, session: null, error: { message: 'Usuário ou senha inválidos' } };
       }
 
-      const needsPasswordChange = email === 'admin@gigatel.com.br' && pass === 'adm123';
+      if (data.senha !== pass) {
+        return { user: null, session: null, error: { message: 'Usuário ou senha inválidos' } };
+      }
 
-      return { 
-        user: data.user, 
-        session: data.session, 
-        needsPasswordChange,
-        error: null 
+      if (data.ativo !== true) {
+        return { user: null, session: null, error: { message: 'Seu acesso está inativo. Contrate o administrador.' } };
+      }
+
+      const user = {
+        id: data.id || 'supa-admin-user',
+        email: data.email,
+        nivel: data.nivel || 'admin',
+        nome: data.nome || 'Administrador Giganet'
       };
-    } catch (error: any) {
-      if (email.toLowerCase().trim() === 'admin@gigatel.com.br' && pass === 'adm123') {
-        const user = { email: 'admin@gigatel.com.br', id: 'simulated-admin-user', user_metadata: { nome: 'Administrador Giganet' } };
-        const session = { access_token: 'mock-token', user };
-        localStorage.setItem('giganet_session', JSON.stringify(session));
-        return { user, session, needsPasswordChange: false, error: null };
+
+      const session = { access_token: 'supabase-db-token-' + Date.now(), user };
+      localStorage.setItem('giganet_session', JSON.stringify(session));
+
+      return { user, session, needsPasswordChange: pass === '123456', error: null };
+    } catch (e: any) {
+      console.warn('Supabase auth failed or table missing, fallback to simulator:', e);
+      const localAdmins = getLocal<AdminUser[]>('giganet_admin_users', []);
+      const match = localAdmins.find(u => u.email.toLowerCase().trim() === cleanEmail);
+      
+      if (!match || match.senha !== pass) {
+        return { user: null, session: null, error: { message: 'Usuário ou senha inválidos' } };
       }
-      return { user: null, session: null, needsPasswordChange: false, error };
+
+      if (match.ativo !== true) {
+        return { user: null, session: null, error: { message: 'Seu acesso está inativo.' } };
+      }
+
+      const user = {
+        id: match.id || 'local-admin-user',
+        email: match.email,
+        nivel: match.nivel || 'admin',
+        nome: 'Administrador Giganet'
+      };
+
+      const session = { access_token: 'local-token-' + Date.now(), user };
+      localStorage.setItem('giganet_session', JSON.stringify(session));
+
+      return { user, session, needsPasswordChange: pass === '123456', error: null };
     }
   } else {
-    // Simulator Auth
-    const resolvedEmail = email.toLowerCase().trim();
-    if (resolvedEmail === 'admin@gigatel.com.br' || resolvedEmail === 'admin@giganet.com.br') {
-      if (pass === savedSimulatedPassword || pass === 'adm123') {
-        const user = { email: resolvedEmail, id: 'simulated-admin-user', user_metadata: { nome: 'Administrador Giganet' } };
-        const session = { access_token: 'mock-token', user };
-        localStorage.setItem('giganet_session', JSON.stringify(session));
-        
-        const needsPasswordChange = pass === 'adm123' && !hasChangedSimulated;
-
-        return { user, session, needsPasswordChange, error: null };
-      } else {
-        return { user: null, session: null, needsPasswordChange: false, error: { message: 'Senha incorreta para a conta Administrador!' } };
-      }
-    } else {
-      return { 
-        user: null, 
-        session: null, 
-        needsPasswordChange: false, 
-        error: { message: 'Inicie com uma conta existente. Experimente o e-mail: admin@gigatel.com.br / senha: adm123' } 
-      };
+    const localAdmins = getLocal<AdminUser[]>('giganet_admin_users', []);
+    const match = localAdmins.find(u => u.email.toLowerCase().trim() === cleanEmail);
+    
+    if (!match || match.senha !== pass) {
+      return { user: null, session: null, error: { message: 'Usuário ou senha inválidos' } };
     }
+
+    if (match.ativo !== true) {
+      return { user: null, session: null, error: { message: 'Seu acesso está inativo.' } };
+    }
+
+    const user = {
+      id: match.id || 'local-admin-user',
+      email: match.email,
+      nivel: match.nivel || 'admin',
+      nome: 'Administrador Giganet'
+    };
+
+    const session = { access_token: 'local-token-' + Date.now(), user };
+    localStorage.setItem('giganet_session', JSON.stringify(session));
+
+    return { user, session, needsPasswordChange: pass === '123456', error: null };
   }
 }
 
 export async function changePassword(newPassword: string) {
   updateTimestamp();
+  const sessionUser = await getCurrentUser();
+  if (!sessionUser || !sessionUser.email) {
+    return { error: { message: 'Nenhum usuário logado para alteração de senha.' } };
+  }
+
+  const cleanEmail = sessionUser.email.toLowerCase().trim();
+
   if (isRealSupabase && supabase) {
     try {
-      const { data, error } = await supabase.auth.updateUser({ password: newPassword });
+      const { error } = await supabase
+        .from('admin_users')
+        .update({ senha: newPassword })
+        .eq('email', cleanEmail);
       if (error) throw error;
       return { error: null };
     } catch (error: any) {
       return { error };
     }
   } else {
-    localStorage.setItem('giganet_simulated_password', newPassword);
-    localStorage.setItem('giganet_simulated_password_changed', 'true');
+    const localAdmins = getLocal<AdminUser[]>('giganet_admin_users', []);
+    const idx = localAdmins.findIndex(u => u.email.toLowerCase().trim() === cleanEmail);
+    if (idx > -1) {
+      localAdmins[idx].senha = newPassword;
+      setLocal('giganet_admin_users', localAdmins);
+    }
     return { error: null };
   }
 }
 
 export async function resetPassword(email: string) {
+  const cleanEmail = email.toLowerCase().trim();
+  
   if (isRealSupabase && supabase) {
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: window.location.origin
-      });
-      return { error };
-    } catch (error: any) {
-      return { error };
+      const { data, error } = await supabase
+        .from('admin_users')
+        .select('*')
+        .eq('email', cleanEmail)
+        .maybeSingle();
+
+      if (error) throw error;
+      if (!data) {
+        return { error: { message: 'Este e-mail não confere com nenhum operador em nosso sistema.' } };
+      }
+
+      return { error: null, message: `Uma requisição de redefinição de acesso para ${cleanEmail} foi registrada no portal. Fale com o suporte.` };
+    } catch (e: any) {
+      return { error: e };
     }
   } else {
-    console.log(`Mock reset password email sent successfully to ${email}`);
-    return { error: null };
+    const localAdmins = getLocal<AdminUser[]>('giganet_admin_users', []);
+    const idx = localAdmins.findIndex(u => u.email.toLowerCase().trim() === cleanEmail);
+    if (idx === -1) {
+      return { error: { message: 'Este e-mail não confere com nenhum operador de teste cadastrado.' } };
+    }
+    localAdmins[idx].senha = '123456';
+    setLocal('giganet_admin_users', localAdmins);
+    return { error: null, message: `Sua senha de teste para ${cleanEmail} foi restaurada com sucesso para "123456".` };
   }
 }
 
 export async function signOut() {
-  if (isRealSupabase && supabase) {
-    await supabase.auth.signOut().catch(() => {});
-  }
   localStorage.removeItem('giganet_session');
 }
 
 export async function getCurrentUser() {
-  if (isRealSupabase && supabase) {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) return user;
-    } catch (e) {}
-  }
-  
   const sessionStr = localStorage.getItem('giganet_session');
   if (sessionStr) {
     try {
@@ -1138,3 +1240,4 @@ export async function getCurrentUser() {
   }
   return null;
 }
+
