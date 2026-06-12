@@ -63,17 +63,17 @@ export default function Header({ config, onNavigate, currentView }: HeaderProps)
       className="fixed top-0 left-0 right-0 z-50 flex flex-col w-full shadow-sm"
     >
       {/* 1. TOP INFORMATION BAR (TOPO DO SITE) */}
-      <div className="bg-[#051C57] text-[11px] text-slate-100 py-2 px-4 relative z-50">
+      <div className="bg-top-bar text-[11px] text-[#0A1F44] py-2 px-4 relative z-50 font-bold border-b border-blue-100/50">
         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-2 lg:gap-4 text-center lg:text-left">
           {/* Left: Address and travel info */}
           <div className="flex flex-wrap items-center justify-center lg:justify-start gap-x-4 gap-y-1">
-            <span className="flex items-center text-blue-100 font-medium">
-              <MapPin size={12} className="text-[#00D4FF] mr-1.5 shrink-0" />
+            <span className="flex items-center text-[#0A1F44] font-semibold">
+              <MapPin size={12} className="text-[#E53935] mr-1.5 shrink-0" />
               {formattedAddress}
             </span>
-            <span className="hidden sm:inline-flex items-center text-blue-200">
-              <Car size={13} className="text-[#00AEEF] mr-1.5 shrink-0" />
-              Chegue em: <strong className="text-white ml-1 font-semibold">{formattedCarTime} ou {formattedMotoTime}</strong>
+            <span className="hidden sm:inline-flex items-center text-[#0A1F44]/90 font-medium">
+              <Car size={13} className="text-[#E53935] mr-1.5 shrink-0" />
+              Chegue em: <strong className="text-[#0A1F44] ml-1 font-black">{formattedCarTime} ou {formattedMotoTime}</strong>
             </span>
           </div>
 
@@ -81,18 +81,18 @@ export default function Header({ config, onNavigate, currentView }: HeaderProps)
           <div className="flex items-center justify-center gap-5">
             <a 
               href={phoneLink} 
-              className="flex items-center text-white hover:text-[#00D4FF] transition-colors font-semibold"
+              className="flex items-center text-[#0A1F44] hover:text-[#0057FF] transition-colors font-black"
             >
-              <Phone size={12} className="text-[#00D4FF] mr-1.5 shrink-0" />
+              <Phone size={12} className="text-[#E53935] mr-1.5 shrink-0" />
               {displayPhone}
             </a>
             <a 
               href={instagramLink} 
               target="_blank" 
               rel="noopener noreferrer" 
-              className="flex items-center text-blue-100 hover:text-white transition-colors"
+              className="flex items-center text-[#0A1F44] hover:text-[#0057FF] transition-colors font-semibold"
             >
-              <Instagram size={12} className="text-pink-400 mr-1.5 shrink-0" />
+              <Instagram size={12} className="text-[#E53935] mr-1.5 shrink-0" />
               @{instagramUser}
             </a>
           </div>
@@ -103,19 +103,19 @@ export default function Header({ config, onNavigate, currentView }: HeaderProps)
       <div
         className={`w-full transition-all duration-300 ${
           scrolled || currentView === 'admin'
-            ? 'bg-white/95 backdrop-blur-md border-b border-slate-200/80 py-3 shadow-md'
-            : 'bg-white/90 backdrop-blur-md border-b border-slate-100 py-4'
+            ? 'bg-[rgba(10,31,68,0.95)] backdrop-blur-md border-b border-white/10 py-3 shadow-lg'
+            : 'bg-transparent py-4'
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             
-            {/* Brand/Logo on white bg */}
+            {/* Brand/Logo - always white/light on dark/transparent menu over hero */}
             <div 
               onClick={() => { onNavigate('main'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
               className="cursor-pointer"
             >
-              <Logo size="md" lightVersion={false} />
+              <Logo size="md" lightVersion={true} />
             </div>
 
             {/* Navigation - Centered and elegant */}
@@ -125,10 +125,10 @@ export default function Header({ config, onNavigate, currentView }: HeaderProps)
                   <button
                     key={item.label}
                     onClick={() => handleNavClick(item.href)}
-                    className="text-xs font-bold text-slate-600 hover:text-[#005BFF] transition-colors uppercase tracking-widest relative py-1 group"
+                    className="text-xs font-bold text-white hover:text-[#00AEEF] transition-colors uppercase tracking-widest relative py-1 group"
                   >
                     {item.label}
-                    <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#005BFF] group-hover:w-full transition-all duration-300" />
+                    <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#00AEEF] group-hover:w-full transition-all duration-300" />
                   </button>
                 ))}
               </nav>
@@ -136,7 +136,7 @@ export default function Header({ config, onNavigate, currentView }: HeaderProps)
               <div className="hidden lg:flex items-center">
                 <button 
                   onClick={() => onNavigate('main')}
-                  className="text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors uppercase tracking-wider"
+                  className="text-xs font-bold text-slate-300 hover:text-white transition-colors uppercase tracking-wider"
                 >
                   ← Voltar ao Site Principal
                 </button>
@@ -147,7 +147,7 @@ export default function Header({ config, onNavigate, currentView }: HeaderProps)
             <div className="hidden lg:flex items-center space-x-3.5">
               <button
                 onClick={() => handleNavClick('#cobertura')}
-                className="px-5 py-2.5 text-xs font-bold text-[#005BFF] bg-white hover:bg-[#005BFF] hover:text-white border border-[#005BFF]/30 rounded-xl transition-all duration-300"
+                className="px-5 py-2.5 text-xs font-bold text-white bg-transparent hover:bg-white hover:text-[#0A1F44] border border-white/20 rounded-xl transition-all duration-300"
               >
                 Consultar Cobertura
               </button>
@@ -157,7 +157,7 @@ export default function Header({ config, onNavigate, currentView }: HeaderProps)
                 target="_blank"
                 referrerPolicy="no-referrer"
                 rel="noopener noreferrer"
-                className="px-5 py-2.5 text-xs font-bold text-white bg-[#25D366] hover:bg-[#20ba5a] rounded-xl shadow-md transition-all duration-300 flex items-center space-x-2 hover:scale-103"
+                className="px-5 py-2.5 text-xs font-bold text-white bg-[#E53935] hover:bg-[#c62828] rounded-xl shadow-md transition-all duration-300 flex items-center space-x-2 hover:scale-103"
               >
                 <MessageCircle size={14} className="fill-current text-white shrink-0" />
                 <span>Conversar WhatsApp</span>
@@ -168,7 +168,7 @@ export default function Header({ config, onNavigate, currentView }: HeaderProps)
             <div className="flex items-center space-x-2 lg:hidden">
               <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="p-2 rounded-lg text-slate-700 hover:bg-slate-100 transition-colors"
+                className="p-2 rounded-lg text-white hover:bg-white/10 transition-colors"
                 id="mobile-menu-btn"
               >
                 {isOpen ? <X size={24} /> : <Menu size={24} />}
@@ -181,14 +181,14 @@ export default function Header({ config, onNavigate, currentView }: HeaderProps)
 
       {/* Mobile Responsive Menu */}
       {isOpen && (
-        <div className="lg:hidden bg-white/95 backdrop-blur-md border-b border-slate-200 px-4 pt-3 pb-6 space-y-4 shadow-xl animate-fade-in relative z-40">
+        <div className="lg:hidden bg-[rgba(10,31,68,0.98)] border-b border-white/10 px-4 pt-3 pb-6 space-y-4 shadow-xl animate-fade-in relative z-40 text-white">
           {currentView === 'main' ? (
             <div className="flex flex-col space-y-1">
               {navItems.map((item) => (
                 <button
                   key={item.label}
                   onClick={() => handleNavClick(item.href)}
-                  className="text-left py-2.5 px-3 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-50 hover:text-[#005BFF] transition-all"
+                  className="text-left py-2.5 px-3 rounded-lg text-xs font-bold text-slate-200 hover:bg-white/10 hover:text-[#00AEEF] transition-all"
                 >
                   {item.label}
                 </button>
@@ -197,16 +197,16 @@ export default function Header({ config, onNavigate, currentView }: HeaderProps)
           ) : (
             <button
               onClick={() => { setIsOpen(false); onNavigate('main'); }}
-              className="w-full text-left py-2.5 px-3 rounded-lg text-xs font-bold text-slate-550 hover:bg-slate-50 hover:text-slate-900 transition-all uppercase"
+              className="w-full text-left py-2.5 px-3 rounded-lg text-xs font-bold text-slate-300 hover:bg-white/10 hover:text-white transition-all uppercase"
             >
               ← Voltar ao Site Principal
             </button>
           )}
 
-          <div className="pt-3 border-t border-slate-150 flex flex-col gap-2">
+          <div className="pt-3 border-t border-white/10 flex flex-col gap-2">
             <button
               onClick={() => handleNavClick('#cobertura')}
-              className="flex items-center justify-center space-x-2 px-4 py-3 rounded-xl text-xs font-bold text-white bg-[#005BFF] hover:bg-[#004ccb] transition-all shadow-md"
+              className="flex items-center justify-center space-x-2 px-4 py-3 rounded-xl text-xs font-bold text-white bg-transparent border border-white/20 hover:bg-white/10 transition-all shadow-md"
             >
               <span>Consultar Cobertura</span>
             </button>
@@ -216,7 +216,7 @@ export default function Header({ config, onNavigate, currentView }: HeaderProps)
               target="_blank"
               referrerPolicy="no-referrer"
               rel="noopener noreferrer"
-              className="flex items-center justify-center space-x-2 px-4 py-3 rounded-xl text-xs font-bold bg-[#25D366] hover:bg-[#20ba5a] text-white shadow-md"
+              className="flex items-center justify-center space-x-2 px-4 py-3 rounded-xl text-xs font-bold bg-[#E53935] hover:bg-[#c62828] text-white shadow-md"
             >
               <MessageCircle size={15} className="text-white fill-current shrink-0" />
               <span>Falar no WhatsApp</span>

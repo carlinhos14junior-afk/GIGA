@@ -27,19 +27,19 @@ export default function Contato({ config }: ContatoProps) {
       badge: 'Atendimento Rápido'
     },
     {
-      title: 'Telefone comercial',
+      title: 'Telefone residencial ou celular',
       val: config.telefone || '(11) 91005-0121',
       icon: Phone,
       link: `tel:${config.telefone ? config.telefone.replace(/\D/g, '') : '11910050121'}`,
     },
     {
-      title: 'E-mail Comercial',
+      title: 'E-mail Corporativo',
       val: config.email || 'contato@gigatelfiber.com.br',
       icon: Mail,
       link: `mailto:${config.email}`
     },
     {
-      title: 'Endereço Comercial',
+      title: 'Espaço Físico Oficial',
       val: formattedAddress,
       icon: MapPin,
       link: `https://maps.google.com/?q=${encodeURIComponent(formattedAddress)}`
@@ -49,50 +49,62 @@ export default function Contato({ config }: ContatoProps) {
   return (
     <section 
       id="contato" 
-      className="relative py-28 bg-white overflow-hidden text-slate-800 border-b border-slate-150"
+      className="relative py-28 bg-[#E53935] overflow-hidden text-white border-b border-black/5"
     >
+      {/* Visual Tech Overlays */}
+      <div className="absolute inset-0 opacity-[0.05] pointer-events-none mix-blend-overlay">
+        <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="contato-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#FFFFFF" strokeWidth="1" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#contato-grid)" />
+        </svg>
+      </div>
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
         
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-stretch">
           
-          {/* Left Column: text statement and details */}
+          {/* Left Column: CTA Title and details (White text) */}
           <div className="lg:col-span-6 flex flex-col justify-between space-y-8">
             <div className="space-y-6">
-              <div className="inline-flex items-center space-x-2 bg-blue-50 border border-blue-100 px-4 py-1.5 rounded-full text-[#005BFF] font-black text-xs uppercase self-start tracking-widest">
-                <span>Canais de Atendimento</span>
+              <div className="inline-flex items-center space-x-2 bg-white/10 border border-white/20 px-4 py-1.5 rounded-full text-white font-black text-xs uppercase self-start tracking-widest">
+                <span>CONECTE-SE AGORA</span>
               </div>
 
-              <h2 className="font-display font-black text-4xl sm:text-5xl text-slate-900 tracking-tighter leading-none uppercase">
-                FALE COM UM ESPECIALISTA <br />
-                <span className="text-[#005BFF] font-extrabold bg-gradient-to-r from-[#005BFF] to-[#0188FF] bg-clip-text text-transparent font-extrabold">
-                  {config.nome_empresa}
+              <h2 className="font-display font-black text-4xl sm:text-5xl text-white tracking-tighter leading-none uppercase">
+                PRONTO PARA NAVEGAR <br />
+                <span className="text-yellow-300 font-extrabold bg-gradient-to-r from-yellow-300 via-white to-white bg-clip-text text-transparent">
+                  NA ULTRA VELOCIDADE?
                 </span>
               </h2>
 
-              <p className="text-slate-650 text-sm sm:text-base leading-relaxed font-semibold">
-                Estamos à sua inteira disposição para tirar dúvidas, realizar consultas de viabilidade avançada ou agendar a instalação rápida da sua internet fibra óptica. Conte conosco!
+              <p className="text-red-50 text-sm sm:text-base leading-relaxed font-bold">
+                Fale hoje mesmo com um consultor da GIGATEL FIBER e garanta instalação prioritária qualificada em seu logradouro. Não sofra mais com quedas de sinal ou uploads lentos! Estabilidade real está aqui.
               </p>
 
               {/* Working hours section */}
-              <div className="flex items-center space-x-4 p-5 rounded-3xl bg-slate-50 border border-slate-200 max-w-md">
-                <div className="p-3 bg-blue-50 text-[#005BFF] rounded-xl shrink-0 border border-blue-100">
+              <div className="flex items-center space-x-4 p-5 rounded-3xl bg-white/10 border border-white/20 max-w-md">
+                <div className="p-3 bg-white/10 text-white rounded-xl shrink-0 border border-white/10">
                   <Clock size={20} />
                 </div>
                 <div>
-                  <h4 className="text-xs font-black uppercase text-slate-900 tracking-wider">Horário Operacional</h4>
-                  <p className="text-xs text-slate-600 mt-1 font-semibold">Segunda a Sexta: 08h às 20h</p>
-                  <p className="text-xs text-slate-600 font-semibold">Sábado: 08h às 14h</p>
+                  <h4 className="text-xs font-black uppercase text-white tracking-wider">Canais 100% Ativos</h4>
+                  <p className="text-xs text-red-50 mt-1 font-bold">Segunda a Sexta: 08h às 20h</p>
+                  <p className="text-xs text-red-50 font-bold">Sábado: 08h às 14h</p>
                 </div>
               </div>
             </div>
 
             {/* Security trust badge */}
-            <div className="text-[10px] text-slate-400 max-w-sm pt-4 border-t border-slate-100 lg:block hidden leading-relaxed font-medium">
-              * Todas as suas conversações e dados de atendimento por chat e WhatsApp são resguardados de acordo com as diretrizes da Lei Geral de Proteção de Dados (LGPD) garantindo sigilo absoluto.
+            <div className="text-[10px] text-red-100/75 max-w-sm pt-4 border-t border-white/10 lg:block hidden leading-relaxed font-semibold">
+              * Todas as suas conversações e simulações são confidenciais e regidas conforme a Lei Geral de Proteção de Dados (LGPD) garantindo criptografia ponta a ponta.
             </div>
           </div>
 
-          {/* Right Column: details list buttons */}
+          {/* Right Column: Contact Channels styled as white premium buttons/cards */}
           <div className="lg:col-span-6 flex flex-col justify-center">
             <div className="grid grid-cols-1 gap-4">
               
@@ -105,10 +117,11 @@ export default function Contato({ config }: ContatoProps) {
                     href={item.link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group flex items-center justify-between p-5 rounded-3xl bg-white border border-blue-100 hover:border-[#005BFF]/30 hover:bg-[#FDFEFF]/40 transition-all duration-300 shadow-md hover:-translate-y-[2px]"
+                    className="group flex items-center justify-between p-5 rounded-3xl bg-white border border-transparent hover:bg-slate-50 transition-all duration-300 shadow-xl hover:-translate-y-[2px]"
                   >
                     <div className="flex items-center space-x-4 pr-4">
-                      <div className="p-3.5 rounded-xl bg-blue-50 border border-blue-100/50 text-[#005BFF] group-hover:bg-[#005BFF] group-hover:text-white transition-all">
+                      {/* Brand blue or dark blue icon bubble for absolute premium contrast */}
+                      <div className="p-3.5 rounded-xl bg-red-50 text-[#E53935] group-hover:bg-[#E53935] group-hover:text-white transition-all border border-red-100">
                         <Icon size={20} />
                       </div>
                       <div>
@@ -117,18 +130,18 @@ export default function Contato({ config }: ContatoProps) {
                             {item.title}
                           </span>
                           {item.badge && (
-                            <span className="text-[8px] bg-blue-50 border border-blue-100 text-[#005BFF] font-black px-2 py-0.5 rounded uppercase tracking-wider font-mono">
+                            <span className="text-[8px] bg-red-50 text-[#E53935] font-black px-2 py-0.5 rounded uppercase tracking-wider font-mono">
                               {item.badge}
                             </span>
                           )}
                         </div>
-                        <p className="text-sm sm:text-base font-black text-slate-900 group-hover:text-[#005BFF] transition-colors mt-1.5 break-all">
+                        <p className="text-sm sm:text-base font-black text-[#0A1F44] group-hover:text-[#E53935] transition-colors mt-1.5 break-all">
                           {item.val}
                         </p>
                       </div>
                     </div>
 
-                    <ExternalLink size={14} className="text-slate-400 group-hover:text-[#005BFF] transition-all group-hover:translate-x-0.5" />
+                    <ExternalLink size={14} className="text-slate-400 group-hover:text-[#E53935] transition-all group-hover:translate-x-0.5" />
                   </a>
                 );
               })}

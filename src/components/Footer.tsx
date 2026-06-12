@@ -20,15 +20,15 @@ export default function Footer({ config, onNavigate }: FooterProps) {
   const formattedAddress = `${config.endereco}${config.bairro ? `, ${config.bairro}` : ''}${config.cidade ? `, ${config.cidade}` : ''}${config.estado ? ` - ${config.estado}` : ''}${config.cep ? ` - CEP ${config.cep}` : ''}`;
 
   return (
-    <footer id="footer-giganet" className="relative bg-[#031C42] border-t border-blue-900/50 pt-16 pb-12 text-slate-300 overflow-hidden">
+    <footer id="footer-giganet" className="relative bg-[#0A1F44] border-t border-white/5 pt-16 pb-12 text-slate-300 overflow-hidden">
       {/* Top highlight bar */}
-      <div className="absolute top-0 inset-x-0 h-[3px] bg-gradient-to-r from-[#005BFF] via-[#00AEEF] to-[#0188FF]" />
+      <div className="absolute top-0 inset-x-0 h-[3px] bg-gradient-to-r from-[#0057FF] via-[#00AEEF] to-[#E53935]" />
 
       {/* Footer Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Core Links Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12 border-b border-blue-900 pb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12 border-b border-white/5 pb-11">
           
           {/* Logo / Brand block */}
           <div className="flex flex-col space-y-4">
@@ -65,52 +65,52 @@ export default function Footer({ config, onNavigate }: FooterProps) {
 
           {/* Links Rápidos */}
           <div>
-            <h4 className="font-display font-bold text-xs text-white uppercase tracking-wider mb-4">Navegação</h4>
+            <h4 className="font-display font-black text-xs text-white uppercase tracking-wider mb-4">Navegação</h4>
             <ul className="space-y-2 text-xs">
               <li>
-                <a href="#inicio" className="text-slate-300 hover:text-white transition-colors">Início</a>
+                <a href="#inicio" className="text-[#00AEEF] hover:text-white font-semibold transition-colors">Início</a>
               </li>
               <li>
-                <a href="#planos" className="text-slate-300 hover:text-white transition-colors">Planos Fibra</a>
+                <a href="#planos" className="text-[#00AEEF] hover:text-white font-semibold transition-colors">Planos Fibra</a>
               </li>
               <li>
-                <a href="#vantagens" className="text-slate-300 hover:text-white transition-colors">Diferenciais</a>
+                <a href="#vantagens" className="text-[#00AEEF] hover:text-white font-semibold transition-colors">Diferenciais</a>
               </li>
               <li>
-                <a href="#cobertura" className="text-slate-300 hover:text-white transition-colors">Consultar Cobertura</a>
+                <a href="#cobertura" className="text-[#00AEEF] hover:text-white font-semibold transition-colors">Consultar Cobertura</a>
               </li>
               <li>
-                <a href="#faq" className="text-slate-300 hover:text-white transition-colors">Perguntas FAQ</a>
+                <a href="#faq" className="text-[#00AEEF] hover:text-white font-semibold transition-colors">Perguntas FAQ</a>
               </li>
             </ul>
           </div>
 
           {/* Contato Central */}
           <div>
-            <h4 className="font-display font-bold text-xs text-white uppercase tracking-wider mb-4">Fale Conosco</h4>
+            <h4 className="font-display font-black text-xs text-white uppercase tracking-wider mb-4">Fale Conosco</h4>
             <ul className="space-y-2.5 text-xs text-slate-300">
               <li className="flex items-center space-x-2">
-                <Phone size={13} className="text-slate-400 shrink-0" />
-                <span>{config.telefone}</span>
+                <Phone size={13} className="text-[#E53935] shrink-0" />
+                <span className="font-semibold text-white">{config.telefone}</span>
               </li>
               <li className="flex items-center space-x-2">
-                <Mail size={13} className="text-slate-400 shrink-0" />
-                <span className="break-all">{config.email}</span>
+                <Mail size={13} className="text-[#E53935] shrink-0" />
+                <span className="break-all font-semibold text-white">{config.email}</span>
               </li>
               <li className="flex items-start space-x-2">
-                <MapPin size={13} className="text-slate-400 shrink-0 mt-0.5" />
-                <span className="leading-relaxed">{formattedAddress}</span>
+                <MapPin size={13} className="text-[#E53935] shrink-0 mt-0.5" />
+                <span className="leading-relaxed font-semibold text-white">{formattedAddress}</span>
               </li>
             </ul>
           </div>
 
           {/* Corporate hours summary */}
           <div>
-            <h4 className="font-display font-bold text-xs text-white uppercase tracking-wider mb-4">{config.nome_empresa}</h4>
-            <p className="text-xs text-slate-300 leading-relaxed mb-2 font-medium">
+            <h4 className="font-display font-black text-xs text-white uppercase tracking-wider mb-4">{config.nome_empresa}</h4>
+            <p className="text-xs text-slate-300 leading-relaxed mb-2 font-semibold">
               Sinal estável sem franquias de download para residências, comércios e corporações sob medida.
             </p>
-            <p className="text-[11px] text-slate-400 font-mono">
+            <p className="text-[11px] text-[#00AEEF] font-mono font-semibold">
               Suporte das 08h às 21h pelo WhatsApp Comercial {config.nome_empresa}.
             </p>
           </div>

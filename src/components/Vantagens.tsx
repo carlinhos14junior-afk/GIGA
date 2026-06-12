@@ -37,27 +37,27 @@ export default function Vantagens() {
   return (
     <section 
       id="vantagens" 
-      className="relative py-28 bg-white overflow-hidden text-slate-800 border-b border-slate-100"
+      className="relative py-28 bg-[#F3F8FF] overflow-hidden text-slate-800 border-b border-slate-100"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
         
         {/* Section Title */}
         <div className="text-center max-w-3xl mx-auto mb-20">
-          <div className="inline-flex items-center space-x-2 bg-blue-50 border border-blue-100 px-4 py-1.5 rounded-full text-[#005BFF] font-black text-xs uppercase mb-4 tracking-widest">
+          <div className="inline-flex items-center space-x-2 bg-blue-50 border border-blue-100 px-4 py-1.5 rounded-full text-[#0057FF] font-black text-xs uppercase mb-4 tracking-widest">
             <span>Diferenciais Premium</span>
           </div>
           <h2 className="font-display font-black text-4xl sm:text-5xl lg:text-6xl text-slate-900 tracking-tighter mb-6 leading-none uppercase">
             POR QUE ESCOLHER A <br />
-            <span className="text-[#005BFF] font-extrabold bg-gradient-to-r from-[#005BFF] to-[#0188FF] bg-clip-text text-transparent">
+            <span className="text-[#0057FF] font-extrabold bg-gradient-to-r from-[#0057FF] to-[#00AEEF] bg-clip-text text-transparent">
               GIGATEL FIBRA
             </span>?
           </h2>
-
-          <p className="text-slate-600 text-sm sm:text-base font-medium max-w-2xl mx-auto leading-relaxed">
+ 
+          <p className="text-slate-650 text-sm sm:text-base font-semibold max-w-2xl mx-auto leading-relaxed">
             Unimos excelente infraestrutura tecnológica de fibra óptica com pós-venda humanizado de altíssima velocidade.
           </p>
         </div>
-
+ 
         {/* Benefits Grid */}
         <div id="vantagens-grid" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {vantagens.map((item, idx) => {
@@ -66,15 +66,15 @@ export default function Vantagens() {
             return (
               <div
                 key={idx}
-                className="group relative rounded-3xl bg-white border border-blue-100 p-8 shadow-md transition-all duration-300 hover:scale-[1.01] hover:border-[#005BFF]/30 hover:shadow-lg"
+                className="group relative rounded-3xl bg-white border border-blue-100 p-8 shadow-md transition-all duration-300 hover:scale-[1.02] hover:border-[#0057FF] hover:shadow-2xl hover:shadow-blue-500/10"
               >
                 {/* Card Icon */}
-                <div className="p-4 rounded-xl w-14 h-14 flex items-center justify-center mb-6 text-[#005BFF] bg-blue-50 border border-blue-100/50 shrink-0 group-hover:bg-[#005BFF] group-hover:text-white transition-all duration-300 shadow-sm">
+                <div className="p-4 rounded-xl w-14 h-14 flex items-center justify-center mb-6 text-[#0057FF] bg-blue-50 border border-blue-100/50 shrink-0 group-hover:bg-[#0057FF] group-hover:text-white transition-all duration-300 shadow-sm">
                   <IconComponent size={24} className="stroke-[2.2]" />
                 </div>
-
+ 
                 {/* Content */}
-                <h3 className="font-display font-black text-lg text-slate-900 mb-3 tracking-tight group-hover:text-[#005BFF] transition-colors uppercase">
+                <h3 className="font-display font-black text-lg text-slate-900 mb-3 tracking-tight group-hover:text-[#0057FF] transition-colors uppercase">
                   {item.titulo}
                 </h3>
                 

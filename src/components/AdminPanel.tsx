@@ -1,17 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Lock, Key, Landmark, LogOut, CheckCircle, Save, Plus, Trash2, 
-  Settings, Users, Edit3, Grid, CornerDownRight, Database, Wifi, 
-  ShieldAlert, BadgeInfo, Menu, ChevronLeft, ChevronRight, FileText, 
-  Activity, Calendar, CheckSquare, Upload, ArrowDownToLine, LockKeyhole
+  Plus, Edit3, Trash2, Save, Upload, ArrowDownToLine, 
+  Activity, Calendar, Users, CheckSquare, Settings, Wifi, 
+  Database, LogOut, ChevronLeft, ChevronRight, Grid, 
+  LockKeyhole, Key, BadgeInfo, Image as ImageIcon, Globe, 
+  Share2, CheckCircle, X, Lock, Check, Copy, Eye
 } from 'lucide-react';
 import { 
-  getCurrentUser, signIn, signOut, isRealSupabase, 
-  getSiteConfig, saveSiteConfig, getPlanos, savePlano, deletePlano, 
-  getLeads, updateLeadStatus, deleteLead, getUsuarios, saveUsuario, 
-  deleteUsuario, uploadFile, changePassword
+  getSiteConfig, saveSiteConfig, getBanners, saveBanner, deleteBanner, 
+  getEmpresa, saveEmpresa, getRedesSociais, saveRedesSociais, getSEO, saveSEO, 
+  getCidadesCobertura, saveCidadeCobertura, deleteCidadeCobertura, getPlanos, 
+  savePlano, deletePlano, getLeads, deleteLead, updateLeadStatus, 
+  getUsuarios, saveUsuario, deleteUsuario, uploadFile, signIn, changePassword, 
+  getCurrentUser, getLastUpdate, isRealSupabase, getUploads, saveUpload, deleteUpload
 } from '../lib/supabase';
-import { SiteConfig, Plano, Lead, Usuario } from '../types';
+import { 
+  SiteConfig, Plano, Lead, Usuario, Banner, 
+  Empresa, RedesSociais, CidadeCobertura, SEOConfig, UploadMedia 
+} from '../types';
 import Logo from './Logo';
 
 interface AdminPanelProps {
@@ -19,466 +25,560 @@ interface AdminPanelProps {
   onPlanosChange: () => void;
 }
 
+type TabType = 'dashboard' | 'banners' | 'empresa' | 'planos' | 'cobertura' | 'redes_sociais' | 'seo' | 'usuarios' | 'configuracoes';
+
 export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPanelProps) {
+  // Navigation & Sizing
+  const [activeTab, setActiveTab] = useState<TabType>('dashboard');
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [alertMessage, setAlertMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
+
+  // Authentication States
   const [user, setUser] = useState<any>(null);
   const [authLoading, setAuthLoading] = useState(true);
-  const [loginEmail, setLoginEmail] = useState('admin@gigatel.com.br');
-  const [loginPassword, setLoginPassword] = useState('Admin@123');
-  const [loginError, setLoginError] = useState('');
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
   const [loginLoading, setLoginLoading] = useState(false);
-
-  // Forced password change flow ("Forçar alteração de senha no primeiro acesso")
+  const [loginError, setLoginError] = useState('');
+  
+  // Force change password
   const [mustChangePassword, setMustChangePassword] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
-  const [passwordChangeSuccess, setPasswordChangeSuccess] = useState(false);
-  const [passwordChangeError, setPasswordChangeError] = useState('');
   const [passwordChanging, setPasswordChanging] = useState(false);
+  const [passwordChangeError, setPasswordChangeError] = useState('');
 
-  // Sidebar responsive & collapsible states
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const [isMobileOpen, setIsMobileOpen] = useState(false);
-  
-  // Dashboard tabs
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'geral' | 'planos' | 'leads' | 'assets' | 'usuarios' | 'supabase'>('dashboard');
-  
-  // Data State
-  const [currentConfig, setCurrentConfig] = useState<SiteConfig | null>(null);
+  // Loaded Data States
+  const [siteConfig, setSiteConfig] = useState<SiteConfig | null>(null);
+  const [bannersList, setBannersList] = useState<Banner[]>([]);
+  const [empresaDetail, setEmpresaDetail] = useState<Empresa | null>(null);
   const [planosList, setPlanosList] = useState<Plano[]>([]);
-  const [leadsList, setLeadsList] = useState<Lead[]>([]);
+  const [coberturaList, setCoberturaList] = useState<CidadeCobertura[]>([]);
+  const [redesSociaisDetail, setRedesSociaisDetail] = useState<RedesSociais | null>(null);
+  const [seoConfigDetail, setSeoConfigDetail] = useState<SEOConfig | null>(null);
   const [usuariosList, setUsuariosList] = useState<Usuario[]>([]);
-  
-  // Lead Filter
-  const [leadStatusFilter, setLeadStatusFilter] = useState<string>('all');
-  
-  // Save feedbacks
-  const [configSuccess, setConfigSuccess] = useState(false);
-  const [dataLoading, setDataLoading] = useState(false);
+  const [leadsList, setLeadsList] = useState<Lead[]>([]);
+  const [uploadsList, setUploadsList] = useState<UploadMedia[]>([]);
 
-  // New or Edited Plano Form
-  const [selectedPlano, setSelectedPlano] = useState<Partial<Plano> | null>(null);
-  const [planoForm, setPlanoForm] = useState({
-    nome: '',
-    velocidade: '',
-    preco: 0,
-    beneficiosStr: '',
-    destaque: false,
-    ativo: true
-  });
+  // Site general operational status selector
+  const [siteStatus, setSiteStatus] = useState<'Ativo' | 'Manutenção'>('Ativo');
 
-  // User form states
-  const [newUserOpen, setNewUserOpen] = useState(false);
-  const [newUserEmail, setNewUserEmail] = useState('');
-  const [newUserName, setNewUserName] = useState('');
+  // Form Modals / Edit targets states
+  const [editingBanner, setEditingBanner] = useState<Partial<Banner> | null>(null);
+  const [editingPlano, setEditingPlano] = useState<Partial<Plano> | null>(null);
+  const [editingCidade, setEditingCidade] = useState<Partial<CidadeCobertura> | null>(null);
+  const [editingUsuario, setEditingUsuario] = useState<Partial<Usuario> | null>(null);
 
-  // Assets image preview states
-  const [uploadLogoLoading, setUploadLogoLoading] = useState(false);
-  const [uploadBannerLoading, setUploadBannerLoading] = useState(false);
+  // Upload loaders
+  const [uploadLoading, setUploadLoading] = useState(false);
+  const [mediaFile, setMediaFile] = useState<File | null>(null);
 
-  // Check login on startup
+  // Trigger helper Alert popup
+  const showAlert = (text: string, type: 'success' | 'error' = 'success') => {
+    setAlertMessage({ text, type });
+    setTimeout(() => setAlertMessage(null), 4000);
+  };
+
+  // Check persistent session on load
   useEffect(() => {
-    async function checkAuth() {
+    async function initSession() {
       try {
-        const u = await getCurrentUser();
-        setUser(u);
-        if (u) {
-          // Check if admin is still logging in with default password
-          const initialPwdChanged = localStorage.getItem('gigatel_simulated_password_changed') === 'true';
-          if (u.email === 'admin@gigatel.com.br' && !initialPwdChanged) {
-            setMustChangePassword(true);
-          } else {
-            loadDashboardData();
-          }
+        const currentUser = await getCurrentUser();
+        if (currentUser) {
+          setUser(currentUser);
+          await loadAllCMSData();
         }
-      } catch (e) {
-        console.error(e);
+        
+        // Load initial status preference
+        const savedStatus = localStorage.getItem('giganet_site_status') as 'Ativo' | 'Manutenção';
+        if (savedStatus) {
+          setSiteStatus(savedStatus);
+        }
+      } catch (err) {
+        console.error(err);
       } finally {
         setAuthLoading(false);
       }
     }
-    checkAuth();
+    initSession();
   }, []);
 
-  // Load backend content
-  async function loadDashboardData() {
-    setDataLoading(true);
+  // Fetch all databases/Localstorage items
+  const loadAllCMSData = async () => {
     try {
-      const cfg = await getSiteConfig();
-      setCurrentConfig(cfg);
-      
-      const pls = await getPlanos();
+      const [cfg, bans, emp, pls, cob, red, seo, usrs, lds, mds] = await Promise.all([
+        getSiteConfig(),
+        getBanners(),
+        getEmpresa(),
+        getPlanos(),
+        getCidadesCobertura(),
+        getRedesSociais(),
+        getSEO(),
+        getUsuarios(),
+        getLeads(),
+        getUploads()
+      ]);
+
+      setSiteConfig(cfg);
+      setBannersList(bans);
+      setEmpresaDetail(emp);
       setPlanosList(pls);
-
-      const lds = await getLeads();
-      setLeadsList(lds);
-
-      const usrs = await getUsuarios();
+      setCoberturaList(cob);
+      setRedesSociaisDetail(red);
+      setSeoConfigDetail(seo);
       setUsuariosList(usrs);
+      setLeadsList(lds);
+      setUploadsList(mds);
     } catch (e) {
-      console.error(e);
-    } finally {
-      setDataLoading(false);
+      console.error("Error loading CMS elements: ", e);
     }
-  }
+  };
 
-  // Handle Login
-  const handleLogin = async (e: React.FormEvent) => {
+  // Sign In submit
+  const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoginError('');
     setLoginLoading(true);
-
+    setLoginError('');
     try {
-      const { user: loggedIn, error, needsPasswordChange } = await signIn(loginEmail, loginPassword);
-      if (error) {
-        setLoginError(error.message);
+      const response = await signIn(loginEmail, loginPassword);
+      if (response.error) {
+        setLoginError(response.error.message || 'Credenciais inválidas.');
       } else {
-        // Double check forced password change on first login containing default "Admin@123"
-        const initialPwdChanged = localStorage.getItem('gigatel_simulated_password_changed') === 'true';
-        if ((loginEmail === 'admin@gigatel.com.br' && loginPassword === 'Admin@123') || (!isRealSupabase && loginEmail === 'admin@gigatel.com.br' && !initialPwdChanged)) {
-          setUser(loggedIn);
+        setUser(response.user);
+        if (response.needsPasswordChange) {
           setMustChangePassword(true);
         } else {
-          setUser(loggedIn);
-          loadDashboardData();
+          await loadAllCMSData();
         }
       }
-    } catch (error: any) {
-      setLoginError('Falha ao autenticar.');
+    } catch (err: any) {
+      setLoginError(err.message || 'Erro inesperado.');
     } finally {
       setLoginLoading(false);
     }
   };
 
-  // Force Password Change Submit
-  const handleForcePasswordChangeSubmit = async (e: React.FormEvent) => {
+  // Forced password change submit
+  const handleForcePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
     setPasswordChangeError('');
-    setPasswordChangeSuccess(false);
-
-    if (newPassword.length < 6) {
-      setPasswordChangeError('A nova senha deve possuir pelo menos 6 caracteres.');
+    if (newPassword.length < 5) {
+      setPasswordChangeError('A nova senha deve possuir pelo menos 5 dígitos!');
       return;
     }
     if (newPassword !== confirmNewPassword) {
-      setPasswordChangeError('As senhas não coincidem.');
+      setPasswordChangeError('As senhas digitadas não batem.');
       return;
     }
-
     setPasswordChanging(true);
     try {
       const { error } = await changePassword(newPassword);
       if (error) {
-        setPasswordChangeError(error.message || 'Falha ao alterar senha.');
+        setPasswordChangeError(error.message);
       } else {
-        setPasswordChangeSuccess(true);
         setMustChangePassword(false);
-        // Load data on success
-        loadDashboardData();
+        showAlert('Senha padrão alterada com total segurança!');
+        await loadAllCMSData();
       }
-    } catch (e: any) {
-      setPasswordChangeError('Falha no processamento.');
+    } catch (err: any) {
+      setPasswordChangeError(err.message);
     } finally {
       setPasswordChanging(false);
     }
   };
 
-  // Handle Logout
+  // Sign out handle
   const handleLogout = async () => {
-    await signOut();
+    await LogOut();
     setUser(null);
     setMustChangePassword(false);
-    setLoginEmail('admin@gigatel.com.br');
-    setLoginPassword('Admin@123');
+    setLoginPassword('');
+    setLoginEmail('');
   };
 
-  // Save General Config
-  const handleSaveConfig = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!currentConfig) return;
+  // Save Site general status preference
+  const handleSaveSiteStatus = (status: 'Ativo' | 'Manutenção') => {
+    setSiteStatus(status);
+    localStorage.setItem('giganet_site_status', status);
+    showAlert(`Status do site alterado para "${status}"!`);
+  };
 
-    try {
-      const saved = await saveSiteConfig(currentConfig);
-      setCurrentConfig(saved);
-      setConfigSuccess(true);
-      onConfigChange(); // Notify parent
-      setTimeout(() => setConfigSuccess(false), 3000);
-    } catch (e) {
-      alert('Falha ao salvar as especificações.');
+  // CRM: Delete Lead
+  const handleDeleteLead = async (id: string | number) => {
+    if (confirm('Deseja excluir este lead permanentemente?')) {
+      try {
+        await deleteLead(id);
+        setLeadsList(leadsList.filter(l => l.id !== id));
+        showAlert('Lead removido com sucesso!');
+      } catch (err) {
+        showAlert('Houve um erro ao processar exclusão.', 'error');
+      }
     }
   };
 
-  // Edit/Add plans triggers
-  const handleEditPlanoClick = (plano: Plano | null) => {
-    if (plano) {
-      setSelectedPlano(plano);
-      setPlanoForm({
-        nome: plano.nome,
-        velocidade: plano.velocidade,
-        preco: Number(plano.preco),
-        beneficiosStr: plano.beneficios.join('\n'),
-        destaque: plano.destaque,
-        ativo: plano.ativo
-      });
-    } else {
-      setSelectedPlano({ id: undefined });
-      setPlanoForm({
-        nome: '',
-        velocidade: '',
-        preco: 99.90,
-        beneficiosStr: '100% Fibra Óptica\nWi-Fi Dual Band incluso\nDownload ilimitado',
-        destaque: false,
-        ativo: true
-      });
+  // CRM: Change lead step status
+  const handleLeadStageChange = async (id: string | number, status: Lead['status']) => {
+    try {
+      await updateLeadStatus(id, status);
+      setLeadsList(leadsList.map(l => l.id === id ? { ...l, status } : l));
+      showAlert('Status atualizado com sucesso!');
+    } catch (err) {
+      showAlert('Falha ao atualizar status.', 'error');
     }
   };
 
-  // Save Plan
-  const handleSavePlano = async (e: React.FormEvent) => {
+  // MÓDULO BANNERS: Guard/Submit
+  const handleBannerSaveSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedPlano) return;
-
+    if (!editingBanner) return;
     try {
-      const formattedBenefits = planoForm.beneficiosStr
-        .split('\n')
-        .map(b => b.trim())
-        .filter(b => b.length > 0);
-
-      const toSave = {
-        id: selectedPlano.id,
-        nome: planoForm.nome,
-        velocidade: planoForm.velocidade,
-        preco: Number(planoForm.preco),
-        beneficios: formattedBenefits,
-        destaque: planoForm.destaque,
-        ativo: planoForm.ativo
-      };
-
-      await savePlano(toSave);
-      setSelectedPlano(null);
+      const saved = await saveBanner({
+        titulo: editingBanner.titulo || '',
+        subtitulo: editingBanner.subtitulo || '',
+        texto_botao: editingBanner.texto_botao || 'Contratar',
+        link_botao: editingBanner.link_botao || '#planos',
+        imagem_desktop: editingBanner.imagem_desktop || 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&q=80&w=1200',
+        imagem_mobile: editingBanner.imagem_mobile || 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&q=80&w=600',
+        ordem: Number(editingBanner.ordem || 1),
+        status: editingBanner.status || 'ativo'
+      });
       
-      const updatedList = await getPlanos();
-      setPlanosList(updatedList);
-      onPlanosChange(); // Notify layout App.tsx
-    } catch (e) {
-      alert('Erro ao guardar configurações de planos.');
+      const refreshed = await getBanners();
+      setBannersList(refreshed);
+      setEditingBanner(null);
+      showAlert('Banner salvo com sucesso!');
+    } catch (err) {
+      showAlert('Erro ao registrar o banner.', 'error');
     }
   };
 
-  // Delete Plan
-  const handleDeletePlano = async (id: string | number) => {
-    if (confirm('Tem certeza de que deseja excluir permanentemente este plano?')) {
+  const handleDeleteBannerClick = async (id: string | number) => {
+    if (confirm('Deseja deletar este banner?')) {
+      try {
+        await deleteBanner(id);
+        setBannersList(bannersList.filter(b => b.id !== id));
+        showAlert('Banner deletado.');
+      } catch (err) {
+        showAlert('Erro ao deletar banner.', 'error');
+      }
+    }
+  };
+
+  // MÓDULO DADOS DA EMPRESA: Submit
+  const handleEmpresaSaveSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!empresaDetail) return;
+    try {
+      const saved = await saveEmpresa(empresaDetail);
+      setEmpresaDetail(saved);
+      
+      // Keep main siteConfig in sync to ensure automatic top/footer updates
+      if (siteConfig) {
+        const synced = {
+          ...siteConfig,
+          nome_empresa: saved.nome_empresa,
+          telefone: saved.telefone,
+          whatsapp: saved.whatsapp,
+          email: saved.email,
+          endereco: `${saved.endereco}, ${saved.numero}`
+        };
+        await saveSiteConfig(synced);
+        setSiteConfig(synced);
+      }
+      
+      onConfigChange();
+      showAlert('Dados da empresa salvos e replicados!');
+    } catch (err) {
+      showAlert('Erro ao guardar configurações da empresa.', 'error');
+    }
+  };
+
+  // MÓDULO PLANOS: Submit
+  const handlePlanoSaveSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingPlano) return;
+    try {
+      const benefits = Array.isArray(editingPlano.beneficios) 
+        ? editingPlano.beneficios 
+        : typeof editingPlano.beneficios === 'string'
+          ? (editingPlano.beneficios as string).split('\n').map(s => s.trim()).filter(Boolean)
+          : [];
+
+      await savePlano({
+        id: editingPlano.id,
+        nome: editingPlano.nome || '',
+        velocidade: editingPlano.velocidade || '',
+        preco: Number(editingPlano.preco || 0),
+        descricao: editingPlano.descricao || '',
+        beneficios: benefits,
+        ordem: Number(editingPlano.ordem || 1),
+        destaque: editingPlano.destaque || false,
+        ativo: editingPlano.ativo !== false,
+        status: editingPlano.status || 'ativo'
+      });
+
+      const refreshed = await getPlanos();
+      setPlanosList(refreshed);
+      setEditingPlano(null);
+      onPlanosChange();
+      showAlert('Plano gravado com sucesso no site!');
+    } catch (err) {
+      showAlert('Não foi possível gravar o plano.', 'error');
+    }
+  };
+
+  const handleDeletePlanoClick = async (id: string | number) => {
+    if (confirm('Tem certeza que deseja excluir permanentemente este plano de internet?')) {
       try {
         await deletePlano(id);
-        const updatedList = await getPlanos();
-        setPlanosList(updatedList);
+        setPlanosList(planosList.filter(p => p.id !== id));
         onPlanosChange();
-      } catch (e) {
-        alert('Falha ao remover plano.');
+        showAlert('Plano excluído.');
+      } catch (err) {
+        showAlert('Erro ao excluir plano.', 'error');
       }
     }
   };
 
-  // Update Lead Status
-  const handleStatusChange = async (leadId: string | number, newStatus: Lead['status']) => {
-    try {
-      await updateLeadStatus(leadId, newStatus);
-      const updatedLeads = await getLeads();
-      setLeadsList(updatedLeads);
-    } catch (e) {
-      alert('Erro ao atualizar status.');
-    }
-  };
-
-  // Delete Lead
-  const handleDeleteLead = async (leadId: string | number) => {
-    if (confirm('Tem certeza de que quer excluir eternamente este lead de cobertura?')) {
-      try {
-        await deleteLead(leadId);
-        const updatedLeads = await getLeads();
-        setLeadsList(updatedLeads);
-      } catch (e) {
-        alert('Erro ao excluir lead.');
-      }
-    }
-  };
-
-  // User Actions
-  const handleCreateUser = async (e: React.FormEvent) => {
+  // MÓDULO COBERTURA: Submit
+  const handleCoberturaSaveSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newUserEmail || !newUserName) return;
+    if (!editingCidade) return;
+    try {
+      await saveCidadeCobertura({
+        id: editingCidade.id,
+        nome: editingCidade.nome || '',
+        estado: editingCidade.estado || 'SP',
+        status: editingCidade.status || 'ativo'
+      });
+
+      const refreshed = await getCidadesCobertura();
+      setCoberturaList(refreshed);
+      setEditingCidade(null);
+      showAlert('Cidade adicionada à malha de cobertura!');
+    } catch (err) {
+      showAlert('Não foi possível gravar a cidade.', 'error');
+    }
+  };
+
+  const handleDeleteCidadeClick = async (id: string | number) => {
+    if (confirm('Remover esta cidade da cobertura regulada no site?')) {
+      try {
+        await deleteCidadeCobertura(id);
+        setCoberturaList(coberturaList.filter(c => c.id !== id));
+        showAlert('Cidade removida.');
+      } catch (err) {
+        showAlert('Erro ao apagar cidade.', 'error');
+      }
+    }
+  };
+
+  // MÓDULO REDES SOCIAIS: Submit
+  const handleRedesSaveSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!redesSociaisDetail) return;
+    try {
+      const saved = await saveRedesSociais(redesSociaisDetail);
+      setRedesSociaisDetail(saved);
+      
+      // Sync to general layout
+      if (siteConfig) {
+        const synced = {
+          ...siteConfig,
+          instagram: saved.instagram,
+          facebook: saved.facebook
+        };
+        await saveSiteConfig(synced);
+        setSiteConfig(synced);
+      }
+      onConfigChange();
+      showAlert('Canais de redes sociais atualizados com sucesso!');
+    } catch (err) {
+      showAlert('Erro ao gravar redes sociais.', 'error');
+    }
+  };
+
+  // MÓDULO SEO: Submit
+  const handleSEOSaveSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!seoConfigDetail) return;
+    try {
+      const saved = await saveSEO(seoConfigDetail);
+      setSeoConfigDetail(saved);
+      
+      // Set page meta details dynamically to demonstrate real fidelity
+      document.title = saved.title;
+      const metaDesc = document.querySelector('meta[name="description"]');
+      if (metaDesc) {
+        metaDesc.setAttribute('content', saved.meta_description);
+      }
+      
+      showAlert('Metadados de SEO atualizados! (Os spiders do Google lerão estes dados informados)');
+    } catch (err) {
+      showAlert('Erro de SEO.', 'error');
+    }
+  };
+
+  // MÓDULO USUÁRIOS: Submit
+  const handleUsuarioSaveSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingUsuario) return;
     try {
       await saveUsuario({
-        nome: newUserName,
-        email: newUserEmail,
-        perfil: 'admin'
+        id: editingUsuario.id,
+        nome: editingUsuario.nome || '',
+        email: editingUsuario.email || '',
+        perfil: editingUsuario.perfil || 'colaborador',
+        nivel: editingUsuario.nivel || 'Editor',
+        status: editingUsuario.status || 'ativo'
       });
-      setNewUserEmail('');
-      setNewUserName('');
-      setNewUserOpen(false);
-      const usrs = await getUsuarios();
-      setUsuariosList(usrs);
+
+      const refreshed = await getUsuarios();
+      setUsuariosList(refreshed);
+      setEditingUsuario(null);
+      showAlert('Usuário operador salvo com sucesso!');
     } catch (err) {
-      alert('Não foi possível salvar o usuário.');
+      showAlert('Falha ao cadastrar usuário.', 'error');
     }
   };
 
-  const handleDeleteUser = async (id: string) => {
-    if (id === 'admin-user-id' || usuariosList.length <= 1) {
-      alert('Por motivos de segurança, você não pode deletar o único administrador padrão.');
+  const handleDeleteUsuarioClick = async (id: string) => {
+    if (id === 'admin-user-id') {
+      showAlert('Você não pode deletar o administrador mestre do sistema!', 'error');
       return;
     }
-    if (confirm('Deletar este acesso de usuário administrativo permanentemente?')) {
+    if (confirm('Deletar acesso administrativo para este usuário?')) {
       try {
         await deleteUsuario(id);
-        const usrs = await getUsuarios();
-        setUsuariosList(usrs);
-      } catch (e) {
-        alert('Não foi possível remover usuário.');
+        setUsuariosList(usuariosList.filter(u => u.id !== id));
+        showAlert('Usuário deletado.');
+      } catch (err) {
+        showAlert('Erro de exclusão.', 'error');
       }
     }
   };
 
-  // Upload Logo directly to Bucket 'logos'
-  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !currentConfig) return;
-
-    setUploadLogoLoading(true);
+  // UPLOAD GERENCIADOR DE MÍDIA: Handle
+  const handleMediaUploadSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!mediaFile) return;
+    setUploadLoading(true);
     try {
-      const fileName = `logo_${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
-      const publicUrl = await uploadFile('logos', fileName, file);
-      setCurrentConfig({
-        ...currentConfig,
-        logo_url: publicUrl
-      });
-      // Save directly to persist
-      await saveSiteConfig({
-        ...currentConfig,
-        logo_url: publicUrl
-      });
-      onConfigChange();
-    } catch (err) {
-      alert('Erro ao subir logotipo ao bucket Supabase.');
-    } finally {
-      setUploadLogoLoading(false);
-    }
-  };
-
-  // Upload Banner directly to Bucket 'banners'
-  const handleBannerUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !currentConfig) return;
-
-    setUploadBannerLoading(true);
-    try {
-      const fileName = `banner_${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
-      const publicUrl = await uploadFile('banners', fileName, file);
+      const fileName = `${Date.now()}_${mediaFile.name.replace(/\s+/g, '_')}`;
+      const url = await uploadFile('uploads', fileName, mediaFile);
       
-      // Update local storage configuration backup for mock resolution, if applicable!
-      localStorage.setItem('gigatel_banner_url', publicUrl);
-      alert('Banner atualizado com sucesso no Supabase Bucket! Você pode consumi-lo em apresentações de fundo.');
+      const mockUpload: Omit<UploadMedia, 'id'> = {
+        nome: mediaFile.name,
+        url: url,
+        tamanho: `${Math.round(mediaFile.size / 1024)} KB`,
+        tipo: mediaFile.type,
+        status: 'ativo'
+      };
+
+      await saveUpload(mockUpload);
+      const refreshed = await getUploads();
+      setUploadsList(refreshed);
+      setMediaFile(null);
+      // Clear file inputs
+      const fInput = document.getElementById('media-uploader-input') as HTMLInputElement;
+      if (fInput) fInput.value = '';
+
+      showAlert('Arquivo subido ao bucket do Supabase e indexado!');
     } catch (err) {
-      alert('Erro ao subir banner.');
+      showAlert('Erro no upload.', 'error');
     } finally {
-      setUploadBannerLoading(false);
+      setUploadLoading(false);
     }
   };
 
-  // Export Leads to CSV ("Permitir exportação de lead para Excel e CSV")
-  const exportLeadsToCSV = () => {
+  const handleDeleteUploadClick = async (id: string | number) => {
+    if (confirm('Deseja excluir permanentemente este arquivo de mídia?')) {
+      try {
+        await deleteUpload(id);
+        setUploadsList(uploadsList.filter(u => u.id !== id));
+        showAlert('Arquivo de mídia removido.');
+      } catch (err) {
+        showAlert('Falha ao remover mídia.', 'error');
+      }
+    }
+  };
+
+  // Export Leads list to Excel and CSV
+  const handleExportLeads = () => {
     if (leadsList.length === 0) {
-      alert('Sem leads para exportar.');
+      showAlert('Sem leads na base para exportar.', 'error');
       return;
     }
-
-    // Prepare header keys
-    const headers = ['ID', 'NOME', 'WHATSAPP', 'EMAIL', 'CEP', 'ENDERECO', 'PLANO INTEREST', 'OBSERVACOES', 'STATUS', 'DATA CADASTRO'];
+    const headers = ['ID', 'NOME CLIENTE', 'WHATSAPP', 'EMAIL', 'CEP', 'ENDEREÇO', 'PLANO INTERESSE', 'STATUS INTERAÇÃO', 'DATA CADASTRO'];
     const rows = leadsList.map(lead => [
       lead.id,
       `"${lead.nome.replace(/"/g, '""')}"`,
       `"${lead.whatsapp}"`,
-      `"${lead.email}"`,
+      `"${lead.email || ''}"`,
       `"${lead.cep}"`,
       `"${(lead.endereco || '').replace(/"/g, '""')}"`,
-      `"${(lead.plano_interesse || 'Não informado').replace(/"/g, '""')}"`,
-      `"${(lead.observacoes || '').replace(/"/g, '""')}"`,
-      lead.status,
-      lead.created_at || ''
+      `"${lead.plano_interesse || 'Geral'}"`,
+      `"${lead.status}"`,
+      `"${lead.created_at || ''}"`
     ]);
 
-    const csvContent = "\uFEFF" + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+    const csvContent = "\uFEFF" + [headers.join(';'), ...rows.map(e => e.join(';'))].join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
-    
     const link = document.createElement('a');
     link.setAttribute('href', url);
-    link.setAttribute('download', `leads_gigatel_${new Date().toISOString().substring(0, 10)}.csv`);
+    link.setAttribute('download', `leads_cobertura_gigatel_${new Date().toISOString().substring(0, 10)}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
-  // Calculate Metrics
-  const currentMonth = new Date().getMonth();
-  const currentYearVal = new Date().getFullYear();
-  
-  const leadsDoMes = leadsList.filter(l => {
-    if (!l.created_at) return false;
-    const date = new Date(l.created_at);
-    return date.getMonth() === currentMonth && date.getFullYear() === currentYearVal;
-  }).length;
+  // CSV Reader or clipboard helper
+  const handleCopyLinkToClipboard = (url: string) => {
+    navigator.clipboard.writeText(url);
+    showAlert('URL copiada para a área de transferência!');
+  };
 
-  const novosLeads = leadsList.filter(l => l.status === 'novo').length;
-  const planosAtivosTotal = planosList.filter(p => p.ativo).length;
-  const ultimosCadastrosCount = Math.min(5, leadsList.length);
-
-  // Filtered Leads
-  const filteredLeads = leadsList.filter(lead => {
-    if (leadStatusFilter === 'all') return true;
-    return lead.status === leadStatusFilter;
-  });
-
+  // Render Loader screen during authentication verification
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-        <div className="flex flex-col items-center">
-          <div className="w-12 h-12 border-4 border-slate-200 border-t-emerald-500 rounded-full animate-spin"></div>
-          <span className="text-xs text-slate-500 font-bold tracking-widest uppercase mt-4">Verificando Admin...</span>
-        </div>
+      <div className="min-h-screen bg-white flex flex-col items-center justify-center p-8">
+        <div className="w-10 h-10 border-4 border-slate-200 border-t-[#005BFF] rounded-full animate-spin"></div>
+        <span className="text-[10px] font-bold text-slate-400 tracking-widest uppercase mt-4">Iniciando Portal de Controle...</span>
       </div>
     );
   }
 
-  // --- FORCED FIRST-ACCESS PASSWORD CHANGE FLOW ---
+  // --- RENDERING 1: ALTERAÇÃO DE SENHA OBRIGATÓRIA ON FIRST ACCESS ---
   if (user && mustChangePassword) {
     return (
-      <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-4 py-28 relative">
-        <div className="max-w-md w-full bg-white border border-slate-200 p-8 sm:p-10 rounded-2xl shadow-lg relative">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 py-28">
+        <div className="max-w-md w-full bg-white border border-slate-200 p-8 rounded-3xl shadow-xl">
           <div className="text-center mb-6">
-            <div className="inline-flex p-3 rounded-xl bg-orange-50 border border-orange-200 text-orange-650 mb-3">
-              <LockKeyhole size={28} className="text-orange-500 animate-pulse" />
+            <div className="inline-flex p-3 rounded-2xl bg-amber-50 border border-amber-200 text-amber-600 mb-3">
+              <LockKeyhole size={28} className="animate-pulse" />
             </div>
-            <h2 className="font-display font-black text-xl text-slate-900 uppercase">Alteração de Senha Obrigatória</h2>
+            <h2 className="font-display font-black text-xl text-slate-900 uppercase">Alteração de Senha</h2>
             <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">
-              Detectamos que esta conta de administração oficial está utilizando a senha temporária padrão (<strong className="text-slate-800">Admin@123</strong>). Por diretrizes de segurança de dados estritas, você deve fornecer uma nova senha forte para prosseguir.
+              Sua conta utiliza a senha provisória padrão (<code className="text-slate-900 font-bold">adm123</code>). Altere-a para prosseguir com segurança.
             </p>
           </div>
 
           {passwordChangeError && (
-            <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-xs font-semibold mb-6">
+            <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-xs font-semibold mb-4 text-center">
               {passwordChangeError}
             </div>
           )}
 
-          <form onSubmit={handleForcePasswordChangeSubmit} className="space-y-4">
+          <form onSubmit={handleForcePasswordChange} className="space-y-4">
             <div className="flex flex-col space-y-1">
-              <label className="text-[10px] font-bold uppercase text-slate-500">Nova Senha Forte</label>
+              <label className="text-[10px] font-bold uppercase text-slate-500">Nova Senha</label>
               <input
                 type="password"
                 required
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="Mínimo 6 caracteres"
+                placeholder="Mínimo 5 caracteres"
                 className="w-full bg-white border border-slate-200 focus:border-slate-400 focus:outline-none rounded-xl py-3 px-4 text-sm text-slate-900"
               />
             </div>
@@ -490,7 +590,7 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
                 required
                 value={confirmNewPassword}
                 onChange={(e) => setConfirmNewPassword(e.target.value)}
-                placeholder="Repita a nova senha desejada"
+                placeholder="Repita a nova senha"
                 className="w-full bg-white border border-slate-200 focus:border-slate-400 focus:outline-none rounded-xl py-3 px-4 text-sm text-slate-900"
               />
             </div>
@@ -498,10 +598,10 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
             <button
               type="submit"
               disabled={passwordChanging}
-              className="w-full py-3.5 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold rounded-xl transition-all disabled:opacity-50 mt-2 flex items-center justify-center space-x-1.5 shadow-sm"
+              className="w-full py-3.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition-all disabled:opacity-50 mt-2 flex items-center justify-center space-x-1.5 shadow-sm"
             >
               <CheckCircle size={14} />
-              <span>{passwordChanging ? 'Salvando...' : 'Confirmar e Alterar Senha'}</span>
+              <span>{passwordChanging ? 'Alterando...' : 'Confirmar Nova Senha'}</span>
             </button>
           </form>
 
@@ -516,37 +616,36 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
     );
   }
 
-  // --- STANDARD SECURITY LOGIN SCREEN ---
+  // --- RENDERING 2: LOGIN CENTRAL ---
   if (!user) {
     return (
-      <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-4 py-28 relative">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:3rem_3rem] opacity-25 pointer-events-none" />
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 py-28 relative">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:3.5rem_3.5rem] opacity-20 pointer-events-none" />
         
-        <div className="relative max-w-md w-full bg-white border border-slate-200 p-8 sm:p-10 rounded-3xl shadow-xl overflow-hidden">
-          
+        <div className="relative max-w-sm w-full bg-white border border-slate-200 p-8 sm:p-10 rounded-3xl shadow-xl">
           <div className="text-center mb-8 flex flex-col items-center">
             <Logo size="lg" className="mb-4" />
-            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest bg-slate-50 border border-slate-100 px-3 py-1 rounded-full">
+            <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest bg-slate-100 px-3 py-1 rounded-full">
               Portal do Administrador
-            </p>
+            </span>
           </div>
 
           {loginError && (
-            <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-xs font-bold mb-6 text-center">
+            <div className="p-3.5 bg-red-50 border border-red-205 text-red-700 rounded-xl text-xs font-bold mb-6 text-center leading-normal">
               {loginError}
             </div>
           )}
 
-          <form onSubmit={handleLogin} className="space-y-4">
+          <form onSubmit={handleLoginSubmit} className="space-y-4">
             <div className="flex flex-col space-y-1.5">
               <label className="text-[10px] font-bold uppercase text-slate-500">E-mail de Operador</label>
               <input
                 type="email"
+                required
                 value={loginEmail}
                 onChange={(e) => setLoginEmail(e.target.value)}
-                placeholder="Ex e-mail ou admin@gigatel.com.br"
-                required
-                className="w-full bg-white border border-slate-200 hover:border-slate-300 focus:border-slate-400 focus:outline-none rounded-xl py-3 px-4 text-sm text-slate-900"
+                placeholder="admin@gigatel.com.br"
+                className="w-full bg-white border border-slate-200 hover:border-slate-350 focus:border-slate-500 focus:outline-none rounded-xl py-3 px-4 text-sm text-slate-900"
               />
             </div>
 
@@ -554,74 +653,80 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
               <label className="text-[10px] font-bold uppercase text-slate-500">Senha Secreta</label>
               <input
                 type="password"
+                required
                 value={loginPassword}
                 onChange={(e) => setLoginPassword(e.target.value)}
-                placeholder="Senha"
-                required
-                className="w-full bg-white border border-slate-200 hover:border-slate-300 focus:border-slate-400 focus:outline-none rounded-xl py-3 px-4 text-sm text-slate-900"
+                placeholder="Sua senha secreta"
+                className="w-full bg-white border border-slate-200 hover:border-slate-350 focus:border-slate-500 focus:outline-none rounded-xl py-3 px-4 text-sm text-slate-900"
               />
             </div>
 
             <button
               type="submit"
               disabled={loginLoading}
-              className="w-full py-3.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition-all disabled:opacity-50 mt-2 flex items-center justify-center space-x-2"
+              className="w-full py-3.5 bg-[#005BFF] hover:bg-[#004ccb] text-white text-xs font-bold uppercase tracking-widest rounded-xl transition-all disabled:opacity-50 mt-3 flex items-center justify-center space-x-2"
             >
               <Key size={13} />
-              <span>{loginLoading ? 'Conectando...' : 'Acessar Central Administrativa'}</span>
+              <span>{loginLoading ? 'Conectando...' : 'Entrar no Painel'}</span>
             </button>
           </form>
 
-          {/* Fallback Simulator Banner details showing standard login credentials */}
-          <div className="mt-8 pt-6 border-t border-slate-100 text-center">
-            <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl">
-              <div className="flex items-center space-x-1.5 justify-center mb-1 text-slate-600">
-                <BadgeInfo size={14} className="text-[#0A2F8F]" />
-                <span className="text-[10px] font-semibold uppercase tracking-wider">AMBIENTE EM PRODUÇÃO</span>
-              </div>
-              <p className="text-[10px] text-slate-500 leading-relaxed text-center">
-                Para testar agora em simulação, use o login homologado:<br />
-                E-mail: <strong className="text-slate-900">admin@gigatel.com.br</strong><br />
-                Senha: <strong className="text-slate-900">Admin@123</strong>
-              </p>
-            </div>
+          <div className="mt-8 pt-5 border-t border-slate-100 text-center">
+            <p className="text-[11px] text-slate-400 font-medium leading-relaxed">
+              Login homologado padrão:<br />
+              E-mail: <strong className="text-slate-700">admin@gigatel.com.br</strong><br />
+              Senha: <strong className="text-slate-700">adm123</strong>
+            </p>
           </div>
-
         </div>
       </div>
     );
   }
 
-  // --- LOGGED IN FULL-STACK DASHBOARD ---
+  // --- RENDERING 3: FULL ADMINISTRATIVE LOGGED IN WORKSPACE ---
   return (
-    <div className="min-h-screen bg-slate-50 pt-24 pb-20 flex">
+    <div className="min-h-screen bg-slate-50 pt-28 pb-20 flex relative">
       
+      {/* Dynamic Popups */}
+      {alertMessage && (
+        <div className={`fixed top-24 right-6 z-50 p-4 rounded-xl border-l-4 shadow-xl flex items-center space-x-3 text-xs font-black animate-fade-in ${
+          alertMessage.type === 'success' 
+            ? 'bg-white border-l-emerald-500 text-slate-800' 
+            : 'bg-white border-l-red-500 text-red-850'
+        }`}>
+          {alertMessage.type === 'success' ? <CheckCircle size={16} className="text-emerald-500" /> : <X size={16} className="text-red-500" />}
+          <span>{alertMessage.text}</span>
+        </div>
+      )}
+
       {/* 1. COLLAPSIBLE MENU LATERAL RECOlhÍvel */}
       <aside 
         className={`${
           isSidebarCollapsed ? 'w-16' : 'w-64'
-        } shrink-0 bg-white border-r border-slate-200 min-h-screen p-4 hidden md:flex flex-col justify-between transition-all duration-300 relative`}
+        } shrink-0 bg-white border-r border-slate-200 min-h-[80vh] p-4 hidden md:flex flex-col justify-between transition-all duration-300 relative`}
       >
         <div>
-          {/* Logo brand */}
-          <div className="flex items-center mb-8 px-1.5 pb-4 border-b border-slate-100 overflow-hidden">
-            {isSidebarCollapsed ? (
-              <Logo size="sm" variant="icon" />
+          {/* Menu Title */}
+          <div className="flex items-center mb-6 pl-1.5 pb-4 border-b border-slate-100 overflow-hidden">
+            {!isSidebarCollapsed ? (
+              <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider">GESTÃO DA PLATAfORMA</span>
             ) : (
-              <Logo size="sm" />
+              <Logo size="sm" variant="icon" />
             )}
           </div>
 
           {/* Navigation Links */}
-          <nav className="space-y-1.5">
+          <nav className="space-y-1">
             {[
-              { id: 'dashboard', label: 'Painel Geral', icon: Grid },
-              { id: 'geral', label: 'Configurações', icon: Settings },
-              { id: 'planos', label: 'Gerenciar Planos', icon: Wifi },
-              { id: 'leads', label: `CRM Leads (${leadsList.length})`, icon: Users },
-              { id: 'assets', label: 'Mídias Logos/Banners', icon: Upload },
-              { id: 'usuarios', label: 'Usuários Admin', icon: Activity },
-              { id: 'supabase', label: 'Supabase Backend', icon: Database },
+              { id: 'dashboard', label: 'Dashboard', icon: Grid },
+              { id: 'banners', label: 'Banners Slideshow', icon: ImageIcon },
+              { id: 'empresa', label: 'Dados da Empresa', icon: Settings },
+              { id: 'planos', label: 'Planos de Fibra', icon: Wifi },
+              { id: 'cobertura', label: 'Cobertura Cidades', icon: Globe },
+              { id: 'redes_sociais', label: 'Redes Sociais', icon: Share2 },
+              { id: 'seo', label: 'SEO e Metatags', icon: Key },
+              { id: 'usuarios', label: 'Usuários Admin', icon: Users },
+              { id: 'configuracoes', label: 'Gerenciador de Mídia', icon: Upload }
             ].map((tab) => {
               const TabIcon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -629,10 +734,10 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
               return (
                 <button
                   key={tab.id}
-                  onClick={() => { setActiveTab(tab.id as any); setSelectedPlano(null); }}
+                  onClick={() => { setActiveTab(tab.id as TabType); }}
                   className={`w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl text-xs font-bold transition-all ${
                     isActive
-                      ? 'bg-slate-900 text-white shadow-sm'
+                      ? 'bg-[#005BFF] text-white shadow-sm'
                       : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                   }`}
                   title={tab.label}
@@ -656,15 +761,15 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
           </button>
 
           {!isSidebarCollapsed && (
-            <div className="px-2 mb-2">
-              <p className="text-[10px] font-bold text-slate-400 uppercase">Operador</p>
+            <div className="px-2 mb-3">
+              <p className="text-[9px] font-bold text-slate-400 uppercase">Operando como</p>
               <p className="text-xs font-bold text-slate-700 truncate">{user?.email}</p>
             </div>
           )}
 
           <button
             onClick={handleLogout}
-            className="w-full flex items-center justify-center space-x-2 p-2.5 rounded-xl bg-red-50 text-red-650 hover:bg-red-100 text-xs font-extrabold transition-colors cursor-pointer"
+            className="w-full flex items-center justify-center space-x-2 p-2.5 rounded-xl bg-red-50 text-red-650 hover:bg-red-100 text-xs font-black transition-colors cursor-pointer"
           >
             <LogOut size={13} />
             {!isSidebarCollapsed && <span>Fazer Logout</span>}
@@ -673,852 +778,1200 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
       </aside>
 
       {/* Main Panel Stage Container */}
-      <div className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Connection status warning badge */}
-        <div className="mb-6 p-4 rounded-2xl border flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white border-slate-200 shadow-sm animate-fade-in text-xs text-slate-600">
+        <div className="mb-6 p-4 rounded-2xl border flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white border-slate-200 shadow-sm text-xs text-slate-600">
           <div className="flex items-start space-x-3">
-            <div className={`p-2 rounded-xl shrink-0 ${isRealSupabase ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
-              <Database size={16} />
+            <div className={`p-2 rounded-xl shrink-0 ${isRealSupabase ? 'bg-emerald-50 text-emerald-605' : 'bg-amber-50 text-amber-600'}`}>
+              <Database size={15} />
             </div>
             <div>
               <div className="flex items-center space-x-1.5 leading-none">
-                <span className="font-bold uppercase text-slate-500 text-[10px]">REPOSITÓRIO SUPABASE</span>
-                <span className={`text-[8px] font-extrabold uppercase px-1.5 py-0.5 rounded border leading-none ${
+                <span className="font-bold uppercase text-slate-500 text-[9px] tracking-wide">STATUS DE CONEXÃO</span>
+                <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded border leading-none ${
                     isRealSupabase 
                       ? 'bg-emerald-50 border-emerald-200 text-emerald-700' 
                       : 'bg-amber-50 border-amber-200 text-amber-700'
                   }`}
                 >
-                  {isRealSupabase ? 'PRODUÇÃO ATIVA' : 'SESSÃO SIMULADA'}
+                  {isRealSupabase ? 'Supabase Conectado' : 'Simulação Offline'}
                 </span>
               </div>
               <p className="text-[11px] text-slate-500 mt-1">
                 {isRealSupabase 
                   ? 'Você está conectado de forma autêntica à sua tabela de dados do Supabase.' 
-                  : 'Modo simulação local (localStorage). Dados persistem no navegador. Para conectar o Supabase real, use a aba "Supabase Backend".'}
+                  : 'Modo simulação local ativo. Dados persistem localmente via localStorage.'}
               </p>
             </div>
           </div>
         </div>
 
-        {/* --- 1. GENERAL PERFORMANCE DASHBOARD OVERVIEW TAB --- */}
+        {/* ========================================================
+            TAB 1: DASHBOARD
+            ======================================================== */}
         {activeTab === 'dashboard' && (
-          <div className="space-y-8 animate-fade-in">
+          <div className="space-y-6 animate-fade-in">
             {/* Header metrics card */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               
-              <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm flex items-center justify-between">
+              <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex items-center justify-between">
                 <div>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total de Leads</span>
-                  <span className="text-3xl font-display font-black text-slate-900 mt-1 block">{leadsList.length}</span>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total de Planos</span>
+                  <span className="text-3xl font-display font-black text-slate-900 mt-1 block">{planosList.length}</span>
                 </div>
-                <div className="p-3 bg-slate-50 border border-slate-100 text-slate-700 rounded-2xl">
-                  <Activity size={20} />
+                <div className="p-2.5 bg-slate-50 border border-slate-100 text-slate-700 rounded-xl">
+                  <Wifi size={18} />
                 </div>
               </div>
 
-              <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm flex items-center justify-between">
+              <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex items-center justify-between">
                 <div>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Leads do Mês</span>
-                  <span className="text-3xl font-display font-black text-slate-900 mt-1 block">{leadsDoMes}</span>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total de Banners</span>
+                  <span className="text-3xl font-display font-black text-slate-900 mt-1 block">{bannersList.length}</span>
                 </div>
-                <div className="p-3 bg-emerald-50 text-emerald-600 rounded-2xl">
-                  <Calendar size={20} />
+                <div className="p-2.5 bg-slate-50 border border-slate-100 text-slate-700 rounded-xl">
+                  <ImageIcon size={18} />
                 </div>
               </div>
 
-              <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm flex items-center justify-between">
+              <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex items-center justify-between">
                 <div>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Novos Contatos</span>
-                  <span className="text-3xl font-display font-black text-emerald-500 mt-1 block">{novosLeads}</span>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Última Atualização</span>
+                  <span className="text-xs font-bold text-slate-700 mt-2 block truncate max-w-[130px]">{getLastUpdate()}</span>
                 </div>
-                <div className="p-3 bg-sky-50 text-sky-650 rounded-2xl">
-                  <Users size={20} />
+                <div className="p-2.5 bg-blue-50 text-[#005BFF] rounded-xl">
+                  <Calendar size={18} />
                 </div>
               </div>
 
-              <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm flex items-center justify-between">
-                <div>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Planos Ativos</span>
-                  <span className="text-3xl font-display font-black text-slate-900 mt-1 block">{planosAtivosTotal}</span>
-                </div>
-                <div className="p-3 bg-pink-50 text-pink-650 rounded-2xl">
-                  <CheckSquare size={20} />
+              <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex flex-col justify-between">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Status do Site</span>
+                <div className="flex items-center space-x-2 mt-1">
+                  <button 
+                    onClick={() => handleSaveSiteStatus('Ativo')}
+                    className={`px-2.5 py-1 text-[10px] font-bold rounded-lg border transition-all ${
+                      siteStatus === 'Ativo' 
+                        ? 'bg-emerald-50 border-emerald-200 text-emerald-700' 
+                        : 'bg-white border-slate-200 text-slate-500'
+                    }`}
+                  >
+                    Ativo
+                  </button>
+                  <button 
+                    onClick={() => handleSaveSiteStatus('Manutenção')}
+                    className={`px-2.5 py-1 text-[10px] font-bold rounded-lg border transition-all ${
+                      siteStatus === 'Manutenção' 
+                        ? 'bg-amber-50 border-amber-200 text-amber-700 font-bold' 
+                        : 'bg-white border-slate-200 text-slate-500'
+                    }`}
+                  >
+                    Manutenção
+                  </button>
                 </div>
               </div>
 
             </div>
 
-            {/* Quick Actions and Recent leads block */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-              
-              <div className="lg:col-span-8 bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm">
-                <div className="flex justify-between items-center pb-4 border-b border-slate-100 mb-6">
-                  <div>
-                    <h3 className="font-display font-extrabold text-[#0f172a] text-sm uppercase">Últimos Cadastros</h3>
-                    <p className="text-xs text-slate-400 mt-0.5">Leads capturados recentemente na ferramenta de cobertura de rede.</p>
-                  </div>
-                  <button
-                    onClick={() => setActiveTab('leads')}
-                    className="text-xs text-sky-650 hover:text-sky-700 font-bold"
+            {/* Leads Section inside Dashboard */}
+            <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
+              <div className="flex justify-between items-center pb-4 border-b border-slate-100 mb-4">
+                <div>
+                  <h3 className="font-display font-black text-xs text-slate-800 uppercase tracking-wider">CRM leads de Cobertura</h3>
+                  <p className="text-[11px] text-slate-400 mt-0.5">Últimas consultas de cobertura enviadas pelos clientes no site.</p>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <button 
+                    onClick={handleExportLeads}
+                    className="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-750 font-bold rounded-xl text-[10px] flex items-center space-x-1"
                   >
-                    Ver todos leads →
+                    <ArrowDownToLine size={12} />
+                    <span>Exportar CSV</span>
+                  </button>
+                </div>
+              </div>
+
+              {leadsList.length === 0 ? (
+                <p className="text-center py-12 text-slate-400 text-xs font-mono">Sem leads cadastrados no momento.</p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left font-sans text-xs border-collapse">
+                    <thead>
+                      <tr className="bg-slate-50 border-b border-slate-150 text-slate-500 font-bold text-[10px] uppercase">
+                        <th className="py-3 px-4 font-bold">Cliente</th>
+                        <th className="py-3 px-4 font-bold">WhatsApp / CEP</th>
+                        <th className="py-3 px-4 font-bold">Plano</th>
+                        <th className="py-3 px-4 font-bold">Ação Comercial</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {leadsList.slice(0, 5).map((l) => (
+                        <tr key={l.id} className="hover:bg-slate-50/50">
+                          <td className="py-3.5 px-4">
+                            <p className="font-bold text-slate-900">{l.nome}</p>
+                            <span className="text-[10px] text-slate-400 block">{l.created_at ? new Date(l.created_at).toLocaleString('pt-BR') : ''}</span>
+                          </td>
+                          <td className="py-3.5 px-4 font-mono font-bold leading-normal">
+                            <span className="text-emerald-600 block">{l.whatsapp}</span>
+                            <span className="text-[10px] text-slate-500">CEP: {l.cep}</span>
+                          </td>
+                          <td className="py-3.5 px-4">
+                            <span className="px-2 py-0.5 bg-blue-50 text-[#005BFF] border border-blue-100 rounded text-[9px] font-bold">{l.plano_interesse || 'Qualquer'}</span>
+                          </td>
+                          <td className="py-3.5 px-4">
+                            <div className="flex items-center space-x-2">
+                              <select 
+                                value={l.status}
+                                onChange={(e) => handleLeadStageChange(l.id, e.target.value as any)}
+                                className="p-1 px-1.5 text-[10px] font-bold border border-slate-205 rounded bg-white"
+                              >
+                                <option value="novo">🆕 Novo</option>
+                                <option value="em atendimento">⏳ Atendimento</option>
+                                <option value="convertido">✓ Ganho</option>
+                                <option value="cancelado">✗ Perdido</option>
+                              </select>
+                              <button 
+                                onClick={() => handleDeleteLead(l.id)}
+                                className="text-red-655 text-red-500 hover:text-red-700 text-[10px]"
+                              >
+                                Excluir
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ========================================================
+            TAB 2: BANNERS SLIDESHOW
+            ======================================================== */}
+        {activeTab === 'banners' && (
+          <div className="space-y-6 animate-fade-in">
+            {/* Form modal or inline edit */}
+            {editingBanner ? (
+              <form onSubmit={handleBannerSaveSubmit} className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm space-y-4">
+                <div className="pb-3 border-b border-slate-100 flex justify-between items-center">
+                  <h3 className="font-display font-black text-sm text-slate-800 uppercase tracking-wider">
+                    {editingBanner.id ? 'Editar Banner Slide' : 'Novo Banner Slide'}
+                  </h3>
+                  <button type="button" onClick={() => setEditingBanner(null)} className="text-slate-400 hover:text-slate-900">
+                    <X size={16} />
                   </button>
                 </div>
 
-                {leadsList.length === 0 ? (
-                  <p className="py-12 text-slate-450 text-slate-400 text-xs text-center font-mono">Sem cadastros na base de dados.</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex flex-col space-y-1">
+                    <label className="text-[10px] uppercase font-bold text-slate-400">Título Principal</label>
+                    <input 
+                      type="text" 
+                      required
+                      value={editingBanner.titulo || ''}
+                      onChange={(e) => setEditingBanner({ ...editingBanner, titulo: e.target.value })}
+                      className="p-2.5 text-xs border border-slate-200 rounded-xl focus:outline-slate-400 bg-white"
+                    />
+                  </div>
+
+                  <div className="flex flex-col space-y-1">
+                    <label className="text-[10px] uppercase font-bold text-slate-400">Subtítulo secundário</label>
+                    <input 
+                      type="text" 
+                      required
+                      value={editingBanner.subtitulo || ''}
+                      onChange={(e) => setEditingBanner({ ...editingBanner, subtitulo: e.target.value })}
+                      className="p-2.5 text-xs border border-slate-200 rounded-xl focus:outline-slate-400 bg-white"
+                    />
+                  </div>
+
+                  <div className="flex flex-col space-y-1">
+                    <label className="text-[10px] uppercase font-bold text-slate-400">Texto do Botão</label>
+                    <input 
+                      type="text" 
+                      required
+                      value={editingBanner.texto_botao || ''}
+                      onChange={(e) => setEditingBanner({ ...editingBanner, texto_botao: e.target.value })}
+                      className="p-2.5 text-xs border border-slate-200 rounded-xl focus:outline-slate-400 bg-white"
+                    />
+                  </div>
+
+                  <div className="flex flex-col space-y-1">
+                    <label className="text-[10px] uppercase font-bold text-slate-400">Link do Botão (URL ou Âncora)</label>
+                    <input 
+                      type="text" 
+                      required
+                      value={editingBanner.link_botao || ''}
+                      onChange={(e) => setEditingBanner({ ...editingBanner, link_botao: e.target.value })}
+                      className="p-2.5 text-xs border border-slate-200 rounded-xl focus:outline-slate-400 bg-white"
+                    />
+                  </div>
+
+                  <div className="flex flex-col space-y-1">
+                    <label className="text-[10px] uppercase font-bold text-slate-400">Imagem Desktop URL</label>
+                    <input 
+                      type="text" 
+                      required
+                      value={editingBanner.imagem_desktop || ''}
+                      onChange={(e) => setEditingBanner({ ...editingBanner, imagem_desktop: e.target.value })}
+                      className="p-2.5 text-xs border border-slate-200 rounded-xl focus:outline-slate-400 bg-white"
+                    />
+                  </div>
+
+                  <div className="flex flex-col space-y-1">
+                    <label className="text-[10px] uppercase font-bold text-slate-400">Imagem Mobile URL</label>
+                    <input 
+                      type="text" 
+                      required
+                      value={editingBanner.imagem_mobile || ''}
+                      onChange={(e) => setEditingBanner({ ...editingBanner, imagem_mobile: e.target.value })}
+                      className="p-2.5 text-xs border border-slate-200 rounded-xl focus:outline-slate-400 bg-white"
+                    />
+                  </div>
+
+                  <div className="flex flex-col space-y-1">
+                    <label className="text-[10px] uppercase font-bold text-slate-400">Ordem de Exibição</label>
+                    <input 
+                      type="number" 
+                      required
+                      value={editingBanner.ordem || 1}
+                      onChange={(e) => setEditingBanner({ ...editingBanner, ordem: Number(e.target.value) })}
+                      className="p-2.5 text-xs border border-slate-200 rounded-xl focus:outline-slate-400 bg-white"
+                    />
+                  </div>
+
+                  <div className="flex flex-col space-y-1">
+                    <label className="text-[10px] uppercase font-bold text-slate-400">Status do Banner</label>
+                    <select 
+                      value={editingBanner.status || 'ativo'}
+                      onChange={(e) => setEditingBanner({ ...editingBanner, status: e.target.value as 'ativo' | 'inativo' })}
+                      className="p-2.5 text-xs border border-slate-200 rounded-xl focus:outline-slate-400 bg-white"
+                    >
+                      <option value="ativo">Ativo (Exibido)</option>
+                      <option value="inativo">Inativo (Ocultado)</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* TEMPO REAL PREVIEW: Visual feedback to increase fidelity of modular actions */}
+                <div className="p-4 bg-slate-50 border border-slate-150 rounded-2xl">
+                  <span className="text-[9px] uppercase font-black text-slate-400 block mb-2 tracking-widest">Pré-visualização em Tempo Real</span>
+                  <div className="relative rounded-xl border overflow-hidden bg-white p-6 max-w-full">
+                    <div className="absolute top-0 right-0 w-[40%] h-full bg-cover bg-center opacity-25" style={{ backgroundImage: `url(${editingBanner.imagem_desktop || ''})` }} />
+                    <span className="inline-block bg-blue-50 text-[#005BFF] text-[8px] font-extrabold uppercase px-2 py-0.5 rounded-full mb-2 border border-blue-105">Slide Banner Ativo</span>
+                    <h3 className="font-display font-black text-slate-900 text-sm md:text-md leading-tight uppercase max-w-xs">{editingBanner.titulo || 'SEM TÍTULO'}</h3>
+                    <p className="text-[10px] text-slate-500 mt-1 max-w-xs">{editingBanner.subtitulo || 'Sem subtítulo configurado.'}</p>
+                    <button type="button" className="mt-3 py-1.5 px-3 bg-[#005BFF] text-white text-[9px] font-bold rounded-lg uppercase">{editingBanner.texto_botao || 'CONTRATAR'}</button>
+                  </div>
+                </div>
+
+                <div className="pt-3 border-t flex justify-end space-x-2">
+                  <button type="button" onClick={() => setEditingBanner(null)} className="px-4 py-2 rounded-xl bg-slate-150 hover:bg-slate-200 text-slate-750 text-xs font-bold">Cancelar</button>
+                  <button type="submit" className="px-5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold flex items-center space-x-1.5"><Save size={13} /><span>Salvar Banner</span></button>
+                </div>
+              </form>
+            ) : (
+              <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
+                <div className="flex justify-between items-center pb-4 border-b border-slate-100 mb-6 font-semibold">
+                  <div>
+                    <h3 className="font-display font-black text-xs text-slate-800 uppercase tracking-wider">Banners Carrossel (Hero Secction)</h3>
+                    <p className="text-[11px] text-slate-500 mt-0.5">Gerencie os slides exibidos na seção de apresentação principal do site.</p>
+                  </div>
+                  <button 
+                    onClick={() => setEditingBanner({ titulo: '', subtitulo: '', texto_botao: 'Contratar Agora', link_botao: '#planos', imagem_desktop: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&q=80&w=1200', imagem_mobile: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&q=80&w=600', ordem: bannersList.length + 1, status: 'ativo' })}
+                    className="px-3.5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-850 text-white font-bold text-xs flex items-center space-x-1.5"
+                  >
+                    <Plus size={14} />
+                    <span>Adicionar Banner</span>
+                  </button>
+                </div>
+
+                {bannersList.length === 0 ? (
+                  <p className="text-center py-12 text-slate-400 text-xs font-mono">Nenhum banner cadastrado ainda.</p>
                 ) : (
                   <div className="space-y-4">
-                    {leadsList.slice(0, 4).map((lead) => (
-                      <div key={lead.id} className="flex justify-between items-center p-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-xs gap-3">
-                        <div>
-                          <p className="font-bold text-slate-900 text-sm">{lead.nome}</p>
-                          <span className="text-[10px] text-slate-400 font-medium block mt-1">CEP: {lead.cep} • {lead.plano_interesse}</span>
+                    {bannersList.map((banner) => (
+                      <div key={banner.id} className="p-4 border rounded-2xl flex flex-col md:flex-row md:items-center md:justify-between bg-[#F8FAFC] border-slate-200 text-xs gap-4 hover:border-slate-300">
+                        <div className="flex items-start space-x-4">
+                          <img src={banner.imagem_desktop} alt={banner.titulo} className="w-16 h-12 rounded-lg object-cover border border-slate-200 shadow-sm" referrerPolicy="no-referrer" />
+                          <div>
+                            <span className="font-mono text-[9px] text-[#005BFF] bg-blue-50 px-1.5 py-0.5 rounded font-black">Slide Ordem: {banner.ordem}</span>
+                            <h4 className="font-bold text-slate-900 text-sm mt-1 uppercase max-w-sm truncate">{banner.titulo}</h4>
+                            <p className="text-[10px] text-slate-500 truncate max-w-xs">{banner.subtitulo}</p>
+                          </div>
                         </div>
-                        <span className={`px-2 py-0.5 rounded text-[9px] font-bold font-mono border ${
-                          lead.status === 'novo' 
-                            ? 'bg-emerald-50 border-emerald-200 text-emerald-700' 
-                            : 'bg-yellow-50 border-yellow-250 text-yellow-750'
-                        }`}>
-                          {lead.status}
-                        </span>
+
+                        <div className="flex items-center space-x-2 shrink-0 md:self-center self-end">
+                          <span className={`px-2 py-0.5 text-[9px] rounded-full uppercase font-black font-mono border ${
+                            banner.status === 'ativo' 
+                              ? 'bg-emerald-50 border-emerald-250 text-emerald-700' 
+                              : 'bg-slate-100 border-slate-200 text-slate-450'
+                          }`}>
+                            {banner.status}
+                          </span>
+                          <button 
+                            onClick={() => setEditingBanner(banner)}
+                            className="p-1 px-2.5 rounded bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-bold"
+                          >
+                            Editar
+                          </button>
+                          <button 
+                            onClick={() => handleDeleteBannerClick(banner.id)}
+                            className="p-1 px-2.5 rounded bg-red-50 hover:bg-red-100 border border-red-100 text-red-650 font-bold"
+                          >
+                            Excluir
+                          </button>
+                        </div>
                       </div>
                     ))}
                   </div>
                 )}
               </div>
-
-              {/* Quick links summary helper columns */}
-              <div className="lg:col-span-4 bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm flex flex-col justify-between">
-                <div>
-                  <h3 className="font-display font-bold text-[#0f172a] text-sm uppercase mb-4 pb-2 border-b border-slate-100">Atalhos Administrativos</h3>
-                  <div className="space-y-3">
-                    <button
-                      onClick={() => setActiveTab('planos')}
-                      className="w-full py-2.5 px-3 bg-slate-50 hover:bg-slate-100 rounded-xl text-xs text-left text-slate-700 font-bold border border-slate-100 flex items-center space-x-2"
-                    >
-                      <Wifi size={14} />
-                      <span>Gerenciar Preços de Planos</span>
-                    </button>
-                    <button
-                      onClick={() => setActiveTab('leads')}
-                      className="w-full py-2.5 px-3 bg-slate-50 hover:bg-slate-100 rounded-xl text-xs text-left text-slate-700 font-bold border border-slate-100 flex items-center space-x-2"
-                    >
-                      <Users size={14} />
-                      <span>Análise de Cobertura Leads</span>
-                    </button>
-                    <button
-                      onClick={() => setActiveTab('geral')}
-                      className="w-full py-2.5 px-3 bg-slate-50 hover:bg-slate-100 rounded-xl text-xs text-left text-slate-700 font-bold border border-slate-100 flex items-center space-x-2"
-                    >
-                      <Settings size={14} />
-                      <span>Contatos e Telefone de Atendimento</span>
-                    </button>
-                  </div>
-                </div>
-
-                <div className="pt-6 border-t border-slate-100 text-xs text-slate-400 text-center leading-relaxed">
-                  Sistema operacional otimizado para navegadores e dispositivos móveis corporativos Giganet.
-                </div>
-              </div>
-
-            </div>
+            )}
           </div>
         )}
 
-        {/* --- 2. CONFIGURAÇÕES DO SITE site_config TAB --- */}
-        {activeTab === 'geral' && currentConfig && (
-          <form onSubmit={handleSaveConfig} className="bg-white border border-slate-200 rounded-3xl p-8 shadow-sm space-y-6 animate-fade-in">
-            <div className="pb-4 border-b border-slate-100">
-              <h3 className="font-display font-extrabold text-lg text-slate-900">Configurações Gerais do Provedor</h3>
-              <p className="text-xs text-slate-500 mt-1">
-                Essas variáveis aplicam as informações do logotipo, WhatsApp, telefone e mídias sociais em todo o site.
-              </p>
+        {/* ========================================================
+            TAB 3: DADOS DA EMPRESA
+            ======================================================== */}
+        {activeTab === 'empresa' && empresaDetail && (
+          <form onSubmit={handleEmpresaSaveSubmit} className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm space-y-5 animate-fade-in">
+            <div className="pb-3 border-b border-slate-100">
+              <h3 className="font-display font-black text-xs text-slate-800 uppercase tracking-wider">Módulo Dados da Empresa</h3>
+              <p className="text-[11px] text-slate-500 mt-0.5">Essas variáveis modificam todas as referências físicas e de comunicações do site.</p>
             </div>
 
-            {configSuccess && (
-              <div className="p-3 bg-emerald-50 border border-emerald-250 text-emerald-700 font-bold text-xs rounded-xl flex items-center space-x-2">
-                <CheckCircle size={14} />
-                <span>Configurações aplicadas com sucesso e salvas!</span>
-              </div>
-            )}
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
               <div className="flex flex-col space-y-1">
-                <label className="text-xs text-slate-500 font-bold uppercase">Nome da Empresa</label>
-                <input
-                  type="text"
-                  value={currentConfig.nome_empresa}
-                  onChange={(e) => setCurrentConfig({ ...currentConfig, nome_empresa: e.target.value })}
+                <label className="font-bold text-slate-400 uppercase text-[10px]">Nome da Empresa</label>
+                <input 
+                  type="text" 
                   required
-                  className="w-full bg-white border border-slate-200 focus:border-slate-400 focus:outline-none rounded-xl py-3 px-4 text-sm text-slate-900"
+                  value={empresaDetail.nome_empresa}
+                  onChange={(e) => setEmpresaDetail({ ...empresaDetail, nome_empresa: e.target.value })}
+                  className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
                 />
               </div>
 
               <div className="flex flex-col space-y-1">
-                <label className="text-xs text-slate-500 font-bold uppercase">WhatsApp Comercial (Apenas números + DDD, ex: 5511999999999)</label>
-                <input
-                  type="text"
-                  value={currentConfig.whatsapp}
-                  onChange={(e) => setCurrentConfig({ ...currentConfig, whatsapp: e.target.value.replace(/\D/g, '') })}
+                <label className="font-bold text-slate-400 uppercase text-[10px]">Telefone Comercial</label>
+                <input 
+                  type="text" 
                   required
-                  className="w-full bg-white border border-slate-200 focus:border-slate-400 focus:outline-none rounded-xl py-3 px-4 text-sm text-slate-900"
+                  value={empresaDetail.telefone}
+                  onChange={(e) => setEmpresaDetail({ ...empresaDetail, telefone: e.target.value })}
+                  className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
                 />
               </div>
 
               <div className="flex flex-col space-y-1">
-                <label className="text-xs text-slate-500 font-bold uppercase">Telefone de Atendimento</label>
-                <input
-                  type="text"
-                  value={currentConfig.telefone}
-                  onChange={(e) => setCurrentConfig({ ...currentConfig, telefone: e.target.value })}
+                <label className="font-bold text-slate-400 uppercase text-[10px]">WhatsApp Comercial (Com ddd, ex: 5511910050121)</label>
+                <input 
+                  type="text" 
                   required
-                  className="w-full bg-white border border-slate-200 focus:border-slate-400 focus:outline-none rounded-xl py-3 px-4 text-sm text-slate-900"
+                  value={empresaDetail.whatsapp}
+                  onChange={(e) => setEmpresaDetail({ ...empresaDetail, whatsapp: e.target.value.replace(/\D/g, '') })}
+                  className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
                 />
               </div>
 
               <div className="flex flex-col space-y-1">
-                <label className="text-xs text-slate-500 font-bold uppercase">E-mail Comercial</label>
-                <input
-                  type="email"
-                  value={currentConfig.email}
-                  onChange={(e) => setCurrentConfig({ ...currentConfig, email: e.target.value })}
+                <label className="font-bold text-slate-400 uppercase text-[10px]">E-mail de Contato</label>
+                <input 
+                  type="email" 
                   required
-                  className="w-full bg-white border border-slate-200 focus:border-slate-400 focus:outline-none rounded-xl py-3 px-4 text-sm text-slate-900"
+                  value={empresaDetail.email}
+                  onChange={(e) => setEmpresaDetail({ ...empresaDetail, email: e.target.value })}
+                  className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
                 />
               </div>
 
-              <div className="flex flex-col space-y-1">
-                <label className="text-xs text-slate-500 font-bold uppercase">Logradouro / Número (Endereço)</label>
-                <input
-                  type="text"
-                  value={currentConfig.endereco}
-                  onChange={(e) => setCurrentConfig({ ...currentConfig, endereco: e.target.value })}
+              <div className="flex flex-col space-y-1 sm:col-span-2">
+                <label className="font-bold text-slate-400 uppercase text-[10px]">Endereço Comercial (Logradouro)</label>
+                <input 
+                  type="text" 
                   required
-                  placeholder="Ex: Rua Antônio Ferraciolli, 331"
-                  className="w-full bg-white border border-slate-200 focus:border-slate-400 focus:outline-none rounded-xl py-3 px-4 text-sm text-slate-900"
+                  value={empresaDetail.endereco}
+                  onChange={(e) => setEmpresaDetail({ ...empresaDetail, endereco: e.target.value })}
+                  className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
                 />
               </div>
 
               <div className="flex flex-col space-y-1">
-                <label className="text-xs text-slate-500 font-bold uppercase">Bairro</label>
-                <input
-                  type="text"
-                  value={currentConfig.bairro || ''}
-                  onChange={(e) => setCurrentConfig({ ...currentConfig, bairro: e.target.value })}
-                  placeholder="Ex: Jardim Catarina"
-                  className="w-full bg-white border border-slate-200 focus:border-slate-400 focus:outline-none rounded-xl py-3 px-4 text-sm text-slate-900"
+                <label className="font-bold text-slate-400 uppercase text-[10px]">Número</label>
+                <input 
+                  type="text" 
+                  required
+                  value={empresaDetail.numero}
+                  onChange={(e) => setEmpresaDetail({ ...empresaDetail, numero: e.target.value })}
+                  className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
                 />
               </div>
 
               <div className="flex flex-col space-y-1">
-                <label className="text-xs text-slate-500 font-bold uppercase">Cidade</label>
-                <input
-                  type="text"
-                  value={currentConfig.cidade || ''}
-                  onChange={(e) => setCurrentConfig({ ...currentConfig, cidade: e.target.value })}
-                  placeholder="Ex: São Paulo"
-                  className="w-full bg-white border border-slate-200 focus:border-slate-400 focus:outline-none rounded-xl py-3 px-4 text-sm text-slate-900"
+                <label className="font-bold text-slate-400 uppercase text-[10px]">Bairro</label>
+                <input 
+                  type="text" 
+                  required
+                  value={empresaDetail.bairro || ''}
+                  onChange={(e) => setEmpresaDetail({ ...empresaDetail, bairro: e.target.value })}
+                  className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
                 />
               </div>
 
               <div className="flex flex-col space-y-1">
-                <label className="text-xs text-slate-500 font-bold uppercase">Estado (UF)</label>
-                <input
-                  type="text"
+                <label className="font-bold text-slate-400 uppercase text-[10px]">Cidade (Ex: São Paulo)</label>
+                <input 
+                  type="text" 
+                  required
+                  value={empresaDetail.cidade || ''}
+                  onChange={(e) => setEmpresaDetail({ ...empresaDetail, cidade: e.target.value })}
+                  className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                />
+              </div>
+
+              <div className="flex flex-col space-y-1">
+                <label className="font-bold text-slate-400 uppercase text-[10px]">Estado (UF, ex SP)</label>
+                <input 
+                  type="text" 
                   maxLength={2}
-                  value={currentConfig.estado || ''}
-                  onChange={(e) => setCurrentConfig({ ...currentConfig, estado: e.target.value.toUpperCase() })}
-                  placeholder="Ex: SP"
-                  className="w-full bg-white border border-slate-200 focus:border-slate-400 focus:outline-none rounded-xl py-3 px-4 text-sm text-slate-900"
+                  required
+                  value={empresaDetail.estado || ''}
+                  onChange={(e) => setEmpresaDetail({ ...empresaDetail, estado: e.target.value.toUpperCase() })}
+                  className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
                 />
               </div>
 
               <div className="flex flex-col space-y-1">
-                <label className="text-xs text-slate-500 font-bold uppercase">CEP</label>
-                <input
-                  type="text"
-                  value={currentConfig.cep || ''}
-                  onChange={(e) => setCurrentConfig({ ...currentConfig, cep: e.target.value })}
-                  placeholder="Ex: 03910-070"
-                  className="w-full bg-white border border-slate-200 focus:border-slate-400 focus:outline-none rounded-xl py-3 px-4 text-sm text-slate-900"
+                <label className="font-bold text-slate-400 uppercase text-[10px]">CEP</label>
+                <input 
+                  type="text" 
+                  required
+                  value={empresaDetail.cep || ''}
+                  onChange={(e) => setEmpresaDetail({ ...empresaDetail, cep: e.target.value })}
+                  className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
                 />
               </div>
 
               <div className="flex flex-col space-y-1">
-                <label className="text-xs text-slate-500 font-bold uppercase">Tempo de Percurso (Carro)</label>
-                <input
-                  type="text"
-                  value={currentConfig.tempo_carro || ''}
-                  onChange={(e) => setCurrentConfig({ ...currentConfig, tempo_carro: e.target.value })}
-                  placeholder="Ex: 15 min de carro"
-                  className="w-full bg-white border border-slate-200 focus:border-slate-400 focus:outline-none rounded-xl py-3 px-4 text-sm text-slate-900"
+                <label className="font-bold text-slate-400 uppercase text-[10px]">Horários de Funcionamento</label>
+                <input 
+                  type="text" 
+                  required
+                  value={empresaDetail.horario_funcionamento || ''}
+                  onChange={(e) => setEmpresaDetail({ ...empresaDetail, horario_funcionamento: e.target.value })}
+                  className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
                 />
               </div>
 
               <div className="flex flex-col space-y-1">
-                <label className="text-xs text-slate-500 font-bold uppercase">Tempo de Percurso (Moto)</label>
-                <input
-                  type="text"
-                  value={currentConfig.tempo_moto || ''}
-                  onChange={(e) => setCurrentConfig({ ...currentConfig, tempo_moto: e.target.value })}
-                  placeholder="Ex: 5 min de moto"
-                  className="w-full bg-white border border-slate-200 focus:border-slate-400 focus:outline-none rounded-xl py-3 px-4 text-sm text-slate-900"
+                <label className="font-bold text-slate-400 uppercase text-[10px]">Latitude (Para link de rotas)</label>
+                <input 
+                  type="text" 
+                  value={empresaDetail.latitude || ''}
+                  onChange={(e) => setEmpresaDetail({ ...empresaDetail, latitude: e.target.value })}
+                  className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white font-mono"
                 />
               </div>
 
               <div className="flex flex-col space-y-1">
-                <label className="text-xs text-slate-500 font-bold uppercase">Instagram (Username)</label>
-                <input
-                  type="text"
-                  value={currentConfig.instagram || ''}
-                  onChange={(e) => setCurrentConfig({ ...currentConfig, instagram: e.target.value })}
-                  placeholder="gigatelfiberofc"
-                  className="w-full bg-white border border-slate-200 focus:border-slate-400 focus:outline-none rounded-xl py-3 px-4 text-sm text-slate-900"
-                />
-              </div>
-
-              <div className="flex flex-col space-y-1">
-                <label className="text-xs text-slate-500 font-bold uppercase">Facebook (Nome de Usuário)</label>
-                <input
-                  type="text"
-                  value={currentConfig.facebook || ''}
-                  onChange={(e) => setCurrentConfig({ ...currentConfig, facebook: e.target.value })}
-                  placeholder="gigatelfiberofc"
-                  className="w-full bg-white border border-slate-200 focus:border-slate-400 focus:outline-none rounded-xl py-3 px-4 text-sm text-slate-900"
+                <label className="font-bold text-slate-400 uppercase text-[10px]">Longitude (Para link de rotas)</label>
+                <input 
+                  type="text" 
+                  value={empresaDetail.longitude || ''}
+                  onChange={(e) => setEmpresaDetail({ ...empresaDetail, longitude: e.target.value })}
+                  className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white font-mono"
                 />
               </div>
             </div>
 
-            <div className="pt-4 flex justify-end">
-              <button
-                type="submit"
-                className="px-6 py-3 bg-emerald-500 hover:bg-emerald-605 text-white font-bold rounded-xl text-xs flex items-center space-x-1.5 shadow-sm"
+            <div className="pt-3 border-t flex justify-end">
+              <button 
+                type="submit" 
+                className="px-6 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl flex items-center space-x-1.5"
               >
                 <Save size={14} />
-                <span>Salvar Alterações Gerais</span>
+                <span>Salvar e Atualizar Site</span>
               </button>
             </div>
           </form>
         )}
 
-        {/* --- 3. GERENCIAR PLANOS TAB --- */}
+        {/* ========================================================
+            TAB 4: PLANOS DE FIBRA
+            ======================================================== */}
         {activeTab === 'planos' && (
           <div className="space-y-6 animate-fade-in">
-            {!selectedPlano ? (
-              <div className="bg-white border border-slate-200 rounded-3xl p-8 shadow-sm">
-                <div className="flex justify-between items-center pb-4 border-b border-slate-100 mb-6 gap-4">
-                  <div>
-                    <h3 className="font-display font-extrabold text-md text-slate-900 uppercase">Lista de Planos de Fibra</h3>
-                    <p className="text-xs text-slate-500 mt-0.5">Adicione ou remova planos ativos disponíveis no site do Provedor.</p>
-                  </div>
-                  <button
-                    onClick={() => handleEditPlanoClick(null)}
-                    className="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center space-x-1 shrink-0"
-                  >
-                    <Plus size={14} />
-                    <span>Novo Plano</span>
+            {editingPlano ? (
+              <form onSubmit={handlePlanoSaveSubmit} className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm space-y-4">
+                <div className="pb-3 border-b border-slate-100 flex justify-between items-center">
+                  <h3 className="font-display font-black text-sm text-slate-800 uppercase tracking-wider">
+                    {editingPlano.id ? 'Editar Plano Fibra' : 'Configurar Novo Plano'}
+                  </h3>
+                  <button type="button" onClick={() => setEditingPlano(null)} className="text-slate-400 hover:text-slate-900">
+                    <X size={16} />
                   </button>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {planosList.map((plano) => (
-                    <div
-                      key={plano.id}
-                      className="p-6 rounded-2xl bg-[#F8FAFC] border border-slate-200 flex flex-col justify-between hover:border-slate-350 transition-all"
-                    >
-                      <div>
-                        <div className="flex justify-between items-start mb-2">
-                          <h4 className="font-bold text-slate-900 text-base">{plano.nome}</h4>
-                          <span className="text-sm font-bold text-slate-500">{plano.velocidade}</span>
-                        </div>
-                        
-                        <p className="text-2xl font-display font-black text-slate-900 mb-4">
-                          R$ {plano.preco.toFixed(2).replace('.', ',')}
-                          <span className="text-xs text-slate-500 font-normal ml-1">/mês</span>
-                        </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                  <div className="flex flex-col space-y-1">
+                    <label className="font-bold text-slate-400 uppercase text-[10px]">Nome Comercial do Plano</label>
+                    <input 
+                      type="text" 
+                      required
+                      value={editingPlano.nome || ''}
+                      onChange={(e) => setEditingPlano({ ...editingPlano, nome: e.target.value })}
+                      className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                      placeholder="Ex: PLANO ULTRA HYPE"
+                    />
+                  </div>
 
-                        <div className="flex flex-wrap gap-2 mb-4">
-                          {plano.destaque && (
-                            <span className="text-[9px] bg-slate-900 text-white font-mono px-2 py-0.5 rounded-full font-bold">
-                              ★ POPULAR / MAIS ASSINADO
-                            </span>
-                          )}
-                          {plano.ativo ? (
-                            <span className="text-[9px] bg-emerald-50 border border-emerald-250 text-emerald-700 font-mono px-2 py-0.5 rounded-full font-bold">
-                              ✓ EXIBINDO NO SITE
-                            </span>
-                          ) : (
-                            <span className="text-[9px] bg-slate-200 text-slate-500 font-mono px-2 py-0.5 rounded-full font-bold">
-                              OCULTO
-                            </span>
-                          )}
+                  <div className="flex flex-col space-y-1">
+                    <label className="font-bold text-slate-400 uppercase text-[10px]">Velocidade (Ex: 500 MEGA)</label>
+                    <input 
+                      type="text" 
+                      required
+                      value={editingPlano.velocidade || ''}
+                      onChange={(e) => setEditingPlano({ ...editingPlano, velocidade: e.target.value })}
+                      className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                    />
+                  </div>
+
+                  <div className="flex flex-col space-y-1">
+                    <label className="font-bold text-slate-400 uppercase text-[10px]">Mensalidade em Reais (Preço, ex: 119.90)</label>
+                    <input 
+                      type="number" 
+                      step="0.01"
+                      required
+                      value={editingPlano.preco || 0}
+                      onChange={(e) => setEditingPlano({ ...editingPlano, preco: Number(e.target.value) })}
+                      className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                    />
+                  </div>
+
+                  <div className="flex flex-col space-y-1">
+                    <label className="font-bold text-slate-400 uppercase text-[10px]">Ordem de exibição</label>
+                    <input 
+                      type="number" 
+                      value={editingPlano.ordem || 1}
+                      onChange={(e) => setEditingPlano({ ...editingPlano, ordem: Number(e.target.value) })}
+                      className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                    />
+                  </div>
+
+                  <div className="flex flex-col space-y-1 sm:col-span-2">
+                    <label className="font-bold text-slate-400 uppercase text-[10px]">Descrição curta (detalhes no card)</label>
+                    <input 
+                      type="text" 
+                      value={editingPlano.descricao || ''}
+                      onChange={(e) => setEditingPlano({ ...editingPlano, descricao: e.target.value })}
+                      className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                      placeholder="Detalhe do roteador e Wi-Fi inteligente..."
+                    />
+                  </div>
+
+                  <div className="flex flex-col space-y-1 sm:col-span-2">
+                    <label className="font-bold text-slate-400 uppercase text-[10px]">Benefícios e Recursos inclusos (Um por linha)</label>
+                    <textarea 
+                      rows={4}
+                      value={Array.isArray(editingPlano.beneficios) ? editingPlano.beneficios.join('\n') : editingPlano.beneficios || ''}
+                      onChange={(e) => setEditingPlano({ ...editingPlano, beneficios: e.target.value })}
+                      className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white font-mono"
+                      placeholder="Instalação Premium Grátis&#10;Download ultraveloz&#10;Melhor suporte técnico"
+                    />
+                    <span className="text-[9px] text-slate-400 mt-1 leading-none">Insira uma vantagem ou recurso por linha.</span>
+                  </div>
+
+                  <div className="flex items-center space-x-6 sm:col-span-2 pt-1 font-bold">
+                    <label className="flex items-center space-x-2 text-xs text-slate-650 cursor-pointer">
+                      <input 
+                        type="checkbox"
+                        checked={editingPlano.destaque || false}
+                        onChange={(e) => setEditingPlano({ ...editingPlano, destaque: e.target.checked })}
+                        className="rounded border-slate-300 accent-[#005BFF] h-4 w-4 cursor-pointer"
+                      />
+                      <span>Destacar como "Mais Vendido"</span>
+                    </label>
+
+                    <label className="flex items-center space-x-2 text-xs text-slate-650 cursor-pointer">
+                      <input 
+                        type="checkbox"
+                        checked={editingPlano.ativo !== false}
+                        onChange={(e) => setEditingPlano({ ...editingPlano, ativo: e.target.checked })}
+                        className="rounded border-slate-300 accent-[#005BFF] h-4 w-4 cursor-pointer"
+                      />
+                      <span>Exibir ATIVO no site</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div className="pt-3 border-t flex justify-end space-x-2">
+                  <button type="button" onClick={() => setEditingPlano(null)} className="px-4 py-2 rounded-xl bg-slate-150 hover:bg-slate-200 text-slate-750 text-xs font-bold">Cancelar</button>
+                  <button type="submit" className="px-5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold flex items-center space-x-1.5"><Save size={13} /><span>Salvar Plano</span></button>
+                </div>
+              </form>
+            ) : (
+              <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
+                <div className="flex justify-between items-center pb-4 border-b border-slate-100 mb-6 font-semibold">
+                  <div>
+                    <h3 className="font-display font-black text-xs text-slate-800 uppercase tracking-wider">Planos Regulados Fibra</h3>
+                    <p className="text-[11px] text-slate-500 mt-0.5">Adicione, ordene, destaque e retire do ar ofertas promocionais e empresariais.</p>
+                  </div>
+                  <button 
+                    onClick={() => setEditingPlano({ nome: '', velocidade: '', preco: 99.90, beneficios: [], destaque: false, ativo: true, ordem: planosList.length + 1 })}
+                    className="px-3.5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-850 text-white font-bold text-xs flex items-center space-x-1.5"
+                  >
+                    <Plus size={14} />
+                    <span>Adicionar Plano</span>
+                  </button>
+                </div>
+
+                {planosList.length === 0 ? (
+                  <p className="text-center py-12 text-slate-400 text-xs font-mono">Nenhum plano cadastrado ainda.</p>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {planosList.map((plano) => (
+                      <div key={plano.id} className="p-5 border rounded-2xl bg-[#F8FAFC] border-slate-200 flex flex-col justify-between hover:border-slate-350 transition-all text-xs">
+                        <div>
+                          <div className="flex justify-between items-start mb-2">
+                            <h4 className="font-bold text-slate-900 text-sm uppercase">{plano.nome}</h4>
+                            <span className="text-[10px] bg-slate-200 px-1.5 py-0.5 rounded font-black font-mono">{plano.velocidade}</span>
+                          </div>
+                          
+                          <p className="text-2xl font-display font-black text-slate-900 mb-3">
+                            R$ {plano.preco.toFixed(2).replace('.', ',')}
+                            <span className="text-xxs text-slate-400 font-normal ml-1">/mês</span>
+                          </p>
+
+                          <div className="flex flex-wrap gap-1.5 mb-3 leading-none">
+                            {plano.destaque && <span className="text-[8px] bg-[#005BFF] text-white font-black uppercase px-2 py-0.5 rounded font-mono">★ MAIS COMPRADO</span>}
+                            {plano.ativo ? <span className="text-[8px] bg-emerald-50 border border-emerald-250 text-emerald-700 font-black uppercase px-2 py-0.5 rounded font-mono">✓ VIVO NO SITE</span> : <span className="text-[8px] bg-slate-100 text-slate-400 font-black uppercase px-2 py-0.5 rounded font-mono">OCULTO</span>}
+                          </div>
+
+                          <div className="border-t border-slate-200/60 pt-2.5 mb-4 text-[10px]/relaxed text-slate-500">
+                            <span className="font-bold text-slate-700 block mb-1">Destaques listados:</span>
+                            {plano.beneficios && plano.beneficios.slice(0, 3).map((b, i) => (
+                              <p key={i} className="truncate">• {b}</p>
+                            ))}
+                            {plano.beneficios && plano.beneficios.length > 3 && <p className="text-[#005BFF] text-[9px] font-bold">Mais {plano.beneficios.length - 3} recursos...</p>}
+                          </div>
                         </div>
 
-                        <div className="text-xs text-slate-500 space-y-1 mb-4 border-t border-slate-200/60 pt-3">
-                          <span className="font-bold text-slate-700 block mb-1">Benefícios cadastrados:</span>
-                          {plano.beneficios && plano.beneficios.map((b, i) => (
-                            <p key={i} className="flex items-center space-x-2 text-[11px] leading-relaxed">
-                              <span className="text-emerald-500 font-bold">•</span>
-                              <span>{b}</span>
-                            </p>
-                          ))}
+                        <div className="pt-3 border-t flex justify-end space-x-2">
+                          <button 
+                            onClick={() => setEditingPlano(plano)}
+                            className="p-1 px-2.5 rounded bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-bold"
+                          >
+                            Editar
+                          </button>
+                          <button 
+                            onClick={() => handleDeletePlanoClick(plano.id)}
+                            className="p-1 px-2.5 rounded bg-red-50 hover:bg-red-100 border border-red-100 text-red-650 font-bold"
+                          >
+                            Excluir
+                          </button>
                         </div>
                       </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
-                      <div className="pt-4 border-t border-slate-200 flex justify-end space-x-2">
-                        <button
-                          onClick={() => handleEditPlanoClick(plano)}
-                          className="px-3.5 py-1.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 flex items-center space-x-1 text-xs font-bold"
+        {/* ========================================================
+            TAB 5: COBERTURA CIDADES
+            ======================================================== */}
+        {activeTab === 'cobertura' && (
+          <div className="space-y-6 animate-fade-in">
+            {editingCidade ? (
+              <form onSubmit={handleCoberturaSaveSubmit} className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm space-y-4">
+                <div className="pb-3 border-b border-slate-100 flex justify-between items-center">
+                  <h3 className="font-display font-black text-sm text-slate-800 uppercase tracking-wider">
+                    {editingCidade.id ? 'Editar Cidade de Cobertura' : 'Adicionar Nova Região'}
+                  </h3>
+                  <button type="button" onClick={() => setEditingCidade(null)} className="text-slate-400 hover:text-slate-900">
+                    <X size={16} />
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+                  <div className="flex flex-col space-y-1 sm:col-span-2">
+                    <label className="font-bold text-slate-400 uppercase text-[10px]">Nome da Cidade</label>
+                    <input 
+                      type="text" 
+                      required
+                      value={editingCidade.nome || ''}
+                      onChange={(e) => setEditingCidade({ ...editingCidade, nome: e.target.value })}
+                      className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                      placeholder="Ex: Santos"
+                    />
+                  </div>
+
+                  <div className="flex flex-col space-y-1">
+                    <label className="font-bold text-slate-400 uppercase text-[10px]">Estado (UF)</label>
+                    <input 
+                      type="text" 
+                      maxLength={2}
+                      required
+                      value={editingCidade.estado || ''}
+                      onChange={(e) => setEditingCidade({ ...editingCidade, estado: e.target.value.toUpperCase() })}
+                      className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                      placeholder="Ex: SP"
+                    />
+                  </div>
+
+                  <div className="flex flex-col space-y-1 sm:col-span-3">
+                    <label className="font-bold text-slate-400 uppercase text-[10px]">Malha com Sinal Ativo?</label>
+                    <select 
+                      value={editingCidade.status || 'ativo'}
+                      onChange={(e) => setEditingCidade({ ...editingCidade, status: e.target.value as 'ativo' | 'inativo' })}
+                      className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                    >
+                      <option value="ativo">Sinal Ativo / Fibra em operação</option>
+                      <option value="inativo">Rede em implantação (Inativo)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="pt-3 border-t flex justify-end space-x-2">
+                  <button type="button" onClick={() => setEditingCidade(null)} className="px-4 py-2 rounded-xl bg-slate-150 hover:bg-slate-200 text-slate-750 text-xs font-bold">Cancelar</button>
+                  <button type="submit" className="px-5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold flex items-center space-x-1.5"><Save size={13} /><span>Inserir Cidade</span></button>
+                </div>
+              </form>
+            ) : (
+              <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
+                <div className="flex justify-between items-center pb-4 border-b border-slate-100 mb-6 font-semibold">
+                  <div>
+                    <h3 className="font-display font-black text-xs text-slate-800 uppercase tracking-wider">Cidades com Rede (Cobertura)</h3>
+                    <p className="text-[11px] text-slate-500 mt-0.5">Determine em quais distritos ou municípios declaramos viabilidade do serviço.</p>
+                  </div>
+                  <button 
+                    onClick={() => setEditingCidade({ nome: '', estado: 'SP', status: 'ativo' })}
+                    className="px-3.5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-850 text-white font-bold text-xs flex items-center space-x-1.5"
+                  >
+                    <Plus size={14} />
+                    <span>Adicionar Cidade</span>
+                  </button>
+                </div>
+
+                {coberturaList.length === 0 ? (
+                  <p className="text-center py-12 text-slate-400 text-xs font-mono">Nenhuma região informada ainda.</p>
+                ) : (
+                  <div className="space-y-2.5">
+                    {coberturaList.map((cidade) => (
+                      <div key={cidade.id} className="p-3 border rounded-xl flex items-center justify-between bg-[#F8FAFC] border-slate-180 text-xs">
+                        <div className="flex items-center space-x-2.5">
+                          <span className="font-bold text-slate-800 text-sm">{cidade.nome}</span>
+                          <span className="text-[10px] font-bold text-slate-400 uppercase font-mono bg-slate-200 px-1 rounded">{cidade.estado}</span>
+                        </div>
+
+                        <div className="flex items-center space-x-3 text-right">
+                          <span className={`px-2 py-0.5 text-[8px] rounded font-black uppercase border font-mono ${
+                            cidade.status === 'ativo' 
+                              ? 'bg-emerald-50 border-emerald-200 text-emerald-700' 
+                              : 'bg-slate-100 border-slate-200 text-slate-400'
+                          }`}>
+                            {cidade.status === 'ativo' ? 'FIBRA ATIVA' : 'PLANEJAMENTO'}
+                          </span>
+                          <button 
+                            onClick={() => setEditingCidade(cidade)}
+                            className="p-1 px-2.5 rounded bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-bold text-[10px]"
+                          >
+                            Editar
+                          </button>
+                          <button 
+                            onClick={() => handleDeleteCidadeClick(cidade.id)}
+                            className="p-1 px-2.5 text-red-600 hover:text-red-800 text-[10px] font-bold"
+                          >
+                            Remover
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ========================================================
+            TAB 6: REDES SOCIAIS
+            ======================================================== */}
+        {activeTab === 'redes_sociais' && redesSociaisDetail && (
+          <form onSubmit={handleRedesSaveSubmit} className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm space-y-5 animate-fade-in">
+            <div className="pb-3 border-b border-slate-100">
+              <h3 className="font-display font-black text-xs text-slate-800 uppercase tracking-wider">Canais e Mídias Sociais</h3>
+              <p className="text-[11px] text-slate-500 mt-0.5">Informe os links de redirecionamento para alimentar os rodapés e cabeçalhos do site.</p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+              <div className="flex flex-col space-y-1">
+                <label className="font-bold text-slate-400 uppercase text-[10px]">Instagram (Username ou Perfil completo)</label>
+                <input 
+                  type="text" 
+                  required
+                  value={redesSociaisDetail.instagram}
+                  onChange={(e) => setRedesSociaisDetail({ ...redesSociaisDetail, instagram: e.target.value })}
+                  className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                  placeholder="gigatelfiberofc"
+                />
+              </div>
+
+              <div className="flex flex-col space-y-1">
+                <label className="font-bold text-slate-400 uppercase text-[10px]">Facebook (Username ou Link)</label>
+                <input 
+                  type="text" 
+                  required
+                  value={redesSociaisDetail.facebook}
+                  onChange={(e) => setRedesSociaisDetail({ ...redesSociaisDetail, facebook: e.target.value })}
+                  className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                  placeholder="gigatelfiberofc"
+                />
+              </div>
+
+              <div className="flex flex-col space-y-1">
+                <label className="font-bold text-slate-400 uppercase text-[10px]">YouTube Canal Link</label>
+                <input 
+                  type="text" 
+                  value={redesSociaisDetail.youtube}
+                  onChange={(e) => setRedesSociaisDetail({ ...redesSociaisDetail, youtube: e.target.value })}
+                  className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                  placeholder="c/CanalGigaTel"
+                />
+              </div>
+
+              <div className="flex flex-col space-y-1">
+                <label className="font-bold text-slate-400 uppercase text-[10px]">TikTok Username</label>
+                <input 
+                  type="text" 
+                  value={redesSociaisDetail.tiktok}
+                  onChange={(e) => setRedesSociaisDetail({ ...redesSociaisDetail, tiktok: e.target.value })}
+                  className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                  placeholder="gigatel"
+                />
+              </div>
+
+              <div className="flex flex-col space-y-1 sm:col-span-2">
+                <label className="font-bold text-slate-400 uppercase text-[10px]">LinkedIn Company Link</label>
+                <input 
+                  type="text" 
+                  value={redesSociaisDetail.linkedin}
+                  onChange={(e) => setRedesSociaisDetail({ ...redesSociaisDetail, linkedin: e.target.value })}
+                  className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                  placeholder="company/gigatel-fiber"
+                />
+              </div>
+            </div>
+
+            <div className="pt-3 border-t flex justify-end">
+              <button 
+                type="submit" 
+                className="px-6 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl flex items-center space-x-1.5"
+              >
+                <Save size={14} />
+                <span>Salvar Canais</span>
+              </button>
+            </div>
+          </form>
+        )}
+
+        {/* ========================================================
+            TAB 7: SEO E METATAGS
+            ======================================================== */}
+        {activeTab === 'seo' && seoConfigDetail && (
+          <form onSubmit={handleSEOSaveSubmit} className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm space-y-5 animate-fade-in">
+            <div className="pb-3 border-b border-slate-100">
+              <h3 className="font-display font-black text-xs text-slate-800 uppercase tracking-wider">Metatags de SEO para Google</h3>
+              <p className="text-[11px] text-slate-500 mt-0.5">Determine como as aranhas e indexadores do Google leem as informações de título e descrição do portal.</p>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 text-xs">
+              <div className="flex flex-col space-y-1">
+                <label className="font-bold text-slate-400 uppercase text-[10px]">Page Title (Título da Guia)</label>
+                <input 
+                  type="text" 
+                  required
+                  value={seoConfigDetail.title}
+                  onChange={(e) => setSeoConfigDetail({ ...seoConfigDetail, title: e.target.value })}
+                  className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white font-semibold text-slate-800"
+                />
+              </div>
+
+              <div className="flex flex-col space-y-1">
+                <label className="font-bold text-slate-400 uppercase text-[10px]">Meta Description (Resumo exibido no Google)</label>
+                <textarea 
+                  rows={3}
+                  required
+                  value={seoConfigDetail.meta_description}
+                  onChange={(e) => setSeoConfigDetail({ ...seoConfigDetail, meta_description: e.target.value })}
+                  className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                />
+              </div>
+
+              <div className="flex flex-col space-y-1">
+                <label className="font-bold text-slate-400 uppercase text-[10px]">Palavras-Chave (Separadas por vírgula)</label>
+                <input 
+                  type="text" 
+                  required
+                  value={seoConfigDetail.keywords}
+                  onChange={(e) => setSeoConfigDetail({ ...seoConfigDetail, keywords: e.target.value })}
+                  className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white font-mono"
+                />
+              </div>
+
+              <div className="flex flex-col space-y-1">
+                <label className="font-bold text-slate-400 uppercase text-[10px]">OpenGraph Sharing Title (Título para WhatsApp / Face compartilhado)</label>
+                <input 
+                  type="text" 
+                  required
+                  value={seoConfigDetail.open_graph_title}
+                  onChange={(e) => setSeoConfigDetail({ ...seoConfigDetail, open_graph_title: e.target.value })}
+                  className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                />
+              </div>
+
+              <div className="flex flex-col space-y-1">
+                <label className="font-bold text-slate-400 uppercase text-[10px]">OpenGraph Sharing Description (Descrição de compartilhamentos)</label>
+                <input 
+                  type="text" 
+                  required
+                  value={seoConfigDetail.open_graph_description}
+                  onChange={(e) => setSeoConfigDetail({ ...seoConfigDetail, open_graph_description: e.target.value })}
+                  className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                />
+              </div>
+
+              <div className="flex flex-col space-y-1">
+                <label className="font-bold text-slate-400 uppercase text-[10px]">Imagem de Compartilhamento URL (Sharing Image)</label>
+                <input 
+                  type="text" 
+                  required
+                  value={seoConfigDetail.imagem_compartilhamento}
+                  onChange={(e) => setSeoConfigDetail({ ...seoConfigDetail, imagem_compartilhamento: e.target.value })}
+                  className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white font-mono"
+                />
+              </div>
+            </div>
+
+            <div className="pt-3 border-t flex justify-end">
+              <button 
+                type="submit" 
+                className="px-6 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl flex items-center space-x-1.5"
+              >
+                <Save size={14} />
+                <span>Salvar Meta Tags</span>
+              </button>
+            </div>
+          </form>
+        )}
+
+        {/* ========================================================
+            TAB 8: USUÁRIOS ADMIN
+            ======================================================== */}
+        {activeTab === 'usuarios' && (
+          <div className="space-y-6 animate-fade-in">
+            {editingUsuario ? (
+              <form onSubmit={handleUsuarioSaveSubmit} className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm space-y-4">
+                <div className="pb-3 border-b border-slate-100 flex justify-between items-center">
+                  <h3 className="font-display font-black text-sm text-slate-800 uppercase tracking-wider">
+                    {editingUsuario.id ? 'Modificar Operador' : 'Registrar Novo Operador'}
+                  </h3>
+                  <button type="button" onClick={() => setEditingUsuario(null)} className="text-slate-400 hover:text-slate-900">
+                    <X size={16} />
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                  <div className="flex flex-col space-y-1">
+                    <label className="font-bold text-slate-400 uppercase text-[10px]">Nome Completo</label>
+                    <input 
+                      type="text" 
+                      required
+                      value={editingUsuario.nome || ''}
+                      onChange={(e) => setEditingUsuario({ ...editingUsuario, nome: e.target.value })}
+                      className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                      placeholder="Ex: Pedro Henrique"
+                    />
+                  </div>
+
+                  <div className="flex flex-col space-y-1">
+                    <label className="font-bold text-slate-400 uppercase text-[10px]">E-mail de Acesso</label>
+                    <input 
+                      type="email" 
+                      required
+                      value={editingUsuario.email || ''}
+                      onChange={(e) => setEditingUsuario({ ...editingUsuario, email: e.target.value })}
+                      className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white font-mono"
+                      placeholder="pedro@gigatel.com.br"
+                    />
+                  </div>
+
+                  <div className="flex flex-col space-y-1">
+                    <label className="font-bold text-slate-400 uppercase text-[10px]">Nível Hierárquico</label>
+                    <select 
+                      value={editingUsuario.nivel || 'Editor'}
+                      onChange={(e) => setEditingUsuario({ ...editingUsuario, nivel: e.target.value as 'Administrador' | 'Editor' })}
+                      className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                    >
+                      <option value="Administrador">Administrador</option>
+                      <option value="Editor">Editor</option>
+                    </select>
+                  </div>
+
+                  <div className="flex flex-col space-y-1">
+                    <label className="font-bold text-slate-400 uppercase text-[10px]">Status Geral</label>
+                    <select 
+                      value={editingUsuario.status || 'ativo'}
+                      onChange={(e) => setEditingUsuario({ ...editingUsuario, status: e.target.value as 'ativo' | 'inativo' })}
+                      className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                    >
+                      <option value="ativo">Conta Ativa / Concedida</option>
+                      <option value="inativo">Bloqueado / Expirado</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="pt-3 border-t flex justify-end space-x-2">
+                  <button type="button" onClick={() => setEditingUsuario(null)} className="px-4 py-2 rounded-xl bg-slate-150 hover:bg-slate-200 text-slate-750 text-xs font-bold">Cancelar</button>
+                  <button type="submit" className="px-5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold flex items-center space-x-1.5"><Save size={13} /><span>Autorizar Acesso</span></button>
+                </div>
+              </form>
+            ) : (
+              <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
+                <div className="flex justify-between items-center pb-4 border-b border-slate-100 mb-6 font-semibold">
+                  <div>
+                    <h3 className="font-display font-black text-xs text-slate-800 uppercase tracking-wider">Usuários Operadores</h3>
+                    <p className="text-[11px] text-slate-500 mt-0.5">Listagem das contas do provedor autorizadas a mexer neste portal.</p>
+                  </div>
+                  <button 
+                    onClick={() => setEditingUsuario({ nome: '', email: '', nivel: 'Editor', status: 'ativo', perfil: 'colaborador' })}
+                    className="px-3.5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-850 text-white font-bold text-xs flex items-center space-x-1.5"
+                  >
+                    <Plus size={14} />
+                    <span>Adicionar Usuário</span>
+                  </button>
+                </div>
+
+                <div className="space-y-3">
+                  {usuariosList.map((usuario) => (
+                    <div key={usuario.id} className="p-3 border rounded-xl flex justify-between items-center bg-[#F8FAFC] border-slate-185 text-xs gap-3">
+                      <div>
+                        <div className="flex items-center space-x-2">
+                          <span className="font-bold text-slate-800 text-md">{usuario.nome}</span>
+                          <span className="text-[8px] bg-slate-200 text-slate-600 font-extrabold uppercase px-1.5 py-0.5 rounded tracking-wide font-mono">{usuario.nivel || 'Editor'}</span>
+                        </div>
+                        <span className="text-slate-500 font-mono tracking-wide mt-1 block font-semibold">{usuario.email}</span>
+                      </div>
+
+                      <div className="flex items-center space-x-2">
+                        <button 
+                          onClick={() => setEditingUsuario(usuario)}
+                          className="px-2 py-1 bg-white hover:bg-slate-50 border rounded text-[10px] font-bold"
                         >
-                          <Edit3 size={12} />
-                          <span>Editar</span>
+                          Editar
                         </button>
-                        <button
-                          onClick={() => handleDeletePlano(plano.id)}
-                          className="px-3.5 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-650 flex items-center space-x-1 text-xs font-bold"
+                        <button 
+                          onClick={() => handleDeleteUsuarioClick(usuario.id)}
+                          className="px-2 py-1 text-red-600 hover:text-red-850 text-[10px] font-semibold"
                         >
-                          <Trash2 size={12} />
-                          <span>Deletar</span>
+                          Remover
                         </button>
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
-            ) : (
-              <form onSubmit={handleSavePlano} className="bg-white border border-slate-200 rounded-3xl p-8 shadow-sm space-y-6">
-                <div className="pb-4 border-b border-slate-100">
-                  <h3 className="font-display font-black text-lg text-slate-900 uppercase">
-                    {selectedPlano.id ? 'Modificar Plano Regulado' : 'Configurar Novo Plano Fibra'}
-                  </h3>
-                  <p className="text-xs text-slate-500 mt-1">Defina velocidade, preços e benefícios a serem informados nos cards principais.</p>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                  <div className="flex flex-col space-y-1">
-                    <label className="text-xs text-slate-500 font-bold uppercase">Nome para Exibição Comercial</label>
-                    <input
-                      type="text"
-                      value={planoForm.nome}
-                      onChange={(e) => setPlanoForm({ ...planoForm, nome: e.target.value })}
-                      placeholder="Ex: Plano Smart 500 Mega"
-                      required
-                      className="w-full bg-white border border-slate-200 focus:border-slate-400 focus:outline-none rounded-xl py-3 px-4 text-sm text-slate-900"
-                    />
-                  </div>
-
-                  <div className="flex flex-col space-y-1">
-                    <label className="text-xs text-slate-500 font-bold uppercase">Velocidade em Mega / Giga</label>
-                    <input
-                      type="text"
-                      value={planoForm.velocidade}
-                      onChange={(e) => setPlanoForm({ ...planoForm, velocidade: e.target.value })}
-                      placeholder="Ex: 500 MEGA"
-                      required
-                      className="w-full bg-white border border-slate-200 focus:border-slate-400 focus:outline-none rounded-xl py-3 px-4 text-sm text-slate-900"
-                    />
-                  </div>
-
-                  <div className="flex flex-col space-y-1">
-                    <label className="text-xs text-slate-500 font-bold uppercase">Mensalidade (Preço R$, ex: 99.90)</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={planoForm.preco}
-                      onChange={(e) => setPlanoForm({ ...planoForm, preco: Number(e.target.value) })}
-                      required
-                      className="w-full bg-white border border-slate-200 focus:border-slate-400 focus:outline-none rounded-xl py-3 px-4 text-sm text-slate-900"
-                    />
-                  </div>
-
-                  <div className="flex flex-col space-y-1">
-                    <label className="text-xs text-slate-500 font-bold uppercase">Destaque Geral</label>
-                    <div className="flex space-x-6 pt-3">
-                      <label className="flex items-center space-x-2 text-xs font-bold text-slate-650 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={planoForm.destaque}
-                          onChange={(e) => setPlanoForm({ ...planoForm, destaque: e.target.checked })}
-                          className="rounded border-slate-300 accent-emerald-500 h-4 w-4"
-                        />
-                        <span>Destacar como "Mais Vendido"</span>
-                      </label>
-
-                      <label className="flex items-center space-x-2 text-xs font-bold text-slate-650 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={planoForm.ativo}
-                          onChange={(e) => setPlanoForm({ ...planoForm, ativo: e.target.checked })}
-                          className="rounded border-slate-300 accent-emerald-500 h-4 w-4"
-                        />
-                        <span>Exibir ATIVO no site</span>
-                      </label>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col space-y-1 sm:col-span-2">
-                    <label className="text-xs text-slate-500 font-bold uppercase">Mais benefícios listáveis no card (Um por linha)</label>
-                    <textarea
-                      rows={4}
-                      value={planoForm.beneficiosStr}
-                      onChange={(e) => setPlanoForm({ ...planoForm, beneficiosStr: e.target.value })}
-                      placeholder="Fibra pura integrada&#10;Garantia de velocidade&#10;Melhor suporte regional"
-                      className="w-full bg-white border border-slate-200 focus:border-slate-400 focus:outline-none rounded-xl py-3 px-4 text-sm text-slate-900 font-mono"
-                    ></textarea>
-                    <span className="text-[10px] text-slate-400 mt-1 leading-none">
-                      * Nota: Wi-Fi Grátis e Tecnologia Fibra já são incorporados por padrão de design comercial.
-                    </span>
-                  </div>
-                </div>
-
-                <div className="pt-4 flex justify-end space-x-3">
-                  <button
-                    type="button"
-                    onClick={() => setSelectedPlano(null)}
-                    className="px-5 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs"
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-6 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs flex items-center space-x-1.5"
-                  >
-                    <Save size={14} />
-                    <span>Salvar Plano</span>
-                  </button>
-                </div>
-              </form>
             )}
           </div>
         )}
 
-        {/* --- 4. CRM LEADS LIST TAB (COVERTURA ATIVO) --- */}
-        {activeTab === 'leads' && (
-          <div className="bg-white border border-slate-200 rounded-3xl p-8 shadow-sm space-y-6 animate-fade-in">
-            <div className="pb-4 border-b border-slate-100 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-              <div>
-                <h3 className="font-display font-extrabold text-slate-900 text-md uppercase">CRM de Leads Cobertura</h3>
-                <p className="text-xs text-slate-500 mt-0.5">Monitore os dados solicitados pelos clientes no formulário do portal.</p>
+        {/* ========================================================
+            TAB 9: CONFIGURAÇÕES - GERENCIADOR DE MÍDIA
+            ======================================================== */}
+        {activeTab === 'configuracoes' && (
+          <div className="space-y-6 animate-fade-in">
+            {/* Upload form block */}
+            <form onSubmit={handleMediaUploadSubmit} className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm space-y-4">
+              <div className="pb-3 border-b border-slate-100">
+                <h3 className="font-display font-black text-xs text-slate-800 uppercase tracking-wider">Fazer Upload de Nova Mídia</h3>
+                <p className="text-[11px] text-slate-500 mt-0.5">Carregue arquivos diretamente ao bucket de uploads do Supabase.</p>
               </div>
 
-              {/* Status Filters and export actions */}
-              <div className="flex flex-wrap items-center gap-2.5">
-                <select
-                  value={leadStatusFilter}
-                  onChange={(e) => setLeadStatusFilter(e.target.value)}
-                  className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none"
+              <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 gap-3 text-xs">
+                <input 
+                  type="file" 
+                  id="media-uploader-input"
+                  required
+                  accept="image/*,video/*,.pdf"
+                  onChange={(e) => setMediaFile(e.target.files?.[0] || null)}
+                  className="p-2 border rounded-xl flex-grow bg-slate-50 cursor-pointer text-slate-650"
+                />
+                <button 
+                  type="submit" 
+                  disabled={uploadLoading}
+                  className="px-6 py-3 bg-[#005BFF] hover:bg-[#004ccb] text-white font-bold rounded-xl flex items-center space-x-1 shrink-0 disabled:opacity-50"
                 >
-                  <option value="all">📁 Todos os Leads ({leadsList.length})</option>
-                  <option value="novo">🆕 Novo ({leadsList.filter(l => l.status === 'novo').length})</option>
-                  <option value="em atendimento">⏳ Em Atendimento ({leadsList.filter(l => l.status === 'em atendimento').length})</option>
-                  <option value="finalizado">✓ Convertido ({leadsList.filter(l => l.status === 'finalizado').length})</option>
-                </select>
-
-                <button
-                  onClick={exportLeadsToCSV}
-                  className="px-4 py-2.5 rounded-xl bg-emerald-550 bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-xs flex items-center space-x-1.5 shadow-sm"
-                  title="Exportar base sob o formato Excel / CSV com cabeçalhos estruturados"
-                >
-                  <ArrowDownToLine size={13} />
-                  <span>Exportar para CSV (Excel)</span>
+                  {uploadLoading ? (
+                    <span className="animate-pulse">Enviando...</span>
+                  ) : (
+                    <>
+                      <Upload size={14} />
+                      <span>Upload de Mídia</span>
+                    </>
+                  )}
                 </button>
               </div>
-            </div>
+            </form>
 
-            {filteredLeads.length === 0 ? (
-              <p className="py-16 text-center text-slate-400 text-xs font-bold uppercase">Nenhum lead localizado sob o filtro atual.</p>
-            ) : (
-              <div className="overflow-x-auto border border-slate-100 rounded-2xl">
-                <table className="w-full text-left border-collapse text-xs">
-                  <thead>
-                    <tr className="bg-[#F8FAFC] border-b border-slate-200 text-slate-550 font-bold uppercase text-[10px]">
-                      <th className="py-3.5 px-4 font-mono">ID / Nome Completo</th>
-                      <th className="py-3.5 px-4 font-mono">WhatsApp</th>
-                      <th className="py-3.5 px-4 font-mono">Inscrição E-mail</th>
-                      <th className="py-3.5 px-4 font-mono">Localização (CEP & Endereço)</th>
-                      <th className="py-3.5 px-4 font-mono">Plano & Notas</th>
-                      <th className="py-3.5 px-4 font-mono">Interação Status</th>
-                      <th className="py-3.5 px-4 font-mono text-center">Excluir</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-150">
-                    {filteredLeads.map((lead) => {
-                      const timeStr = lead.created_at 
-                        ? new Date(lead.created_at).toLocaleString('pt-BR') 
-                        : 'Não registrada';
+            {/* Upload grid section */}
+            <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
+              <span className="font-display font-black text-xs text-slate-800 uppercase block mb-4 pb-2 border-b">Galeria de Mídias Cadastradas</span>
 
-                      const textWhatsApp = `Olá ${lead.nome}! Analisamos seu pedido de cobertura da internet ultra Giganet para o CEP ${lead.cep}. Temos ótimas notícias de viabilidade técnica! Qual melhor horário para conversarmos?`;
-                      const hrefWhatsApp = `https://wa.me/${lead.whatsapp}?text=${encodeURIComponent(textWhatsApp)}`;
+              {uploadsList.length === 0 ? (
+                <p className="text-center py-12 text-slate-400 text-xs font-mono">Nenhuma imagem ou logo carregada no momento.</p>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                  {uploadsList.map((media) => (
+                    <div key={media.id} className="p-3 border.5 border rounded-2xl bg-[#F8FAFC] border-slate-200 text-xs flex flex-col justify-between hover:border-slate-300">
+                      <div>
+                        <div className="h-28 rounded-lg overflow-hidden border bg-white flex items-center justify-center relative group">
+                          <img src={media.url} alt={media.nome} className="max-h-full max-w-full object-contain" referrerPolicy="no-referrer" />
+                          <div className="absolute inset-0 bg-slate-900/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center space-x-2">
+                            <a href={media.url} target="_blank" rel="noopener noreferrer" className="p-1 px-2.5 bg-white text-slate-900 font-bold hover:bg-slate-200 rounded text-[10px]">Ver original</a>
+                          </div>
+                        </div>
 
-                      return (
-                        <tr key={lead.id} className="hover:bg-slate-50 transition-colors">
-                          <td className="py-4 px-4">
-                            <span className="font-mono text-[9px] text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded font-bold">#{lead.id}</span>
-                            <p className="font-bold text-slate-800 text-sm mt-1">{lead.nome}</p>
-                            <span className="text-[10px] text-slate-500 font-mono mt-0.5 block">{timeStr}</span>
-                          </td>
+                        <p className="font-bold text-slate-805 mt-2 truncate text-slate-800" title={media.nome}>{media.nome}</p>
+                        <span className="text-[10px] text-slate-450 text-slate-400 block mt-1 tracking-wide font-mono font-semibold">{media.tamanho} • {media.tipo}</span>
+                      </div>
 
-                          <td className="py-4 px-4 font-bold">
-                            <a
-                              href={hrefWhatsApp}
-                              target="_blank"
-                              referrerPolicy="no-referrer"
-                              rel="noopener noreferrer"
-                              className="text-emerald-600 hover:underline flex items-center space-x-1"
-                              title="Chamar cliente no WhatsApp"
-                            >
-                              <span>{lead.whatsapp}</span>
-                            </a>
-                          </td>
-
-                          <td className="py-4 px-4 text-slate-500 max-w-xs truncate">
-                            {lead.email || 'Não informado'}
-                          </td>
-
-                          <td className="py-4 px-4 leading-relaxed max-w-xs">
-                            <span className="font-bold block text-slate-800">CEP: {lead.cep}</span>
-                            <span className="text-slate-500 italic block mt-0.5 text-[11px]">{lead.endereco}</span>
-                          </td>
-
-                          <td className="py-4 px-4 leading-relaxed">
-                            <span className="font-semibold text-slate-700 bg-sky-50 px-2 py-0.5 rounded text-[10px] block w-fit mb-1">{lead.plano_interesse}</span>
-                            <span className="text-[11px] text-slate-450 text-slate-500">{lead.observacoes || 'Sem detalhes comerciais'}</span>
-                          </td>
-
-                          <td className="py-4 px-4">
-                            <select
-                              value={lead.status}
-                              onChange={(e) => handleStatusChange(lead.id, e.target.value as any)}
-                              className={`px-3 py-1.5 rounded-lg border focus:outline-none text-[10px] font-bold ${
-                                lead.status === 'novo'
-                                  ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
-                                  : lead.status === 'em atendimento'
-                                    ? 'bg-yellow-50 border-yellow-250 text-yellow-750'
-                                    : 'bg-indigo-50 border-indigo-200 text-indigo-700'
-                              }`}
-                            >
-                              <option value="novo">🆕 Novo</option>
-                              <option value="em atendimento">⏳ Atendimento</option>
-                              <option value="finalizado">✓ Finalizado</option>
-                            </select>
-                          </td>
-
-                          <td className="py-4 px-4 text-center">
-                            <button
-                              onClick={() => handleDeleteLead(lead.id)}
-                              className="p-1 px-2.5 rounded bg-red-50 hover:bg-red-150 border border-red-100 text-red-650 font-bold hover:text-red-700 font-mono text-[10px] transition-colors"
-                              title="Remover permanentemente"
-                            >
-                              Excluir
-                            </button>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* --- 5. LOGO & BANNER BUCKET ASSETS MANAGEMENT TAB --- */}
-        {activeTab === 'assets' && (
-          <div className="bg-white border border-slate-200 rounded-3xl p-8 shadow-sm space-y-8 animate-fade-in">
-            <div className="pb-4 border-b border-slate-100">
-              <h3 className="font-display font-extrabold text-slate-900 text-md uppercase">Mídias de Logos, Banners & Imagens (Storage Bucets)</h3>
-              <p className="text-xs text-slate-500 mt-1">
-                Fazer upload direto para os buckets do Supabase (<code className="text-slate-800 bg-slate-50 px-1 rounded">logos</code>, <code className="text-slate-800 bg-slate-50 px-1 rounded">banners</code>, <code className="text-slate-800 bg-slate-50 px-1 rounded">uploads</code>).
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              
-              {/* Logo upload sector */}
-              <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between">
-                <div>
-                  <h4 className="font-bold text-slate-900 text-sm block">Substituir Logotipo da Empresa</h4>
-                  <p className="text-xs text-slate-500 mt-1">Carregue um arquivo (.png ou .svg preferencialmente) para o bucket de Logos.</p>
-                  
-                  {currentConfig?.logo_url ? (
-                    <div className="mt-4 p-4 bg-white border border-slate-220/60 rounded-xl flex items-center justify-center">
-                      <img src={currentConfig.logo_url} alt="Logo Atual" className="h-10 w-auto object-contain" referrerPolicy="no-referrer" />
+                      <div className="pt-3 mt-3 border-t flex justify-between items-center gap-1">
+                        <button 
+                          onClick={() => handleCopyLinkToClipboard(media.url)}
+                          className="p-1 px-2 rounded bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-bold text-[10px] flex items-center space-x-1"
+                        >
+                          <Copy size={11} />
+                          <span>Copiar Link</span>
+                        </button>
+                        <button 
+                          onClick={() => handleDeleteUploadClick(media.id)}
+                          className="p-1 px-2 text-red-622 font-bold text-red-650 hover:text-red-800 text-[10px]"
+                        >
+                          Deletar
+                        </button>
+                      </div>
                     </div>
-                  ) : (
-                    <p className="text-[11px] text-slate-400 font-mono mt-4 text-center p-4 bg-white border border-dashed border-slate-220 rounded-xl">Nenhum logotipo customizado cadastrado.</p>
-                  )}
+                  ))}
                 </div>
-                
-                <div className="mt-6 border-t border-slate-200 pt-4">
-                  <label className="relative cursor-pointer flex items-center justify-center space-x-2 px-4 py-3 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 transition">
-                    {uploadLogoLoading ? (
-                      <span className="animate-pulse">Enviando imagem ao Supabase...</span>
-                    ) : (
-                      <>
-                        <Upload size={14} className="text-emerald-500" />
-                        <span>Selecionar Novo Logotipo</span>
-                      </>
-                    )}
-                    <input 
-                      type="file" 
-                      accept="image/*" 
-                      onChange={handleLogoUpload} 
-                      disabled={uploadLogoLoading}
-                      className="hidden" 
-                    />
-                  </label>
-                </div>
-              </div>
-
-              {/* Banner Upload sector */}
-              <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between">
-                <div>
-                  <h4 className="font-bold text-slate-900 text-sm block">Carregar Banner Principal corporativo</h4>
-                  <p className="text-xs text-slate-500 mt-1">Carregue imagens para o bucket de Banners do Supabase para usar de plano de fundo.</p>
-                  <p className="text-[11px] text-slate-450 text-slate-450 mt-3 p-4 bg-white border border-dashed border-slate-200 rounded-xl leading-relaxed text-center">
-                    Ganhos estéticos: imagens panorâmicas de satélites ou cabo de fibra.
-                  </p>
-                </div>
-
-                <div className="mt-6 border-t border-slate-200 pt-4">
-                  <label className="relative cursor-pointer flex items-center justify-center space-x-2 px-4 py-3 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 transition">
-                    {uploadBannerLoading ? (
-                      <span className="animate-pulse">Subindo arquivo banner...</span>
-                    ) : (
-                      <>
-                        <Upload size={14} className="text-emerald-500" />
-                        <span>Subir Imagem de Banner</span>
-                      </>
-                    )}
-                    <input 
-                      type="file" 
-                      accept="image/*" 
-                      onChange={handleBannerUpload} 
-                      disabled={uploadBannerLoading}
-                      className="hidden" 
-                    />
-                  </label>
-                </div>
-              </div>
-
-            </div>
-          </div>
-        )}
-
-        {/* --- 6. GERENCIAR USUÁRIOS ADMINISTRADORES TAB --- */}
-        {activeTab === 'usuarios' && (
-          <div className="bg-white border border-slate-200 rounded-3xl p-8 shadow-sm space-y-6 animate-fade-in">
-            <div className="pb-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <div>
-                <h3 className="font-display font-extrabold text-slate-900 text-md uppercase">Operadores Administrativos</h3>
-                <p className="text-xs text-slate-400 mt-0.5">Veja a listagem das contas autorizadas a editar o painel.</p>
-              </div>
-              <button
-                onClick={() => setNewUserOpen(!newUserOpen)}
-                className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center space-x-1"
-              >
-                <Plus size={14} />
-                <span>Registrar Novo Operador</span>
-              </button>
+              )}
             </div>
 
-            {newUserOpen && (
-              <form onSubmit={handleCreateUser} className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-4">
-                <span className="text-xs font-bold text-slate-700 uppercase">Novo Acesso Operador</span>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="flex flex-col space-y-1">
-                    <label className="text-[10px] text-slate-500 font-bold uppercase">Nome Completo</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="Ex: Pedro Henrique"
-                      value={newUserName}
-                      onChange={(e) => setNewUserName(e.target.value)}
-                      className="w-full bg-white border border-slate-200 focus:outline-none rounded-xl py-2 px-3 text-sm text-slate-900"
-                    />
-                  </div>
-
-                  <div className="flex flex-col space-y-1">
-                    <label className="text-[10px] text-slate-500 font-bold uppercase">E-mail Comercial</label>
-                    <input
-                      type="email"
-                      required
-                      placeholder="Ex: pedro@giganet.com.br"
-                      value={newUserEmail}
-                      onChange={(e) => setNewUserEmail(e.target.value)}
-                      className="w-full bg-white border border-slate-200 focus:outline-none rounded-xl py-2 px-3 text-sm text-slate-900"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex justify-end space-x-2 pt-2">
-                  <button
-                    type="button"
-                    onClick={() => { setNewUserOpen(false); setNewUserEmail(''); setNewUserName(''); }}
-                    className="px-4 py-2 rounded-lg bg-white border border-slate-200 text-slate-650 font-bold text-xs"
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs"
-                  >
-                    Conceder Acesso Admin
-                  </button>
-                </div>
-              </form>
-            )}
-
-            <div className="space-y-3.5">
-              {usuariosList.map((usr) => (
-                <div key={usr.id} className="p-4 rounded-xl bg-[#F8FAFC] border border-slate-200 flex justify-between items-center text-xs">
-                  <div>
-                    <span className="font-mono text-[9px] text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded font-bold uppercase">Perfil: {usr.perfil}</span>
-                    <p className="font-bold text-slate-800 text-sm mt-1">{usr.nome}</p>
-                    <span className="text-slate-500 tracking-wide font-mono">{usr.email}</span>
-                  </div>
-                  
-                  <button
-                    onClick={() => handleDeleteUser(usr.id)}
-                    className="p-1 px-2.5 rounded bg-red-50 hover:bg-red-100 border border-red-200 text-red-650 font-bold"
-                  >
-                    Remover Acesso
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* --- 7. DYNAMIC SUPABASE TUTORIAL GUIDE TAB --- */}
-        {activeTab === 'supabase' && (
-          <div className="space-y-6 animate-fade-in bg-white border border-slate-205 rounded-3xl p-8 shadow-sm">
-            <div className="pb-4 border-b border-slate-100">
-              <h3 className="font-display font-black text-slate-900 text-md uppercase">Hospedagem & Conectar Supabase</h3>
-              <p className="text-xs text-slate-500 mt-1">Procedimentos formais para linkar seu repositório de dados persistentes no ar.</p>
-            </div>
-
-            <div className="p-5 rounded-2xl bg-[#F8FAFC] border border-slate-200 text-xs text-slate-600 leading-relaxed space-y-4">
-              <p>
-                O código fonte deste provedor foi escrito com total adesão técnica ao Supabase Client. Todas as funções chave do CRM e do modificador de variáveis de plans do site estão mapeadas e preparadas para rodar logo após você copiar o URL do seu projeto e Anon Key.
-              </p>
-              
-              <div className="p-4 bg-slate-200/50 border border-slate-200 rounded-xl space-y-3">
-                <span className="font-bold text-slate-800 block">Instrução de implantação rápida:</span>
-                <ol className="list-decimal pl-4 space-y-1 text-slate-500">
-                  <li>Crie uma conta gratuita no <a href="https://supabase.com" target="_blank" rel="noopener noreferrer" className="text-slate-900 font-bold hover:underline">Supabase</a></li>
-                  <li>Inicie uma nova instância de banco de dados vinculando suas tabelas e execute as migrações SQL</li>
-                  <li>Preencha as variáveis de ambiente na Vercel (ou em arquivos local .env):</li>
-                </ol>
-                <div className="bg-slate-950 p-3 rounded-lg text-white font-mono text-[10px] space-y-1">
-                  <p><span className="text-sky-400">VITE_SUPABASE_URL</span>="https://suacontasupabase.supabase.co"</p>
-                  <p><span className="text-sky-400">VITE_SUPABASE_ANON_KEY</span>="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.youranonkeyhere"</p>
-                </div>
-              </div>
-            </div>
           </div>
         )}
 

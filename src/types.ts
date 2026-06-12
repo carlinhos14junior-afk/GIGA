@@ -17,16 +17,66 @@ export interface SiteConfig {
   created_at?: string;
 }
 
+export interface Banner {
+  id: string | number;
+  titulo: string;
+  subtitulo: string;
+  texto_botao: string;
+  link_botao: string;
+  imagem_desktop: string;
+  imagem_mobile: string;
+  ordem: number;
+  status: 'ativo' | 'inativo';
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface Empresa {
+  id?: string | number;
+  nome_empresa: string;
+  telefone: string;
+  whatsapp: string;
+  email: string;
+  endereco: string;
+  numero: string;
+  bairro: string;
+  cidade: string;
+  estado: string;
+  cep: string;
+  latitude: string;
+  longitude: string;
+  horario_funcionamento: string;
+  status: 'ativo' | 'inativo';
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface RedesSociais {
+  id?: string | number;
+  instagram: string;
+  facebook: string;
+  youtube: string;
+  tiktok: string;
+  linkedin: string;
+  status: 'ativo' | 'inativo';
+  created_at?: string;
+  updated_at?: string;
+}
+
 export interface Plano {
   id: string | number;
   nome: string;
   velocidade: string;
   preco: number;
+  descricao?: string;
   beneficios: string[];
+  ordem?: number;
   destaque: boolean;
   ativo: boolean;
   detalhes?: string;
+  status?: 'ativo' | 'inativo';
   created_at?: string;
+  updated_at?: string;
 }
 
 export interface Lead {
@@ -42,12 +92,48 @@ export interface Lead {
   created_at?: string;
 }
 
+export interface CidadeCobertura {
+  id: string | number;
+  nome: string;
+  estado: string;
+  status: 'ativo' | 'inativo';
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface SEOConfig {
+  id?: string | number;
+  title: string;
+  meta_description: string;
+  keywords: string;
+  open_graph_title: string;
+  open_graph_description: string;
+  imagem_compartilhamento: string;
+  status: 'ativo' | 'inativo';
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface UploadMedia {
+  id: string | number;
+  nome: string;
+  url: string;
+  tamanho: string;
+  tipo: string;
+  status: 'ativo' | 'inativo';
+  created_at?: string;
+  updated_at?: string;
+}
+
 export interface Usuario {
   id: string;
   nome: string;
   email: string;
   perfil: 'admin' | 'colaborador';
+  nivel?: 'Administrador' | 'Editor';
+  status?: 'ativo' | 'inativo';
   created_at?: string;
+  updated_at?: string;
 }
 
 export type LeadStatus = 'novo' | 'em atendimento' | 'convertido' | 'cancelado';

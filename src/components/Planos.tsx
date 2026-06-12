@@ -57,33 +57,34 @@ export default function Planos({ config, planos }: PlanosProps) {
   };
 
   // Maps exact request items to representative interactive icons
-  const getFeatureIcon = (ben: string) => {
+  const getFeatureIcon = (ben: string, isFeatured: boolean) => {
     const text = ben.toLowerCase();
-    if (text.includes('streaming')) return <Tv size={15} className="text-[#005BFF]" />;
-    if (text.includes('game') || text.includes('jogo')) return <Gamepad2 size={15} className="text-[#005BFF]" />;
-    if (text.includes('home') || text.includes('office') || text.includes('trabalho')) return <Briefcase size={15} className="text-[#005BFF]" />;
-    if (text.includes('rede') || text.includes('social') || text.includes('instagram')) return <Share2 size={15} className="text-[#005BFF]" />;
-    if (text.includes('instala') || text.includes('rápida')) return <Zap size={15} className="text-[#005BFF]" />;
-    if (text.includes('wi-fi') || text.includes('wifi') || text.includes('roteador')) return <Wifi size={15} className="text-[#005BFF]" />;
-    return <Check size={14} className="text-[#005BFF]" />;
+    const color = isFeatured ? 'text-white' : 'text-[#0057FF]';
+    if (text.includes('streaming')) return <Tv size={15} className={color} />;
+    if (text.includes('game') || text.includes('jogo')) return <Gamepad2 size={15} className={color} />;
+    if (text.includes('home') || text.includes('office') || text.includes('trabalho')) return <Briefcase size={15} className={color} />;
+    if (text.includes('rede') || text.includes('social') || text.includes('instagram')) return <Share2 size={15} className={color} />;
+    if (text.includes('instala') || text.includes('rápida')) return <Zap size={15} className={color} />;
+    if (text.includes('wi-fi') || text.includes('wifi') || text.includes('roteador')) return <Wifi size={15} className={color} />;
+    return <Check size={14} className={color} />;
   };
 
   return (
     <section 
       id="planos" 
-      className="relative py-28 bg-white overflow-hidden text-slate-800 border-b border-slate-100"
+      className="relative py-28 bg-[#F3F8FF] overflow-hidden text-slate-800 border-b border-slate-100"
     >
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 z-10">
         
         {/* Section Heading */}
         <div className="text-center max-w-3xl mx-auto mb-20">
-          <div className="inline-flex items-center space-x-2 bg-blue-50 border border-blue-100 px-4 py-1.5 rounded-full text-[#005BFF] font-black text-xs uppercase mb-4 tracking-widest">
-            <Sparkles size={12} className="text-[#005BFF]" />
+          <div className="inline-flex items-center space-x-2 bg-blue-50 border border-blue-100 px-4 py-1.5 rounded-full text-[#0057FF] font-black text-xs uppercase mb-4 tracking-widest">
+            <Sparkles size={12} className="text-[#0057FF]" />
             <span>Nossos Planos</span>
           </div>
           <h2 className="font-display font-black text-4xl sm:text-5xl lg:text-6xl text-slate-900 mb-6 tracking-tighter leading-none uppercase">
             CONEXÕES QUE IMPULSIONAM <br />
-            <span className="text-[#005BFF] font-extrabold bg-gradient-to-r from-[#005BFF] to-[#0188FF] bg-clip-text text-transparent">
+            <span className="text-[#0057FF] font-extrabold bg-gradient-to-r from-[#0057FF] to-[#0188FF] bg-clip-text text-transparent">
               O SEU DIGITAL
             </span>
           </h2>
@@ -98,15 +99,17 @@ export default function Planos({ config, planos }: PlanosProps) {
           {activePlanos.map((plano) => {
             const isFeatured = plano.destaque;
             
-            // Standardize benefits on the requested items
-            const benefitsList = [
-              'Streaming',
-              'Games Online',
-              'Home Office',
-              'Redes Sociais',
-              'Instalação Rápida',
-              'Wi-Fi Incluso'
-            ];
+            // Use custom benefits from the admin panel if provided, otherwise fallback to defaults
+            const benefitsList = (plano.beneficios && plano.beneficios.length > 0)
+              ? plano.beneficios
+              : [
+                'Streaming',
+                'Games Online',
+                'Home Office',
+                'Redes Sociais',
+                'Instalação Rápida',
+                'Wi-Fi Incluso'
+              ];
 
             return (
               <div
@@ -114,68 +117,68 @@ export default function Planos({ config, planos }: PlanosProps) {
                 key={plano.id}
                 className={`relative flex flex-col justify-between rounded-3xl transition-all duration-300 overflow-hidden ${
                   isFeatured
-                    ? 'bg-white border-2 border-[#005BFF] shadow-xl md:scale-103 z-10'
-                    : 'bg-white border border-blue-100 shadow-md hover:border-[#005BFF]/30'
+                    ? 'bg-[#0057FF] text-white border-2 border-transparent shadow-2xl md:scale-103 z-10'
+                    : 'bg-white border-2 border-[#0057FF] shadow-md hover:shadow-lg'
                 } group p-8 hover:translate-y-[-4px]`}
               >
                 {/* Popular Highlight Tag */}
                 {isFeatured && (
-                  <div className="absolute top-4 right-4 bg-[#005BFF] text-white px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center space-x-1 shadow-md">
-                    <Star size={11} className="text-white fill-current" />
+                  <div className="absolute top-4 right-4 bg-[#E53935] text-white px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center space-x-1 shadow-md">
+                    <Star size={11} className="text-white fill-current animate-pulse" />
                     <span>MAIS VENDIDO</span>
                   </div>
                 )}
 
                 <div>
                   {/* Card Header */}
-                  <span className="text-xs font-black text-slate-400 tracking-widest uppercase block mb-1">
+                  <span className={`text-xs font-black tracking-widest uppercase block mb-1 ${isFeatured ? 'text-blue-200' : 'text-slate-400'}`}>
                     {plano.nome || 'PLANO ULTRA'}
                   </span>
-                  <p className="text-4xl sm:text-5xl font-display font-black tracking-tight mb-2 uppercase text-slate-900">
+                  <p className={`text-4xl sm:text-5xl font-display font-black tracking-tight mb-2 uppercase ${isFeatured ? 'text-white' : 'text-slate-900'}`}>
                     {plano.velocidade}
                   </p>
-                  <p className="text-xs text-slate-550 font-medium leading-relaxed mb-6">
+                  <p className={`text-xs font-medium leading-relaxed mb-6 ${isFeatured ? 'text-blue-105' : 'text-slate-550'}`}>
                     {plano.detalhes || 'A melhor tecnologia de conexão de ponta a ponta.'}
                   </p>
 
-                  <hr className="border-slate-100 mb-6" />
+                  <hr className={`mb-6 ${isFeatured ? 'border-white/20' : 'border-slate-100'}`} />
 
                   {/* Checklist of exact items */}
-                  <h4 className="text-[11px] font-black text-[#005BFF] uppercase tracking-wider mb-4">
+                  <h4 className={`text-[11px] font-black uppercase tracking-wider mb-4 ${isFeatured ? 'text-white' : 'text-[#0057FF]'}`}>
                     O que está incluso no plano:
                   </h4>
                   <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3 mb-8">
                     {benefitsList.map((ben, idx) => (
-                      <li key={idx} className="flex items-center space-x-3 text-xs text-slate-700">
-                        <div className="shrink-0 w-6 h-6 rounded-lg bg-blue-50/50 border border-blue-100/40 flex items-center justify-center p-1 font-semibold">
-                          {getFeatureIcon(ben)}
+                      <li key={idx} className="flex items-center space-x-3 text-xs">
+                        <div className={`shrink-0 w-6 h-6 rounded-lg flex items-center justify-center p-1 font-semibold ${isFeatured ? 'bg-white/10 border border-white/20' : 'bg-blue-50 border border-blue-100/40'}`}>
+                          {getFeatureIcon(ben, isFeatured)}
                         </div>
-                        <span className="font-semibold text-slate-700">{ben}</span>
+                        <span className={`font-semibold ${isFeatured ? 'text-white/90' : 'text-slate-700'}`}>{ben}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
 
                 {/* Pricing & CTA */}
-                <div className="mt-auto pt-6 border-t border-slate-100">
+                <div className={`mt-auto pt-6 border-t ${isFeatured ? 'border-white/20' : 'border-slate-100'}`}>
                   <div className="flex items-baseline justify-between mb-5">
                     <div>
-                      <span className="text-[10px] text-slate-400 uppercase tracking-widest font-bold block">Assinatura mensal</span>
+                      <span className={`text-[10px] uppercase tracking-widest font-bold block ${isFeatured ? 'text-blue-200' : 'text-slate-400'}`}>Assinatura mensal</span>
                       <div className="flex items-baseline mt-1">
-                        <span className="text-slate-800 text-sm font-black mr-1">R$</span>
-                        <span className="text-5xl font-display font-black tracking-tighter text-slate-900">
+                        <span className={`text-sm font-black mr-1 ${isFeatured ? 'text-white' : 'text-slate-800'}`}>R$</span>
+                        <span className={`text-5xl font-display font-black tracking-tighter ${isFeatured ? 'text-white font-extrabold' : 'text-slate-900'}`}>
                           {Math.floor(plano.preco)}
                         </span>
                         <div className="flex flex-col ml-1 leading-none">
-                          <span className="text-[#005BFF] text-xl font-display font-black">
+                          <span className={`text-xl font-display font-black ${isFeatured ? 'text-white' : 'text-[#0057FF]'}`}>
                             ,{String((plano.preco % 1).toFixed(2)).split('.')[1] || '90'}
                           </span>
-                          <span className="text-slate-500 text-[10px] uppercase font-bold tracking-widest">/mês</span>
+                          <span className={`text-[10px] uppercase font-bold tracking-widest ${isFeatured ? 'text-blue-200' : 'text-slate-500'}`}>/mês</span>
                         </div>
                       </div>
                     </div>
 
-                    <div className="text-right text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                    <div className={`text-right text-[10px] font-bold uppercase tracking-wider ${isFeatured ? 'text-blue-200' : 'text-slate-400'}`}>
                       Taxa de adesão grátis
                     </div>
                   </div>
@@ -188,8 +191,8 @@ export default function Planos({ config, planos }: PlanosProps) {
                     rel="noopener noreferrer"
                     className={`w-full py-4 rounded-xl font-black uppercase text-xs tracking-widest text-center transition-all duration-300 shadow-sm block ${
                       isFeatured
-                        ? 'bg-[#005BFF] hover:bg-[#004ccb] text-white shadow-md'
-                        : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200'
+                        ? 'bg-[#E53935] hover:bg-[#c62828] text-white shadow-xl'
+                        : 'bg-[#0057FF] hover:bg-[#004ccb] text-white'
                     }`}
                   >
                     CONTRATAR AGORA
