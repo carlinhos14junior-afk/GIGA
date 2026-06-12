@@ -50,26 +50,22 @@ export default function Depoimentos() {
   const current = avaliacoes[activeIndex];
 
   return (
-    <section className="relative py-28 bg-[#020617] overflow-hidden text-white border-b border-white/5">
-      {/* Background vector highlights */}
-      <div className="absolute top-1/2 left-[5%] -translate-y-1/2 w-64 h-64 bg-[#005BFF]/10 rounded-full filter blur-3xl pointer-events-none" />
-      <div className="absolute top-1/2 right-[5%] -translate-y-1/2 w-64 h-64 bg-[#00D4FF]/5 rounded-full filter blur-3xl pointer-events-none" />
-
+    <section className="relative py-28 bg-white overflow-hidden text-slate-800 border-b border-slate-150">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
         
         {/* Section Heading */}
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center space-x-2 bg-[#005BFF]/10 border border-[#005BFF]/30 px-4 py-1.5 rounded-full text-[#00D4FF] font-black text-xs uppercase mb-4 tracking-widest">
+          <div className="inline-flex items-center space-x-2 bg-blue-50 border border-blue-100 px-4 py-1.5 rounded-full text-[#005BFF] font-black text-xs uppercase mb-4 tracking-widest">
             <span>Avaliações dos Clientes</span>
           </div>
-          <h2 className="font-display font-black text-4xl sm:text-5xl lg:text-6xl text-white tracking-tighter mb-4 uppercase leading-none">
+          <h2 className="font-display font-black text-4xl sm:text-5xl lg:text-6xl text-slate-900 tracking-tighter mb-4 uppercase leading-none">
             RECOMENDADO POR <br />
-            <span className="bg-gradient-to-r from-[#005BFF] via-[#00AEEF] to-[#00D4FF] bg-clip-text text-transparent font-extrabold">
+            <span className="text-[#005BFF] font-extrabold bg-gradient-to-r from-[#005BFF] to-[#0188FF] bg-clip-text text-transparent">
               QUEM USA DE VERDADE
             </span>
           </h2>
 
-          <p className="text-slate-300 text-sm sm:text-base font-medium max-w-xl mx-auto leading-relaxed">
+          <p className="text-slate-650 text-sm sm:text-base font-medium max-w-xl mx-auto leading-relaxed">
             Veja a opinião de clientes reais que elevaram sua internet ao padrão máximo de ultravelocidade.
           </p>
         </div>
@@ -78,14 +74,14 @@ export default function Depoimentos() {
         <div className="relative max-w-3xl mx-auto px-4">
           
           {/* Main Card */}
-          <div className="relative rounded-[2rem] bg-slate-900/60 border border-white/10 p-8 sm:p-12 shadow-2xl min-h-[340px] flex flex-col justify-between group overflow-hidden">
+          <div className="relative rounded-[2rem] bg-white border border-blue-100 p-8 sm:p-12 shadow-md min-h-[340px] flex flex-col justify-between group overflow-hidden">
             {/* Elegant Quote Emblem */}
-            <span className="absolute top-6 right-8 text-[#00D4FF]/5 pointer-events-none group-hover:scale-105 transition-transform">
-              <Quote size={80} className="stroke-current fill-current" />
+            <span className="absolute top-6 right-8 text-blue-105/5 pointer-events-none group-hover:scale-105 transition-transform opacity-10">
+              <Quote size={80} className="stroke-current fill-current text-[#005BFF]" />
             </span>
 
-            {/* Subtle top indicator glow line */}
-            <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-[#005BFF] to-[#00D4FF]" />
+            {/* Subtle top indicator line */}
+            <div className="absolute inset-x-0 top-0 h-[3px] bg-[#005BFF]" />
 
             {/* Testimonial Core Body */}
             <div className="animate-fade-in" key={activeIndex}>
@@ -93,27 +89,27 @@ export default function Depoimentos() {
               {/* Ratings Segment */}
               <div className="flex space-x-1 mb-5">
                 {[...Array(current.estrelas)].map((_, i) => (
-                  <Star key={i} size={15} className="text-[#00D4FF] fill-[#00D4FF]" />
+                  <Star key={i} size={15} className="text-[#005BFF] fill-[#005BFF]" />
                 ))}
               </div>
 
               {/* Text */}
-              <blockquote className="text-slate-300 text-base sm:text-lg italic leading-relaxed font-semibold mb-8">
+              <blockquote className="text-slate-700 text-base sm:text-lg italic leading-relaxed font-bold mb-8">
                 "{current.texto}"
               </blockquote>
 
               {/* Author Footer */}
-              <div className="flex items-center space-x-4 border-t border-white/5 pt-6">
+              <div className="flex items-center space-x-4 border-t border-slate-100 pt-6">
                 <img
                   src={current.avatar}
                   alt={current.nome}
                   referrerPolicy="no-referrer"
-                  className="w-12 h-12 rounded-full object-cover border border-white/10 shadow-md shrink-0 bg-slate-950"
+                  className="w-12 h-12 rounded-full object-cover border border-slate-200 shadow-sm shrink-0 bg-slate-50"
                 />
                 <div className="flex flex-col">
-                  <span className="font-bold text-sm text-white leading-none">{current.nome}</span>
-                  <span className="text-[11px] text-slate-400 font-medium mt-1.5 leading-none">{current.cargo}</span>
-                  <span className="text-[9px] font-black text-[#00D4FF] uppercase tracking-widest mt-2 px-2 py-0.5 rounded bg-[#00D4FF]/10 border border-[#00D4FF]/20 self-start">
+                  <span className="font-bold text-sm text-slate-905 leading-none">{current.nome}</span>
+                  <span className="text-[11px] text-slate-500 font-medium mt-1.5 leading-none">{current.cargo}</span>
+                  <span className="text-[9px] font-black text-[#005BFF] uppercase tracking-widest mt-2 px-2 py-0.5 rounded bg-blue-50 border border-blue-100 self-start">
                     {current.plano}
                   </span>
                 </div>
@@ -127,7 +123,7 @@ export default function Depoimentos() {
           <div className="absolute top-1/2 -left-3 sm:-left-6 -translate-y-1/2 flex">
             <button
               onClick={handlePrev}
-              className="p-3.5 rounded-full bg-slate-950 border border-white/10 hover:border-[#00D4FF]/30 shadow-lg text-slate-300 hover:text-[#00D4FF] transition-all cursor-pointer hover:scale-105 active:scale-95 bg-slate-900"
+              className="p-3.5 rounded-full bg-white border border-slate-200 hover:border-blue-200 shadow-md text-slate-650 hover:text-[#005BFF] transition-all cursor-pointer hover:scale-105 active:scale-95"
             >
               <ChevronLeft size={18} className="stroke-[2.5]" />
             </button>
@@ -136,7 +132,7 @@ export default function Depoimentos() {
           <div className="absolute top-1/2 -right-3 sm:-right-6 -translate-y-1/2 flex">
             <button
               onClick={handleNext}
-              className="p-3.5 rounded-full bg-slate-950 border border-white/10 hover:border-[#00D4FF]/30 shadow-lg text-slate-300 hover:text-[#00D4FF] transition-all cursor-pointer hover:scale-105 active:scale-95 bg-slate-900"
+              className="p-3.5 rounded-full bg-white border border-slate-200 hover:border-blue-200 shadow-md text-slate-650 hover:text-[#005BFF] transition-all cursor-pointer hover:scale-105 active:scale-95"
             >
               <ChevronRight size={18} className="stroke-[2.5]" />
             </button>
@@ -151,7 +147,7 @@ export default function Depoimentos() {
               key={idx}
               onClick={() => setActiveIndex(idx)}
               className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
-                activeIndex === idx ? 'w-8 bg-[#00D4FF]' : 'w-2 bg-white/20 hover:bg-white/40'
+                activeIndex === idx ? 'w-8 bg-[#005BFF]' : 'w-2 bg-slate-200 hover:bg-slate-300'
               }`}
             />
           ))}

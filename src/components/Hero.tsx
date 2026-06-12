@@ -51,22 +51,18 @@ export default function Hero({ config }: HeroProps) {
   return (
     <section
       id="inicio"
-      className="relative pt-36 pb-24 md:pt-48 md:pb-32 bg-slate-950 overflow-hidden text-white"
+      className="relative pt-36 pb-20 md:pt-48 md:pb-28 bg-gradient-to-b from-[#F3F8FF] via-white to-white overflow-hidden text-slate-850"
     >
-      {/* Immersive digital space petroleum glow backgrounds */}
-      <div className="absolute top-0 right-0 w-[70%] h-[70%] bg-[radial-gradient(circle_at_top_right,#005BFF/18,#00D4FF/10,transparent_60%)] pointer-events-none" />
-      <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[60%] bg-[radial-gradient(circle_at_bottom_left,#00AEEF/15,transparent_55%)] pointer-events-none" />
-      <div className="absolute top-1/3 left-1/4 w-80 h-80 rounded-full bg-[#005BFF]/5 blur-3xl pointer-events-none" />
-
-      {/* Modern thin decorative techno background grid overlay */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_80%,transparent_100%)] pointer-events-none" />
+      {/* Soft, clean ambient light azul/branco background overlays */}
+      <div className="absolute top-0 right-0 w-[50%] h-[50%] bg-[radial-gradient(circle_at_top_right,#E0F2FE/55,transparent_60%)] pointer-events-none" />
+      <div className="absolute top-1/3 left-1/4 w-96 h-96 rounded-full bg-blue-50/50 blur-3xl pointer-events-none" />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 z-10 w-full">
         
-        {/* Dynamic header badge */}
+        {/* Clean, simple header badge */}
         <div className="flex justify-center lg:justify-start mb-6">
-          <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-blue-900/40 to-cyan-900/40 border border-white/10 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest text-[#00D4FF]">
-            <span className="flex h-2 w-2 rounded-full bg-[#00D4FF] animate-pulse"></span>
+          <div className="inline-flex items-center space-x-2 bg-blue-50/80 border border-blue-100 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest text-[#005BFF]">
+            <span className="flex h-2 w-2 rounded-full bg-[#005BFF]"></span>
             <span>Ultraveloz & Ultraestável</span>
           </div>
         </div>
@@ -76,14 +72,14 @@ export default function Hero({ config }: HeroProps) {
           
           {/* Left Column: Title and Core Pitch */}
           <div className="lg:col-span-6 flex flex-col space-y-6 text-center lg:text-left">
-            <h1 className="font-display font-black text-4xl sm:text-5xl lg:text-6xl leading-[1.08] tracking-tighter text-white uppercase">
+            <h1 className="font-display font-black text-4xl sm:text-5xl lg:text-6xl leading-[1.08] tracking-tighter text-slate-900 uppercase">
               INTERNET FIBRA ÓPTICA<br />
-              <span className="bg-gradient-to-r from-[#005BFF] via-[#00AEEF] to-[#00D4FF] bg-clip-text text-transparent font-extrabold">
+              <span className="text-[#005BFF] font-extrabold bg-gradient-to-r from-[#005BFF] to-[#0188FF] bg-clip-text text-transparent">
                 ULTRARRÁPIDA
               </span>
             </h1>
 
-            <p className="text-slate-300 text-base sm:text-lg lg:text-xl font-medium max-w-xl mx-auto lg:mx-0 leading-relaxed">
+            <p className="text-slate-600 text-base sm:text-lg lg:text-xl font-medium max-w-xl mx-auto lg:mx-0 leading-relaxed">
               Mais velocidade.<br />
               Mais estabilidade.<br />
               Mais tecnologia para sua casa.
@@ -93,7 +89,7 @@ export default function Hero({ config }: HeroProps) {
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4">
               <button
                 onClick={handleContractClick}
-                className="group flex items-center justify-center space-x-2 bg-[#005BFF] hover:bg-[#00D4FF] text-white hover:text-slate-950 font-extrabold text-xs uppercase tracking-widest px-8 py-4.5 rounded-xl shadow-xl shadow-blue-500/20 transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
+                className="group flex items-center justify-center space-x-2 bg-[#005BFF] hover:bg-[#004ccb] text-white font-extrabold text-xs uppercase tracking-widest px-8 py-4 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
               >
                 <span>Contratar Agora</span>
                 <ArrowRight size={15} className="group-hover:translate-x-1.5 transition-transform" />
@@ -104,51 +100,50 @@ export default function Hero({ config }: HeroProps) {
                 target="_blank"
                 referrerPolicy="no-referrer"
                 rel="noopener noreferrer"
-                className="group flex items-center justify-center space-x-2 border-2 border-white/10 bg-white/5 hover:bg-white/10 text-white font-extrabold text-xs uppercase tracking-widest px-8 py-4.5 rounded-xl shadow-md transition-all duration-300 transform hover:-translate-y-0.5"
+                className="group flex items-center justify-center space-x-2 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-extrabold text-xs uppercase tracking-widest px-8 py-4 rounded-xl shadow-sm transition-all duration-300 transform hover:-translate-y-0.5"
               >
-                <MessageCircle size={15} className="text-[#25D366] fill-currentColor" />
+                <MessageCircle size={15} className="text-[#25D366] fill-current" />
                 <span>Fale pelo WhatsApp</span>
               </a>
             </div>
 
             {/* Trust Badges */}
-            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-2 pt-6 text-xs text-slate-400 font-semibold uppercase tracking-wider">
+            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-2 pt-6 text-xs text-slate-500 font-bold uppercase tracking-wider">
               <span className="flex items-center">
-                <CheckCircle size={14} className="text-[#00D4FF] mr-2 shrink-0" /> Sem Franquia de Dados
+                <CheckCircle size={14} className="text-[#005BFF] mr-2 shrink-0" /> Sem Franquia de Dados
               </span>
               <span className="flex items-center">
-                <CheckCircle size={14} className="text-[#00D4FF] mr-2 shrink-0" /> Wi-Fi Dual Band Incluso
+                <CheckCircle size={14} className="text-[#005BFF] mr-2 shrink-0" /> Wi-Fi Dual Band Incluso
               </span>
             </div>
           </div>
 
-          {/* Right Column: High-tech generated banner */}
+          {/* Right Column: Clean Premium Image container */}
           <div className="lg:col-span-6 relative flex justify-center items-center mt-6 lg:mt-0">
-            {/* Ambient cyber cyan and blue background shadow flare */}
-            <div className="absolute inset-0 bg-gradient-to-tr from-[#005BFF]/30 to-[#00D4FF]/20 rounded-[3rem] filter blur-3xl opacity-80 -z-10" />
+            {/* Very soft shadow background flare */}
+            <div className="absolute inset-0 bg-blue-100/50 rounded-[3rem] filter blur-3xl opacity-60 -z-10" />
 
-            {/* Beautiful visual border card with integrated glowing animation lines */}
-            <div className="relative w-full max-w-lg aspect-[4/3] rounded-[2.5rem] overflow-hidden p-1 bg-gradient-to-tr from-[#005BFF] via-white/5 to-[#00D4FF] shadow-2xl transition-all duration-300 hover:scale-[1.01] group">
-              <div className="w-full h-full rounded-[2.4rem] overflow-hidden bg-slate-900 relative">
+            {/* Clean shadow box with no glowing neon outlines */}
+            <div className="relative w-full max-w-lg aspect-[4/3] rounded-3xl overflow-hidden p-1 bg-white border border-slate-150 shadow-xl transition-all duration-300 hover:scale-[1.01] group">
+              <div className="w-full h-full rounded-[1.4rem] overflow-hidden bg-slate-100 relative">
                 
-                {/* Generated premium high resolution image asset */}
                 <img 
                   src="/src/assets/images/gigatel_premium_hero_1781266310979.jpg" 
-                  alt="GIGATEL FIBER Internet Premium fibra óptica com feixes de luz neon e dispositivos inteligentes"
+                  alt="GIGATEL FIBER Internet Premium fibra óptica"
                   referrerPolicy="no-referrer"
-                  className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-700 opacity-90"
+                  className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-700 brightness-95"
                 />
 
-                {/* Cyber gradient dark overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-[#005BFF]/10 opacity-70" />
+                {/* Light gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent opacity-60" />
 
-                {/* Device badge indicator labels floating in the mockup */}
+                {/* Floating location / device badges */}
                 <div className="absolute bottom-5 left-5 right-5 flex flex-wrap gap-2 pointer-events-none md:flex-row flex-col justify-between">
-                  <span className="text-[9px] font-black text-white uppercase tracking-wider bg-slate-905/85 px-3 py-1.5 rounded-lg border border-white/10 backdrop-blur-sm self-start">
-                    📡 Roteador Wi-Fi 6 Inteligente
+                  <span className="text-[10px] font-bold text-slate-800 uppercase tracking-wide bg-white/95 px-3 py-1.5 rounded-lg border border-slate-100 shadow-md self-start">
+                    📡 Roteador Wi-Fi Inteligente
                   </span>
-                  <span className="text-[9px] font-black text-white uppercase tracking-wider bg-gradient-to-r from-[#005BFF] to-[#00D4FF] px-3 py-1.5 rounded-lg border border-white/5 shadow-lg self-end">
-                    ⚡ 100% FIBRA ÓPTICA SP
+                  <span className="text-[10px] font-bold text-white uppercase tracking-wide bg-[#005BFF] px-3 py-1.5 rounded-lg border border-[#005BFF]/10 shadow-md self-end">
+                    ⚡ 100% FIBRA ÓPTICA
                   </span>
                 </div>
               </div>
@@ -158,32 +153,29 @@ export default function Hero({ config }: HeroProps) {
         </div>
 
         {/* 3. SEÇÃO DE ESTATÍSTICAS (INTEGRATED STATISTICS CARDS ROW) */}
-        <div className="mt-24 pt-16 border-t border-white/5">
+        <div className="mt-24 pt-16 border-t border-slate-100">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {stats.map((stat, idx) => {
               const IconComp = stat.icon;
               return (
                 <div
                   key={idx}
-                  className="group relative rounded-2xl bg-white/[0.03] hover:bg-white/[0.06] border border-white/5 p-6 shadow-xl transition-all duration-300 hover:scale-102"
+                  className="group relative rounded-2xl bg-white hover:bg-slate-50/50 border border-slate-150 p-6 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-102"
                 >
-                  {/* Subtle top indicator glow */}
-                  <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-[#005BFF] to-[#00D4FF] opacity-0 group-hover:opacity-100 transition-opacity rounded-t-2xl" />
-                  
                   <div className="flex items-center space-x-4">
-                    {/* Glowing Circular icon holder with gradient */}
-                    <div className="p-3 rounded-lg bg-white/5 text-[#00D4FF] group-hover:text-white group-hover:bg-[#005BFF] transition-all">
+                    {/* Soft icon holder with brand blue of large telecom providers */}
+                    <div className="p-3 rounded-xl bg-blue-50 text-[#005BFF] group-hover:text-white group-hover:bg-[#005BFF] transition-all">
                       <IconComp size={20} className="stroke-[2.2]" />
                     </div>
 
                     <div>
-                      <h4 className="font-display font-black text-2xl sm:text-3xl text-white tracking-tight">
+                      <h4 className="font-display font-black text-2xl sm:text-3xl text-slate-900 tracking-tight">
                         {stat.value}
                       </h4>
-                      <p className="text-xs font-bold text-[#00AEEF] uppercase tracking-wider mt-0.5">
+                      <p className="text-xs font-black text-[#005BFF] uppercase tracking-wider mt-0.5">
                         {stat.label}
                       </p>
-                      <p className="text-[10px] text-slate-400 font-medium mt-1">
+                      <p className="text-[11px] text-slate-550 font-medium mt-1">
                         {stat.desc}
                       </p>
                     </div>

@@ -80,7 +80,7 @@ export default function App() {
   const floatWhatsappMsg = `Olá ${activeConfig.nome_empresa}! Quero contratar internet fibra ultraveloz agora.`;
 
   return (
-    <div className="min-h-screen flex flex-col justify-between selection:bg-[#005BFF]/35 selection:text-white bg-slate-950">
+    <div className="min-h-screen flex flex-col justify-between selection:bg-[#005BFF]/15 selection:text-[#005BFF] bg-white text-slate-900">
       
       {/* Sticky Navigation Header */}
       <Header 

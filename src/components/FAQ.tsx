@@ -41,28 +41,24 @@ export default function FAQ() {
   };
 
   return (
-    <section id="faq" className="relative py-28 bg-[#030712] border-b border-white/5 overflow-hidden text-white">
-      {/* Decorative colored red & blue gradient glow halos in background margins */}
-      <div className="absolute top-[-20%] right-[-10%] w-[50%] h-[60%] bg-[radial-gradient(circle_at_top_right,#00D4FF/5,transparent_60%)] pointer-events-none" />
-      <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[50%] bg-[radial-gradient(circle_at_bottom_left,#005BFF/5,transparent_55%)] pointer-events-none" />
-
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full animate-fade-in">
+    <section id="faq" className="relative py-28 bg-slate-50 border-b border-slate-150 overflow-hidden text-slate-800">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
         
         {/* Section Heading */}
         <div className="text-center mb-20">
-          <div className="inline-flex items-center space-x-2 bg-[#005BFF]/10 border border-[#005BFF]/30 px-4 py-1.5 rounded-full text-[#00D4FF] font-black text-xs uppercase mb-4 tracking-widest">
-            <HelpCircle size={14} className="text-[#00D4FF]" />
+          <div className="inline-flex items-center space-x-2 bg-blue-50 border border-blue-100 px-4 py-1.5 rounded-full text-[#005BFF] font-black text-xs uppercase mb-4 tracking-widest">
+            <HelpCircle size={14} className="text-[#005BFF]" />
             <span>Perguntas Frequentes</span>
           </div>
 
-          <h2 className="font-display font-black text-4xl sm:text-5xl text-white tracking-tighter leading-none uppercase">
+          <h2 className="font-display font-black text-4xl sm:text-5xl text-slate-900 tracking-tighter leading-none uppercase">
             DÚVIDAS FREQUENTES SOBRE A <br />
-            <span className="bg-gradient-to-r from-[#005BFF] via-[#00AEEF] to-[#00D4FF] bg-clip-text text-transparent font-extrabold">
+            <span className="text-[#005BFF] font-extrabold bg-gradient-to-r from-[#005BFF] to-[#0188FF] bg-clip-text text-transparent">
               GIGATEL FIBRA
             </span>
           </h2>
 
-          <p className="text-slate-300 text-sm sm:text-base font-medium max-w-2xl mx-auto leading-relaxed mt-4">
+          <p className="text-slate-650 text-sm sm:text-base font-medium max-w-2xl mx-auto leading-relaxed mt-4">
             Encontre respostas diretas e descomplicadas para as dúvidas mais comuns sobre faturamento, roteadores, Wi-Fi e instalação de fibra na sua residência ou empresa.
           </p>
         </div>
@@ -75,16 +71,16 @@ export default function FAQ() {
             return (
               <div
                 key={idx}
-                className="rounded-2xl border border-white/5 bg-slate-900/60 overflow-hidden transition-all duration-300 hover:border-[#00D4FF]/20"
+                className="rounded-2xl border border-blue-100 bg-white overflow-hidden transition-all duration-300 hover:border-[#005BFF]/30 shadow-sm"
               >
                 <button
                   onClick={() => handleToggle(idx)}
-                  className="w-full flex items-center justify-between p-5 sm:p-6 text-left focus:outline-none hover:bg-slate-900 transition-colors group"
+                  className="w-full flex items-center justify-between p-5 sm:p-6 text-left focus:outline-none hover:bg-slate-50/50 transition-colors group"
                 >
-                  <span className="font-bold text-sm sm:text-base text-white group-hover:text-[#00D4FF] transition-colors pr-4">
+                  <span className="font-bold text-sm sm:text-base text-slate-800 group-hover:text-[#005BFF] transition-colors pr-4">
                     {faq.pergunta}
                   </span>
-                  <span className="p-2 rounded-lg bg-slate-950 border border-white/10 text-[#00D4FF] shrink-0 group-hover:border-[#00D4FF]/30 transition-colors">
+                  <span className="p-2 rounded-lg bg-blue-50 border border-blue-100/50 text-[#005BFF] shrink-0 transition-colors">
                     {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                   </span>
                 </button>
@@ -92,10 +88,10 @@ export default function FAQ() {
                 {/* Answer panel */}
                 <div
                   className={`transition-all duration-300 ease-in-out ${
-                    isOpen ? 'max-h-[500px] border-t border-white/5 opacity-100 p-5 sm:p-6 pb-6 bg-[#04081c]' : 'max-h-0 opacity-0 pointer-events-none overflow-hidden'
+                    isOpen ? 'max-h-[500px] border-t border-slate-100 opacity-100 p-5 sm:p-6 pb-6 bg-slate-50/30' : 'max-h-0 opacity-0 pointer-events-none overflow-hidden'
                   }`}
                 >
-                  <p className="text-slate-300 text-sm leading-relaxed font-semibold">
+                  <p className="text-slate-600 text-sm leading-relaxed font-semibold">
                     {faq.resposta}
                   </p>
                 </div>
