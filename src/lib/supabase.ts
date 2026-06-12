@@ -14,12 +14,18 @@ export const supabase = isRealSupabase ? createClient(supabaseUrl, supabaseAnonK
 const DEFAULT_CONFIG: SiteConfig = {
   nome_empresa: 'GIGATEL FIBER',
   logo_url: '',
-  whatsapp: '5562999999999',
-  telefone: '(62) 3333-3333',
+  whatsapp: '5511910050121',
+  telefone: '(11) 91005-0121',
   email: 'contato@gigatelfiber.com.br',
-  endereco: 'Rua das Conexões, 123, Centro - Goiânia/GO, CEP 74000-000',
-  instagram: 'gigatel_fiber',
-  facebook: 'gigatelfiber'
+  endereco: 'Rua Antônio Ferraciolli, 331',
+  bairro: 'Jardim Catarina',
+  cidade: 'São Paulo',
+  estado: 'SP',
+  cep: '03910-070',
+  tempo_carro: '15 min de carro',
+  tempo_moto: '5 min de moto',
+  instagram: 'gigatelfiberofc',
+  facebook: 'gigatelfiberofc'
 };
 
 const DEFAULT_PLANOS: Plano[] = [
@@ -86,12 +92,12 @@ const setLocal = <T>(key: string, data: T): void => {
 export async function getSiteConfig(): Promise<SiteConfig> {
   if (isRealSupabase && supabase) {
     try {
-      const { data, error } = await supabase.from('site_config').select('*').limit(1).maybeSingle();
+      const { data, error } = await supabase.from('configuracoes_site').select('*').limit(1).maybeSingle();
       if (error) throw error;
       if (data) return data;
       
       const { data: inserted, error: insError } = await supabase
-        .from('site_config')
+        .from('configuracoes_site')
         .insert([DEFAULT_CONFIG])
         .select()
         .single();
@@ -99,7 +105,13 @@ export async function getSiteConfig(): Promise<SiteConfig> {
       if (insError) throw insError;
       return inserted;
     } catch (e) {
-      console.warn('Supabase config fetch failed, using local fallback:', e);
+      console.warn('Supabase configuracoes_site fetch failed, trying site_config or local fallback:', e);
+      try {
+        const { data, error } = await supabase.from('site_config').select('*').limit(1).maybeSingle();
+        if (!error && data) return data;
+      } catch (err) {
+        console.warn('Fallback to site_config failed too:', err);
+      }
       return getLocal<SiteConfig>('giganet_site_config', DEFAULT_CONFIG);
     }
   } else {
@@ -110,11 +122,11 @@ export async function getSiteConfig(): Promise<SiteConfig> {
 export async function saveSiteConfig(config: SiteConfig): Promise<SiteConfig> {
   if (isRealSupabase && supabase) {
     try {
-      const { data: existing } = await supabase.from('site_config').select('*').limit(1).maybeSingle();
+      const { data: existing } = await supabase.from('configuracoes_site').select('*').limit(1).maybeSingle();
       let result;
       if (existing && existing.id) {
         const { data, error } = await supabase
-          .from('site_config')
+          .from('configuracoes_site')
           .update(config)
           .eq('id', existing.id)
           .select()
@@ -123,7 +135,7 @@ export async function saveSiteConfig(config: SiteConfig): Promise<SiteConfig> {
         result = data;
       } else {
         const { data, error } = await supabase
-          .from('site_config')
+          .from('configuracoes_site')
           .insert([config])
           .select()
           .single();
@@ -132,9 +144,34 @@ export async function saveSiteConfig(config: SiteConfig): Promise<SiteConfig> {
       }
       return result;
     } catch (e) {
-      console.error('Failed to save to real Supabase, fallback to localStorage', e);
-      setLocal('giganet_site_config', config);
-      return config;
+      console.error('Failed to save to configuracoes_site, trying site_config fallback', e);
+      try {
+        const { data: existing } = await supabase.from('site_config').select('*').limit(1).maybeSingle();
+        let result;
+        if (existing && existing.id) {
+          const { data, error } = await supabase
+            .from('site_config')
+            .update(config)
+            .eq('id', existing.id)
+            .select()
+            .single();
+          if (error) throw error;
+          result = data;
+        } else {
+          const { data, error } = await supabase
+            .from('site_config')
+            .insert([config])
+            .select()
+            .single();
+          if (error) throw error;
+          result = data;
+        }
+        return result;
+      } catch (innerError) {
+        console.error('Failed to save to site_config fallback, falling back to localStorage', innerError);
+        setLocal('giganet_site_config', config);
+        return config;
+      }
     }
   } else {
     setLocal('giganet_site_config', config);

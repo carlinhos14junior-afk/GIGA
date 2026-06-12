@@ -890,13 +890,81 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
                 />
               </div>
 
-              <div className="flex flex-col space-y-1 sm:col-span-2">
-                <label className="text-xs text-slate-500 font-bold uppercase">Endereço de Atendimento Físico</label>
+              <div className="flex flex-col space-y-1">
+                <label className="text-xs text-slate-500 font-bold uppercase">Logradouro / Número (Endereço)</label>
                 <input
                   type="text"
                   value={currentConfig.endereco}
                   onChange={(e) => setCurrentConfig({ ...currentConfig, endereco: e.target.value })}
                   required
+                  placeholder="Ex: Rua Antônio Ferraciolli, 331"
+                  className="w-full bg-white border border-slate-200 focus:border-slate-400 focus:outline-none rounded-xl py-3 px-4 text-sm text-slate-900"
+                />
+              </div>
+
+              <div className="flex flex-col space-y-1">
+                <label className="text-xs text-slate-500 font-bold uppercase">Bairro</label>
+                <input
+                  type="text"
+                  value={currentConfig.bairro || ''}
+                  onChange={(e) => setCurrentConfig({ ...currentConfig, bairro: e.target.value })}
+                  placeholder="Ex: Jardim Catarina"
+                  className="w-full bg-white border border-slate-200 focus:border-slate-400 focus:outline-none rounded-xl py-3 px-4 text-sm text-slate-900"
+                />
+              </div>
+
+              <div className="flex flex-col space-y-1">
+                <label className="text-xs text-slate-500 font-bold uppercase">Cidade</label>
+                <input
+                  type="text"
+                  value={currentConfig.cidade || ''}
+                  onChange={(e) => setCurrentConfig({ ...currentConfig, cidade: e.target.value })}
+                  placeholder="Ex: São Paulo"
+                  className="w-full bg-white border border-slate-200 focus:border-slate-400 focus:outline-none rounded-xl py-3 px-4 text-sm text-slate-900"
+                />
+              </div>
+
+              <div className="flex flex-col space-y-1">
+                <label className="text-xs text-slate-500 font-bold uppercase">Estado (UF)</label>
+                <input
+                  type="text"
+                  maxLength={2}
+                  value={currentConfig.estado || ''}
+                  onChange={(e) => setCurrentConfig({ ...currentConfig, estado: e.target.value.toUpperCase() })}
+                  placeholder="Ex: SP"
+                  className="w-full bg-white border border-slate-200 focus:border-slate-400 focus:outline-none rounded-xl py-3 px-4 text-sm text-slate-900"
+                />
+              </div>
+
+              <div className="flex flex-col space-y-1">
+                <label className="text-xs text-slate-500 font-bold uppercase">CEP</label>
+                <input
+                  type="text"
+                  value={currentConfig.cep || ''}
+                  onChange={(e) => setCurrentConfig({ ...currentConfig, cep: e.target.value })}
+                  placeholder="Ex: 03910-070"
+                  className="w-full bg-white border border-slate-200 focus:border-slate-400 focus:outline-none rounded-xl py-3 px-4 text-sm text-slate-900"
+                />
+              </div>
+
+              <div className="flex flex-col space-y-1">
+                <label className="text-xs text-slate-500 font-bold uppercase">Tempo de Percurso (Carro)</label>
+                <input
+                  type="text"
+                  value={currentConfig.tempo_carro || ''}
+                  onChange={(e) => setCurrentConfig({ ...currentConfig, tempo_carro: e.target.value })}
+                  placeholder="Ex: 15 min de carro"
+                  className="w-full bg-white border border-slate-200 focus:border-slate-400 focus:outline-none rounded-xl py-3 px-4 text-sm text-slate-900"
+                />
+              </div>
+
+              <div className="flex flex-col space-y-1">
+                <label className="text-xs text-slate-500 font-bold uppercase">Tempo de Percurso (Moto)</label>
+                <input
+                  type="text"
+                  value={currentConfig.tempo_moto || ''}
+                  onChange={(e) => setCurrentConfig({ ...currentConfig, tempo_moto: e.target.value })}
+                  placeholder="Ex: 5 min de moto"
                   className="w-full bg-white border border-slate-200 focus:border-slate-400 focus:outline-none rounded-xl py-3 px-4 text-sm text-slate-900"
                 />
               </div>
@@ -907,7 +975,7 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
                   type="text"
                   value={currentConfig.instagram || ''}
                   onChange={(e) => setCurrentConfig({ ...currentConfig, instagram: e.target.value })}
-                  placeholder="giganet_fibra"
+                  placeholder="gigatelfiberofc"
                   className="w-full bg-white border border-slate-200 focus:border-slate-400 focus:outline-none rounded-xl py-3 px-4 text-sm text-slate-900"
                 />
               </div>
@@ -918,7 +986,7 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
                   type="text"
                   value={currentConfig.facebook || ''}
                   onChange={(e) => setCurrentConfig({ ...currentConfig, facebook: e.target.value })}
-                  placeholder="giganetfibra"
+                  placeholder="gigatelfiberofc"
                   className="w-full bg-white border border-slate-200 focus:border-slate-400 focus:outline-none rounded-xl py-3 px-4 text-sm text-slate-900"
                 />
               </div>

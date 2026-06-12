@@ -17,6 +17,8 @@ export default function Footer({ config, onNavigate }: FooterProps) {
 
   const currentYear = new Date().getFullYear();
 
+  const formattedAddress = `${config.endereco}${config.bairro ? `, ${config.bairro}` : ''}${config.cidade ? `, ${config.cidade}` : ''}${config.estado ? ` - ${config.estado}` : ''}${config.cep ? ` - CEP ${config.cep}` : ''}`;
+
   return (
     <footer id="footer-giganet" className="relative bg-slate-950 border-t border-white/5 pt-16 pb-12 text-slate-400 overflow-hidden">
       {/* Dynamic top highlight line in gradient brand colors */}
@@ -101,19 +103,19 @@ export default function Footer({ config, onNavigate }: FooterProps) {
               </li>
               <li className="flex items-start space-x-2">
                 <MapPin size={13} className="text-slate-550 shrink-0 mt-0.5" />
-                <span className="leading-relaxed">{config.endereco}</span>
+                <span className="leading-relaxed">{formattedAddress}</span>
               </li>
             </ul>
           </div>
 
           {/* Corporate hours summary */}
           <div>
-            <h4 className="font-display font-bold text-xs text-white uppercase tracking-wider mb-4">GIGATEL FIBER</h4>
+            <h4 className="font-display font-bold text-xs text-white uppercase tracking-wider mb-4">{config.nome_empresa}</h4>
             <p className="text-xs text-slate-400 leading-relaxed mb-2 font-medium">
               Sinal estável sem franquias de download para residências, comércios e corporações sob medida.
             </p>
             <p className="text-[11px] text-slate-500 font-mono">
-              Suporte das 08h às 21h pelo WhatsApp Comercial GIGATEL.
+              Suporte das 08h às 21h pelo WhatsApp Comercial {config.nome_empresa}.
             </p>
           </div>
 
@@ -123,7 +125,7 @@ export default function Footer({ config, onNavigate }: FooterProps) {
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
           
           <div className="text-center sm:text-left text-slate-500 font-medium">
-            <p>© {currentYear} GIGATEL FIBER. Todos os direitos reservados.</p>
+            <p>© {currentYear} {config.nome_empresa}. Todos os direitos reservados.</p>
             <p className="mt-1 font-mono text-[10px]/none text-slate-600">CNPJ: 12.345.678/0001-99</p>
           </div>
 

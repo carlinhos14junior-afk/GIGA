@@ -8,6 +8,12 @@ export interface SiteConfig {
   endereco: string;
   instagram: string;
   facebook: string;
+  bairro?: string;
+  cidade?: string;
+  estado?: string;
+  cep?: string;
+  tempo_carro?: string;
+  tempo_moto?: string;
   created_at?: string;
 }
 

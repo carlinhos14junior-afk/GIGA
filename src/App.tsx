@@ -63,10 +63,21 @@ export default function App() {
     whatsapp: '5511910050121',
     telefone: '(11) 91005-0121',
     email: 'contato@gigatelfiber.com.br',
-    endereco: 'Rua Antônio Ferraciolli, 331 - Jardim Catarina - São Paulo - SP, CEP 03910-070',
+    endereco: 'Rua Antônio Ferraciolli, 331',
+    bairro: 'Jardim Catarina',
+    cidade: 'São Paulo',
+    estado: 'SP',
+    cep: '03910-070',
+    tempo_carro: '15 min de carro',
+    tempo_moto: '5 min de moto',
     instagram: 'gigatelfiberofc',
     facebook: 'gigatelfiberofc'
   };
+
+  const floatWhatsappClean = activeConfig.whatsapp ? activeConfig.whatsapp.replace(/\D/g, '') : '5511910050121';
+  const floatInstagramUser = activeConfig.instagram ? activeConfig.instagram.replace('@', '') : 'gigatelfiberofc';
+  const floatInstagramLabel = `@${floatInstagramUser}`;
+  const floatWhatsappMsg = `Olá ${activeConfig.nome_empresa}! Quero contratar internet fibra ultraveloz agora.`;
 
   return (
     <div className="min-h-screen flex flex-col justify-between selection:bg-[#005BFF]/35 selection:text-white bg-slate-950">
@@ -124,21 +135,21 @@ export default function App() {
       <div className="fixed bottom-6 right-6 z-50 flex flex-col items-center space-y-3">
         {/* Instagram Floater */}
         <a
-          href={`https://instagram.com/${activeConfig.instagram}`}
+          href={`https://instagram.com/${floatInstagramUser}`}
           target="_blank"
           rel="noopener noreferrer"
-          title="Instagram GIGATEL FIBER"
+          title={`Instagram ${activeConfig.nome_empresa}`}
           className="group relative flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] text-white shadow-2xl transition-all duration-300 hover:scale-110 hover:rotate-6 active:scale-95"
         >
           <Instagram size={20} className="stroke-[2.2]" />
           <span className="absolute right-14 scale-0 group-hover:scale-100 transition-all duration-200 bg-slate-950 text-white text-[10px] font-bold py-1.5 px-2.5 rounded-lg shadow-xl whitespace-nowrap tracking-wide uppercase border border-white/10">
-            @gigatelfiberofc
+            {floatInstagramLabel}
           </span>
         </a>
 
         {/* WhatsApp Floater with pulse badge */}
         <a
-          href={`https://wa.me/${activeConfig.whatsapp}?text=${encodeURIComponent('Olá GIGATEL FIBER! Quero contratar internet fibra ultraveloz agora.')}`}
+          href={`https://wa.me/${floatWhatsappClean}?text=${encodeURIComponent(floatWhatsappMsg)}`}
           target="_blank"
           rel="noopener noreferrer"
           title="Fale Conosco no WhatsApp"

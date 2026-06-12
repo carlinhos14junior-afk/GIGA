@@ -6,35 +6,43 @@ interface ContatoProps {
 }
 
 export default function Contato({ config }: ContatoProps) {
-  const whatsAppLink = `https://wa.me/${config.whatsapp}?text=${encodeURIComponent(
+  const whatsappNumber = config.whatsapp ? config.whatsapp.replace(/\D/g, '') : '5511910050121';
+  const whatsAppLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
     `Olá, tenho interesse nos planos de Internet Fibra da ${config.nome_empresa}. Gostaria de mais informações!`
   )}`;
+
+  const formattedAddress = `${config.endereco}${config.bairro ? `, ${config.bairro}` : ''}${config.cidade ? `, ${config.cidade}` : ''}${config.estado ? ` - ${config.estado}` : ''}${config.cep ? ` - CEP ${config.cep}` : ''}`;
+
+  const cleanWhatsapp = config.whatsapp ? config.whatsapp.replace(/\D/g, '') : '';
+  const displayWhatsapp = cleanWhatsapp.length >= 11 
+    ? `+${cleanWhatsapp.substring(0, 2)} (${cleanWhatsapp.substring(2, 4)}) ${cleanWhatsapp.substring(4, 9)}-${cleanWhatsapp.substring(9)}`
+    : config.whatsapp || '(11) 91005-0121';
 
   const contactItems = [
     {
       title: 'WhatsApp Comercial',
-      val: `+${config.whatsapp.substring(0,2)} (${config.whatsapp.substring(2,4)}) ${config.whatsapp.substring(4,9)}-${config.whatsapp.substring(9)}`,
+      val: displayWhatsapp,
       icon: MessageSquare,
       link: whatsAppLink,
       badge: 'Atendimento Rápido'
     },
     {
       title: 'Telefone comercial',
-      val: config.telefone,
+      val: config.telefone || '(11) 91005-0121',
       icon: Phone,
-      link: `tel:${config.telefone.replace(/\D/g, '')}`,
+      link: `tel:${config.telefone ? config.telefone.replace(/\D/g, '') : '11910050121'}`,
     },
     {
       title: 'E-mail Comercial',
-      val: config.email,
+      val: config.email || 'contato@gigatelfiber.com.br',
       icon: Mail,
       link: `mailto:${config.email}`
     },
     {
       title: 'Endereço Comercial',
-      val: config.endereco,
+      val: formattedAddress,
       icon: MapPin,
-      link: `https://maps.google.com/?q=${encodeURIComponent(config.endereco)}`
+      link: `https://maps.google.com/?q=${encodeURIComponent(formattedAddress)}`
     }
   ];
 
@@ -61,7 +69,7 @@ export default function Contato({ config }: ContatoProps) {
               <h2 className="font-display font-black text-4xl sm:text-5xl text-white tracking-tighter leading-none uppercase">
                 FALE COM UM ESPECIALISTA <br />
                 <span className="bg-gradient-to-r from-[#005BFF] via-[#00AEEF] to-[#00D4FF] bg-clip-text text-transparent font-extrabold">
-                  GIGATEL FIBRA
+                  {config.nome_empresa}
                 </span>
               </h2>
 

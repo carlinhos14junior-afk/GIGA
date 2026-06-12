@@ -21,9 +21,21 @@ export default function Header({ config, onNavigate, currentView }: HeaderProps)
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const whatsAppLink = `https://wa.me/5511910050121?text=${encodeURIComponent(
-    `Olá GIGATEL FIBER! Quero conhecer os planos de internet fibra de alta performance.`
+  const whatsappNumber = config.whatsapp ? config.whatsapp.replace(/\D/g, '') : '5511910050121';
+  const whatsAppLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
+    `Olá ${config.nome_empresa || 'GIGATEL FIBRA'}! Quero conhecer os planos de internet fibra de alta performance.`
   )}`;
+
+  const formattedAddress = `${config.endereco}${config.bairro ? `, ${config.bairro}` : ''}${config.cidade ? `, ${config.cidade}` : ''}${config.estado ? ` - ${config.estado}` : ''}${config.cep ? ` - CEP ${config.cep}` : ''}`;
+  
+  const formattedCarTime = config.tempo_carro ? (config.tempo_carro.toLowerCase().includes('carro') ? config.tempo_carro : `${config.tempo_carro} de carro`) : '15 min de carro';
+  const formattedMotoTime = config.tempo_moto ? (config.tempo_moto.toLowerCase().includes('moto') ? config.tempo_moto : `${config.tempo_moto} de moto`) : '5 min de moto';
+
+  const phoneLink = `tel:${config.telefone ? config.telefone.replace(/\D/g, '') : '11910050121'}`;
+  const displayPhone = config.telefone || '(11) 91005-0121';
+
+  const instagramUser = config.instagram ? config.instagram.replace('@', '') : 'gigatelfiberofc';
+  const instagramLink = `https://instagram.com/${instagramUser}`;
 
   const navItems = [
     { label: 'Início', href: '#inicio' },
@@ -57,31 +69,31 @@ export default function Header({ config, onNavigate, currentView }: HeaderProps)
           <div className="flex flex-wrap items-center justify-center lg:justify-start gap-x-4 gap-y-1">
             <span className="flex items-center text-slate-200 font-medium">
               <MapPin size={12} className="text-[#00D4FF] mr-1.5 shrink-0" />
-              Rua Antônio Ferraciolli, 331 - Jardim Catarina, São Paulo - SP - CEP 03910-070
+              {formattedAddress}
             </span>
             <span className="hidden sm:inline-flex items-center text-slate-400">
               <Car size={13} className="text-[#00AEEF] mr-1.5 shrink-0" />
-              Chegue em: <strong className="text-[#00D4FF] ml-1 font-semibold">15 min de carro ou 5 min de moto</strong>
+              Chegue em: <strong className="text-[#00D4FF] ml-1 font-semibold">{formattedCarTime} ou {formattedMotoTime}</strong>
             </span>
           </div>
 
           {/* Right: Phone and Instagram */}
           <div className="flex items-center justify-center gap-5">
             <a 
-              href="tel:11910050121" 
+              href={phoneLink} 
               className="flex items-center text-white hover:text-[#00D4FF] transition-colors font-semibold"
             >
               <Phone size={12} className="text-[#005BFF] mr-1.5 shrink-0" />
-              (11) 91005-0121
+              {displayPhone}
             </a>
             <a 
-              href="https://instagram.com/gigatelfiberofc" 
+              href={instagramLink} 
               target="_blank" 
               rel="noopener noreferrer" 
               className="flex items-center text-slate-300 hover:text-[#00D4FF] transition-colors"
             >
               <Instagram size={12} className="text-pink-500 mr-1.5 shrink-0" />
-              @gigatelfiberofc
+              @{instagramUser}
             </a>
           </div>
         </div>
