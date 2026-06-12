@@ -58,8 +58,7 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
   const [forgotSuccess, setForgotSuccess] = useState('');
   const [forgotError, setForgotError] = useState('');
   
-  // Force change password
-  const [mustChangePassword, setMustChangePassword] = useState(false);
+  // Forced change password - REMOVED
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
   const [passwordChanging, setPasswordChanging] = useState(false);
@@ -133,10 +132,11 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
 
   // Fetch all databases/Localstorage items
   const loadAllCMSData = async () => {
+    // Optionally add a small fake delay to show transparency that it IS fetching
     try {
       const [cfg, bans, emp, pls, cob, red, seo, usrs, lds, mds] = await Promise.all([
-        getSiteConfig(),
-        getBanners(),
+        getSiteConfig(true),
+        getBanners(true),
         getEmpresa(),
         getPlanos(),
         getCidadesCobertura(),
@@ -176,11 +176,12 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
         setLoginError(response.error.message || 'Credenciais inválidas.');
       } else {
         setUser(response.user);
-        if (response.needsPasswordChange) {
-          setMustChangePassword(true);
-        } else {
-          await loadAllCMSData();
-        }
+        
+        // Ensure session persistence
+        localStorage.setItem('admin_logged', 'true');
+        localStorage.setItem('admin_email', loginEmail);
+        
+        await loadAllCMSData();
       }
     } catch (err: any) {
       setLoginError(err.message || 'Erro inesperado.');
@@ -210,42 +211,31 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
     }
   };
 
-  // Forced password change submit
-  const handleForcePasswordChange = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setPasswordChangeError('');
-    if (newPassword.length < 5) {
-      setPasswordChangeError('A nova senha deve possuir pelo menos 5 dígitos!');
-      return;
-    }
-    if (newPassword !== confirmNewPassword) {
-      setPasswordChangeError('As senhas digitadas não batem.');
-      return;
-    }
-    setPasswordChanging(true);
-    try {
-      const { error } = await changePassword(newPassword);
-      if (error) {
-        setPasswordChangeError(error.message);
-      } else {
-        setMustChangePassword(false);
-        showAlert('Senha padrão alterada com total segurança!');
-        await loadAllCMSData();
-      }
-    } catch (err: any) {
-      setPasswordChangeError(err.message);
-    } finally {
-      setPasswordChanging(false);
-    }
-  };
-
   // Sign out handle
   const handleLogout = async () => {
     await signOut();
     setUser(null);
-    setMustChangePassword(false);
     setLoginPassword('');
     setLoginEmail('');
+    localStorage.removeItem('admin_logged');
+    localStorage.removeItem('admin_email');
+  };
+
+  // Manual Site Refresh
+  const [refreshing, setRefreshing] = useState(false);
+  const handleManualRefresh = async () => {
+    setRefreshing(true);
+    try {
+      // Clear local memory/state and fetch again
+      await loadAllCMSData();
+      onConfigChange();
+      onPlanosChange();
+      showAlert('Site atualizado com sucesso! Cache limpo e dados recarregados da nuvem.');
+    } catch (err) {
+      showAlert('Erro ao atualizar site.', 'error');
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   // Save Site general status preference
@@ -786,74 +776,6 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
     );
   }
 
-  // --- RENDERING 1: ALTERAÇÃO DE SENHA OBRIGATÓRIA ON FIRST ACCESS ---
-  if (user && mustChangePassword) {
-    return (
-      <div className={`min-h-screen bg-slate-50 flex items-center justify-center p-4 py-28 ${theme === 'dark' ? 'dark-theme-admin' : ''}`}>
-        {darkThemeStyles}
-        <div className="max-w-md w-full bg-white border border-slate-200 p-8 rounded-3xl shadow-xl">
-          <div className="text-center mb-6">
-            <div className="inline-flex p-3 rounded-2xl bg-amber-50 border border-amber-200 text-amber-600 mb-3">
-              <LockKeyhole size={28} className="animate-pulse" />
-            </div>
-            <h2 className="font-display font-black text-xl text-slate-900 uppercase">Alteração de Senha</h2>
-            <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">
-              Sua conta utiliza a senha provisória padrão (<code className="text-slate-900 font-bold">123456</code>). Altere-a para prosseguir com segurança.
-            </p>
-          </div>
-
-          {passwordChangeError && (
-            <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-xs font-semibold mb-4 text-center">
-              {passwordChangeError}
-            </div>
-          )}
-
-          <form onSubmit={handleForcePasswordChange} className="space-y-4">
-            <div className="flex flex-col space-y-1">
-              <label className="text-[10px] font-bold uppercase text-slate-500">Nova Senha</label>
-              <input
-                type="password"
-                required
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="Mínimo 5 caracteres"
-                className="w-full bg-white border border-slate-200 focus:border-slate-400 focus:outline-none rounded-xl py-3 px-4 text-sm text-slate-900"
-              />
-            </div>
-
-            <div className="flex flex-col space-y-1">
-              <label className="text-[10px] font-bold uppercase text-slate-500">Confirmar Nova Senha</label>
-              <input
-                type="password"
-                required
-                value={confirmNewPassword}
-                onChange={(e) => setConfirmNewPassword(e.target.value)}
-                placeholder="Repita a nova senha"
-                className="w-full bg-white border border-slate-200 focus:border-slate-400 focus:outline-none rounded-xl py-3 px-4 text-sm text-slate-900"
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={passwordChanging}
-              className="w-full py-3.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition-all disabled:opacity-50 mt-2 flex items-center justify-center space-x-1.5 shadow-sm"
-            >
-              <CheckCircle size={14} />
-              <span>{passwordChanging ? 'Alterando...' : 'Confirmar Nova Senha'}</span>
-            </button>
-          </form>
-
-          <button
-            onClick={handleLogout}
-            className="w-full mt-4 text-slate-400 hover:text-slate-600 hover:underline text-xs text-center font-semibold"
-          >
-            Sair e Voltar depois
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   // --- RENDERING 2: LOGIN CENTRAL ---
   if (!user) {
     return (
@@ -1144,6 +1066,15 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
               <p className="text-xs font-bold text-slate-700 truncate">{user?.email}</p>
             </div>
           )}
+
+          <button
+            onClick={handleManualRefresh}
+            disabled={refreshing}
+            className="w-full flex items-center justify-center space-x-2 p-2.5 rounded-xl bg-emerald-500 text-white hover:bg-emerald-600 text-[11px] font-black transition-all mb-2 shadow-lg shadow-emerald-500/10 cursor-pointer disabled:opacity-50"
+          >
+            {refreshing ? <span className="animate-spin mr-1">⌛</span> : <Activity size={13} />}
+            {!isSidebarCollapsed && <span>{refreshing ? 'Atualizando...' : 'Atualizar Site'}</span>}
+          </button>
 
           <button
             onClick={handleLogout}

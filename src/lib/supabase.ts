@@ -248,10 +248,16 @@ export function getLastUpdate(): string {
 }
 
 // --- SITE CONFIG ---
-export async function getSiteConfig(): Promise<SiteConfig> {
+export async function getSiteConfig(forceRefresh = false): Promise<SiteConfig> {
   if (isRealSupabase && supabase) {
     try {
-      const { data, error } = await supabase.from('configuracoes_site').select('*').limit(1).maybeSingle();
+      // Use a query to bypass some cache layers if needed, though supabase-js usually doesn't cache
+      const { data, error } = await supabase
+        .from('configuracoes_site')
+        .select('*')
+        .limit(1)
+        .maybeSingle();
+      
       if (error) throw error;
       if (data) return data;
       
@@ -309,20 +315,27 @@ export async function saveSiteConfig(config: SiteConfig): Promise<SiteConfig> {
 }
 
 // --- BANNERS ---
-export async function getBanners(): Promise<Banner[]> {
+export async function getBanners(force = false): Promise<Banner[]> {
   if (isRealSupabase && supabase) {
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('banners')
         .select('*')
-        .order('ordem', { ascending: true });
+        .eq('status', 'ativo');
+      
+      if (force) {
+        // Dummy filter to avoid potential caches
+        query = query.neq('id', '00000000-0000-0000-0000-000000000000');
+      }
+
+      const { data, error } = await query.order('ordem', { ascending: true });
       if (error) throw error;
       return data || [];
     } catch (e) {
-      return getLocal<Banner[]>('giganet_banners', DEFAULT_BANNERS);
+      return getLocal<Banner[]>('giganet_banners', DEFAULT_BANNERS).filter(b => b.status === 'ativo');
     }
   } else {
-    return getLocal<Banner[]>('giganet_banners', DEFAULT_BANNERS);
+    return getLocal<Banner[]>('giganet_banners', DEFAULT_BANNERS).filter(b => b.status === 'ativo');
   }
 }
 
@@ -1186,9 +1199,9 @@ export async function signIn(email: string, pass: string) {
 
       const session = { access_token: 'supabase-db-token-' + Date.now(), user };
       
-      // 11. Após login válido
+      // PERSIST SESSION
       localStorage.setItem('admin_logged', 'true');
-      localStorage.setItem('admin_email', email);
+      localStorage.setItem('admin_email', data.email);
       localStorage.setItem('giganet_session', JSON.stringify(session));
 
       // Redirecionar para: /admin/dashboard
@@ -1197,7 +1210,7 @@ export async function signIn(email: string, pass: string) {
         window.dispatchEvent(new Event('popstate'));
       }, 50);
 
-      return { user, session, needsPasswordChange: pass === '123456', error: null };
+      return { user, session, error: null };
     } catch (e: any) {
       console.warn('Supabase auth failed or table missing, fallback to simulator:', e);
       const localAdmins = getLocal<AdminUser[]>('giganet_admin_users', []);
@@ -1241,7 +1254,7 @@ export async function signIn(email: string, pass: string) {
         window.dispatchEvent(new Event('popstate'));
       }, 50);
 
-      return { user, session, needsPasswordChange: pass === '123456', error: null };
+      return { user, session, error: null };
     }
   } else {
     const localAdmins = getLocal<AdminUser[]>('giganet_admin_users', []);
