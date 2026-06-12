@@ -48,8 +48,8 @@ export default function Footer({ config, onNavigate }: FooterProps) {
             <Logo 
               size="md" 
               lightVersion={true} 
-              logoUrl={config.logo_rodape_url || config.logo_url} 
-              logoBrancaUrl={config.logo_branca_url} 
+              logoUrl={config.logo_footer_url || config.logo_url} 
+              logoBrancaUrl={config.logo_white_url} 
               nomeEmpresa={config.nome_empresa} 
             />
             

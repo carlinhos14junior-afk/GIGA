@@ -12,8 +12,8 @@ import Contato from './components/Contato';
 import Footer from './components/Footer';
 import AdminPanel from './components/AdminPanel';
 import Logo from './components/Logo';
-import { getSiteConfig, getPlanos, getBanners, getEmpresa, getSEO, isRealSupabase, supabase } from './lib/supabase';
-import { SiteConfig, Plano, Banner } from './types';
+import { getSiteConfig, getPlanos, getBanners, getEmpresa, getSEO, isRealSupabase, supabase, getBrandSettings } from './lib/supabase';
+import { SiteConfig, Plano, Banner, BrandSettings } from './types';
 
 export default function App() {
   const [view, setView] = useState<'main' | 'admin'>('main');
@@ -27,10 +27,17 @@ export default function App() {
     try {
       const cfg = await getSiteConfig();
       let emp = null;
+      let brands: BrandSettings | null = null;
+
       try {
-        emp = await getEmpresa();
+        const [empData, brandData] = await Promise.all([
+          getEmpresa(),
+          getBrandSettings()
+        ]);
+        emp = empData;
+        brands = brandData;
       } catch (err) {
-        console.warn('Could not load company info from database:', err);
+        console.warn('Could not load company or brand info from database:', err);
       }
 
       const mergedConfig: SiteConfig = {
@@ -50,9 +57,13 @@ export default function App() {
           cnpj: emp.cnpj,
           instagram: emp.instagram,
           facebook: emp.facebook,
-          logo_url: emp.logo_url,
-          logo_branca_url: emp.logo_branca_url,
-          favicon_url: emp.favicon_url
+        } : {}),
+        ...(brands ? {
+          logo_url: brands.logo_url,
+          logo_white_url: brands.logo_white_url,
+          logo_footer_url: brands.logo_footer_url,
+          logo_mobile_url: brands.logo_mobile_url,
+          favicon_url: brands.favicon_url
         } : {})
       };
       setSiteConfig(mergedConfig);
@@ -169,7 +180,8 @@ export default function App() {
       supabase.channel('public:empresa').on('postgres_changes', { event: '*', schema: 'public', table: 'empresa' }, () => loadData()),
       supabase.channel('public:planos').on('postgres_changes', { event: '*', schema: 'public', table: 'planos' }, () => loadData()),
       supabase.channel('public:banners').on('postgres_changes', { event: '*', schema: 'public', table: 'banners' }, () => loadData()),
-      supabase.channel('public:seo').on('postgres_changes', { event: '*', schema: 'public', table: 'seo' }, () => loadData())
+      supabase.channel('public:seo').on('postgres_changes', { event: '*', schema: 'public', table: 'seo' }, () => loadData()),
+      supabase.channel('public:brand_settings').on('postgres_changes', { event: '*', schema: 'public', table: 'brand_settings' }, () => loadData())
     ];
 
     channels.forEach(channel => channel.subscribe());

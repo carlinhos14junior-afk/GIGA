@@ -1,9 +1,20 @@
+export interface BrandSettings {
+  id?: string | number;
+  logo_url: string;
+  logo_white_url: string;
+  logo_footer_url: string;
+  logo_mobile_url: string;
+  favicon_url: string;
+  updated_at?: string;
+  created_at?: string;
+}
+
 export interface SiteConfig {
   id?: string | number;
   nome_empresa: string;
   logo_url: string;
-  logo_branca_url?: string;
-  logo_rodape_url?: string;
+  logo_white_url?: string;
+  logo_footer_url?: string;
   logo_mobile_url?: string;
   favicon_url?: string;
   whatsapp: string;
@@ -110,8 +121,8 @@ export interface Empresa {
   instagram?: string;
   facebook?: string;
   logo_url?: string;
-  logo_branca_url?: string;
-  logo_rodape_url?: string;
+  logo_white_url?: string;
+  logo_footer_url?: string;
   logo_mobile_url?: string;
   favicon_url?: string;
   created_at?: string;

@@ -13,11 +13,12 @@ import {
   savePlano, deletePlano, getLeads, deleteLead, updateLeadStatus, 
   getUsuarios, saveUsuario, deleteUsuario, uploadFile, signIn, changePassword, 
   getCurrentUser, getLastUpdate, isRealSupabase, getUploads, saveUpload, deleteUpload,
-  signOut, resetPassword
+  signOut, resetPassword, getBrandSettings, saveBrandSettings
 } from '../lib/supabase';
 import { 
   SiteConfig, Plano, Lead, Usuario, Banner, 
-  Empresa, RedesSociais, CidadeCobertura, SEOConfig, UploadMedia 
+  Empresa, RedesSociais, CidadeCobertura, SEOConfig, UploadMedia,
+  BrandSettings
 } from '../types';
 import Logo from './Logo';
 
@@ -72,6 +73,7 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
   const [coberturaList, setCoberturaList] = useState<CidadeCobertura[]>([]);
   const [redesSociaisDetail, setRedesSociaisDetail] = useState<RedesSociais | null>(null);
   const [seoConfigDetail, setSeoConfigDetail] = useState<SEOConfig | null>(null);
+  const [brandSettingsDetail, setBrandSettingsDetail] = useState<BrandSettings | null>(null);
   const [usuariosList, setUsuariosList] = useState<Usuario[]>([]);
   const [leadsList, setLeadsList] = useState<Lead[]>([]);
   const [uploadsList, setUploadsList] = useState<UploadMedia[]>([]);
@@ -136,7 +138,7 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
   const loadAllCMSData = async () => {
     // Optionally add a small fake delay to show transparency that it IS fetching
     try {
-      const [cfg, bans, emp, pls, cob, red, seo, usrs, lds, mds] = await Promise.all([
+      const [cfg, bans, emp, pls, cob, red, seo, usrs, lds, mds, brands] = await Promise.all([
         getSiteConfig(true),
         getBanners(true),
         getEmpresa(),
@@ -146,7 +148,8 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
         getSEO(),
         getUsuarios(),
         getLeads(),
-        getUploads()
+        getUploads(),
+        getBrandSettings()
       ]);
 
       if (cfg && cfg.site_status) {
@@ -162,6 +165,7 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
       setUsuariosList(usrs);
       setLeadsList(lds);
       setUploadsList(mds);
+      setBrandSettingsDetail(brands);
     } catch (e) {
       console.error("Error loading CMS elements: ", e);
     }
@@ -360,8 +364,8 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
           endereco: `${saved.endereco}, ${saved.numero}`,
           cnpj: saved.cnpj,
           logo_url: saved.logo_url || '',
-          logo_branca_url: saved.logo_branca_url || '',
-          logo_rodape_url: saved.logo_rodape_url || '',
+          logo_white_url: saved.logo_white_url || '',
+          logo_footer_url: saved.logo_footer_url || '',
           logo_mobile_url: saved.logo_mobile_url || '',
           favicon_url: saved.favicon_url || ''
         };
@@ -545,33 +549,53 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
   };
 
   // Upload Logo/Identity Helpers
-  const handleLogoIdentityUpload = async (type: 'logo_url' | 'logo_branca_url' | 'favicon_url' | 'logo_rodape_url' | 'logo_mobile_url', file: File) => {
-    if (!empresaDetail) return;
+  const handleLogoIdentityUpload = async (type: 'logo_url' | 'logo_white_url' | 'logo_footer_url' | 'logo_mobile_url' | 'favicon_url', file: File) => {
+    if (!brandSettingsDetail) return;
     
     if (type === 'logo_url') setUploadLogoLoading(true);
-    else if (type === 'logo_branca_url') setUploadLogoBrancaLoading(true);
-    else if (type === 'logo_rodape_url') setUploadLogoRodapeLoading(true);
+    else if (type === 'logo_white_url') setUploadLogoBrancaLoading(true);
+    else if (type === 'logo_footer_url') setUploadLogoRodapeLoading(true);
     else if (type === 'logo_mobile_url') setUploadLogoMobileLoading(true);
     else setUploadFaviconLoading(true);
 
     try {
       const fileName = `${type}_${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
-      const url = await uploadFile('logos', fileName, file);
+      const url = await uploadFile('site-images', fileName, file);
       
-      setEmpresaDetail(prev => prev ? {
-        ...prev,
+      const updated = {
+        ...brandSettingsDetail,
         [type]: url
-      } : null);
-
-      showAlert(`Item de identidade (${type.replace('_url', '').replace('_', ' ')}) carregado com sucesso!`);
+      };
+      
+      setBrandSettingsDetail(updated);
+      
+      // Auto save on upload
+      await saveBrandSettings(updated);
+      
+      onConfigChange();
+      showAlert(`Item de identidade (${type.replace('logo_', '').replace('_url', '').replace('_', ' ')}) atualizado com sucesso!`);
     } catch (err) {
+      console.error('Error uploading logo:', err);
       showAlert('Erro ao subir logotipo.', 'error');
     } finally {
       if (type === 'logo_url') setUploadLogoLoading(false);
-      else if (type === 'logo_branca_url') setUploadLogoBrancaLoading(false);
-      else if (type === 'logo_rodape_url') setUploadLogoRodapeLoading(false);
+      else if (type === 'logo_white_url') setUploadLogoBrancaLoading(false);
+      else if (type === 'logo_footer_url') setUploadLogoRodapeLoading(false);
       else if (type === 'logo_mobile_url') setUploadLogoMobileLoading(false);
       else setUploadFaviconLoading(false);
+    }
+  };
+
+  const handleBrandSettingsSaveSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!brandSettingsDetail) return;
+    try {
+      await saveBrandSettings(brandSettingsDetail);
+      onConfigChange();
+      showAlert('Identidade Visual salva com sucesso!');
+    } catch (err) {
+      console.error('Error saving brand settings:', err);
+      showAlert('Erro ao salvar identidade visual.', 'error');
     }
   };
 
@@ -2479,8 +2503,8 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
         {/* ========================================================
             TAB: LOGOTIPOS E IDENTIDADE
             ======================================================== */}
-        {activeTab === 'logo' && empresaDetail && (
-          <form onSubmit={handleEmpresaSaveSubmit} className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm space-y-8 animate-fade-in">
+        {activeTab === 'logo' && brandSettingsDetail && (
+          <form onSubmit={handleBrandSettingsSaveSubmit} className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm space-y-8 animate-fade-in">
             <div className="pb-4 border-b border-slate-100">
               <h3 className="font-display font-black text-xs text-slate-800 uppercase tracking-wider">Identidade Visual</h3>
               <p className="text-[11px] text-slate-500 mt-0.5">Gerencie os logotipos principais, favicon e variações de cor do seu site.</p>
@@ -2496,8 +2520,8 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
                     <div className="flex space-x-2">
                       <input 
                         type="text" 
-                        value={empresaDetail.logo_url || ''}
-                        onChange={(e) => setEmpresaDetail({ ...empresaDetail, logo_url: e.target.value })}
+                        value={brandSettingsDetail.logo_url || ''}
+                        onChange={(e) => setBrandSettingsDetail({ ...brandSettingsDetail, logo_url: e.target.value })}
                         className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white flex-grow text-xs font-mono"
                         placeholder="URL do Logo"
                       />
@@ -2509,12 +2533,12 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
                     </div>
                     
                     <div className="relative group aspect-video bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200 flex items-center justify-center p-4 overflow-hidden">
-                      {empresaDetail.logo_url ? (
+                      {brandSettingsDetail.logo_url ? (
                         <>
-                          <img src={empresaDetail.logo_url} alt="Logo Principal" className="max-h-full object-contain" referrerPolicy="no-referrer" />
+                          <img src={brandSettingsDetail.logo_url} alt="Logo Principal" className="max-h-full object-contain" referrerPolicy="no-referrer" />
                           <button 
                             type="button"
-                            onClick={() => setEmpresaDetail({...empresaDetail, logo_url: ''})}
+                            onClick={() => setBrandSettingsDetail({...brandSettingsDetail, logo_url: ''})}
                             className="absolute top-2 right-2 p-1 bg-red-100 text-red-600 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
                           >
                             <Trash2 size={12} />
@@ -2537,25 +2561,25 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
                     <div className="flex space-x-2">
                       <input 
                         type="text" 
-                        value={empresaDetail.logo_branca_url || ''}
-                        onChange={(e) => setEmpresaDetail({ ...empresaDetail, logo_branca_url: e.target.value })}
+                        value={brandSettingsDetail.logo_white_url || ''}
+                        onChange={(e) => setBrandSettingsDetail({ ...brandSettingsDetail, logo_white_url: e.target.value })}
                         className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white flex-grow text-xs font-mono"
                         placeholder="URL do Logo Branco"
                       />
                       <label className="flex items-center space-x-1.5 px-3 py-2 bg-slate-900 hover:bg-slate-800 rounded-xl cursor-pointer text-[10px] font-bold text-white shrink-0 select-none transition-colors">
                         {uploadLogoBrancaLoading ? <span className="animate-spin">⌛</span> : <Upload size={12} />}
                         <span>Upload</span>
-                        <input type="file" className="hidden" accept="image/*" onChange={(e) => e.target.files && handleLogoIdentityUpload('logo_branca_url', e.target.files[0])} />
+                        <input type="file" className="hidden" accept="image/*" onChange={(e) => e.target.files && handleLogoIdentityUpload('logo_white_url', e.target.files[0])} />
                       </label>
                     </div>
                     
                     <div className="relative group aspect-video bg-[#0A1F44] rounded-2xl border-2 border-dashed border-white/10 flex items-center justify-center p-4 overflow-hidden">
-                      {empresaDetail.logo_branca_url ? (
+                      {brandSettingsDetail.logo_white_url ? (
                         <>
-                          <img src={empresaDetail.logo_branca_url} alt="Logo Branca" className="max-h-full object-contain" referrerPolicy="no-referrer" />
+                          <img src={brandSettingsDetail.logo_white_url} alt="Logo Branca" className="max-h-full object-contain" referrerPolicy="no-referrer" />
                           <button 
                             type="button"
-                            onClick={() => setEmpresaDetail({...empresaDetail, logo_branca_url: ''})}
+                            onClick={() => setBrandSettingsDetail({...brandSettingsDetail, logo_white_url: ''})}
                             className="absolute top-2 right-2 p-1 bg-red-100 text-red-600 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
                           >
                             <Trash2 size={12} />
@@ -2578,25 +2602,25 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
                     <div className="flex space-x-2">
                       <input 
                         type="text" 
-                        value={empresaDetail.logo_rodape_url || ''}
-                        onChange={(e) => setEmpresaDetail({ ...empresaDetail, logo_rodape_url: e.target.value })}
+                        value={brandSettingsDetail.logo_footer_url || ''}
+                        onChange={(e) => setBrandSettingsDetail({ ...brandSettingsDetail, logo_footer_url: e.target.value })}
                         className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white flex-grow text-xs font-mono"
                         placeholder="URL do Logo Rodapé"
                       />
                       <label className="flex items-center space-x-1.5 px-3 py-2 bg-slate-900 hover:bg-slate-800 rounded-xl cursor-pointer text-[10px] font-bold text-white shrink-0 select-none transition-colors">
                         {uploadLogoRodapeLoading ? <span className="animate-spin">⌛</span> : <Upload size={12} />}
                         <span>Upload</span>
-                        <input type="file" className="hidden" accept="image/*" onChange={(e) => e.target.files && handleLogoIdentityUpload('logo_rodape_url', e.target.files[0])} />
+                        <input type="file" className="hidden" accept="image/*" onChange={(e) => e.target.files && handleLogoIdentityUpload('logo_footer_url', e.target.files[0])} />
                       </label>
                     </div>
                     
                     <div className="relative group aspect-video bg-slate-900 rounded-2xl border-2 border-dashed border-white/10 flex items-center justify-center p-4 overflow-hidden">
-                      {empresaDetail.logo_rodape_url ? (
+                      {brandSettingsDetail.logo_footer_url ? (
                         <>
-                          <img src={empresaDetail.logo_rodape_url} alt="Logo Rodapé" className="max-h-full object-contain" referrerPolicy="no-referrer" />
+                          <img src={brandSettingsDetail.logo_footer_url} alt="Logo Rodapé" className="max-h-full object-contain" referrerPolicy="no-referrer" />
                           <button 
                             type="button"
-                            onClick={() => setEmpresaDetail({...empresaDetail, logo_rodape_url: ''})}
+                            onClick={() => setBrandSettingsDetail({...brandSettingsDetail, logo_footer_url: ''})}
                             className="absolute top-2 right-2 p-1 bg-red-100 text-red-600 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
                           >
                             <Trash2 size={12} />
@@ -2619,8 +2643,8 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
                     <div className="flex space-x-2">
                       <input 
                         type="text" 
-                        value={empresaDetail.logo_mobile_url || ''}
-                        onChange={(e) => setEmpresaDetail({ ...empresaDetail, logo_mobile_url: e.target.value })}
+                        value={brandSettingsDetail.logo_mobile_url || ''}
+                        onChange={(e) => setBrandSettingsDetail({ ...brandSettingsDetail, logo_mobile_url: e.target.value })}
                         className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white flex-grow text-xs font-mono"
                         placeholder="URL do Logo Mobile"
                       />
@@ -2632,12 +2656,12 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
                     </div>
                     
                     <div className="relative group aspect-video bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200 flex items-center justify-center p-4 overflow-hidden">
-                      {empresaDetail.logo_mobile_url ? (
+                      {brandSettingsDetail.logo_mobile_url ? (
                         <>
-                          <img src={empresaDetail.logo_mobile_url} alt="Logo Mobile" className="max-h-full object-contain" referrerPolicy="no-referrer" />
+                          <img src={brandSettingsDetail.logo_mobile_url} alt="Logo Mobile" className="max-h-full object-contain" referrerPolicy="no-referrer" />
                           <button 
                             type="button"
-                            onClick={() => setEmpresaDetail({...empresaDetail, logo_mobile_url: ''})}
+                            onClick={() => setBrandSettingsDetail({...brandSettingsDetail, logo_mobile_url: ''})}
                             className="absolute top-2 right-2 p-1 bg-red-100 text-red-600 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
                           >
                             <Trash2 size={12} />
@@ -2660,8 +2684,8 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
                     <div className="flex space-x-2">
                       <input 
                         type="text" 
-                        value={empresaDetail.favicon_url || ''}
-                        onChange={(e) => setEmpresaDetail({ ...empresaDetail, favicon_url: e.target.value })}
+                        value={brandSettingsDetail.favicon_url || ''}
+                        onChange={(e) => setBrandSettingsDetail({ ...brandSettingsDetail, favicon_url: e.target.value })}
                         className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white flex-grow text-xs font-mono"
                         placeholder="URL do Favicon"
                       />
@@ -2673,12 +2697,12 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
                     </div>
                     
                     <div className="relative group w-24 h-24 bg-white rounded-2xl border-2 border-dashed border-slate-200 flex items-center justify-center p-4 self-center overflow-hidden">
-                      {empresaDetail.favicon_url ? (
+                      {brandSettingsDetail.favicon_url ? (
                         <>
-                          <img src={empresaDetail.favicon_url} alt="Favicon" className="w-12 h-12 object-contain" referrerPolicy="no-referrer" />
+                          <img src={brandSettingsDetail.favicon_url} alt="Favicon" className="w-12 h-12 object-contain" referrerPolicy="no-referrer" />
                           <button 
                             type="button"
-                            onClick={() => setEmpresaDetail({...empresaDetail, favicon_url: ''})}
+                            onClick={() => setBrandSettingsDetail({...brandSettingsDetail, favicon_url: ''})}
                             className="absolute top-2 right-2 p-1 bg-red-100 text-red-600 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
                           >
                             <Trash2 size={12} />

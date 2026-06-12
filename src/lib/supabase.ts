@@ -1,7 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 import { 
   SiteConfig, Plano, Lead, Usuario, Banner, 
-  Empresa, RedesSociais, CidadeCobertura, SEOConfig, UploadMedia 
+  Empresa, RedesSociais, CidadeCobertura, SEOConfig, UploadMedia,
+  BrandSettings
 } from '../types';
 
 // Support both NEXT_PUBLIC_ styles as well as VITE_ styles
@@ -17,8 +18,8 @@ export const supabase = isRealSupabase ? createClient(supabaseUrl, supabaseAnonK
 const DEFAULT_CONFIG: SiteConfig = {
   nome_empresa: 'GIGATEL FIBER',
   logo_url: '',
-  logo_branca_url: '',
-  logo_rodape_url: '',
+  logo_white_url: '',
+  logo_footer_url: '',
   logo_mobile_url: '',
   favicon_url: '',
   whatsapp: '5511910050121',
@@ -156,8 +157,8 @@ const DEFAULT_EMPRESA: Empresa = {
   instagram: 'gigatelfiberofc',
   facebook: 'gigatelfiberofc',
   logo_url: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&q=80&w=200',
-  logo_branca_url: '',
-  logo_rodape_url: '',
+  logo_white_url: '',
+  logo_footer_url: '',
   logo_mobile_url: '',
   favicon_url: '',
   created_at: new Date().toISOString()
@@ -223,6 +224,15 @@ const DEFAULT_USUARIOS: Usuario[] = [
     created_at: new Date().toISOString()
   }
 ];
+
+const DEFAULT_BRAND_SETTINGS: BrandSettings = {
+  logo_url: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&q=80&w=200',
+  logo_white_url: '',
+  logo_footer_url: '',
+  logo_mobile_url: '',
+  favicon_url: '',
+  created_at: new Date().toISOString()
+};
 
 // Helper to use Local Storage
 const getLocal = <T>(key: string, backup: T): T => {
@@ -1050,8 +1060,76 @@ export async function deleteUsuario(id: string): Promise<void> {
   }
 }
 
+// --- BRAND SETTINGS ---
+export async function getBrandSettings(): Promise<BrandSettings> {
+  if (isRealSupabase && supabase) {
+    try {
+      const { data, error } = await supabase
+        .from('brand_settings')
+        .select('*')
+        .limit(1)
+        .maybeSingle();
+      
+      if (error) throw error;
+      if (data) return data;
+      
+      const { data: inserted, error: insError } = await supabase
+        .from('brand_settings')
+        .insert([DEFAULT_BRAND_SETTINGS])
+        .select()
+        .single();
+      
+      if (insError) throw insError;
+      return inserted;
+    } catch (e) {
+      console.error('Error fetching brand settings from Supabase:', e);
+      return getLocal<BrandSettings>('giganet_brand_settings', DEFAULT_BRAND_SETTINGS);
+    }
+  } else {
+    return getLocal<BrandSettings>('giganet_brand_settings', DEFAULT_BRAND_SETTINGS);
+  }
+}
+
+export async function saveBrandSettings(settings: BrandSettings): Promise<BrandSettings> {
+  updateTimestamp();
+  if (isRealSupabase && supabase) {
+    try {
+      const { data: existing } = await supabase.from('brand_settings').select('*').limit(1).maybeSingle();
+      let result;
+      const clean = { ...settings, updated_at: new Date().toISOString() };
+      
+      if (existing && existing.id) {
+        const { data, error } = await supabase
+          .from('brand_settings')
+          .update(clean)
+          .eq('id', existing.id)
+          .select()
+          .single();
+        if (error) throw error;
+        result = data;
+      } else {
+        const { data, error } = await supabase
+          .from('brand_settings')
+          .insert([clean])
+          .select()
+          .single();
+        if (error) throw error;
+        result = data;
+      }
+      return result;
+    } catch (e) {
+      console.error('Error saving brand settings to Supabase:', e);
+      setLocal('giganet_brand_settings', settings);
+      return settings;
+    }
+  } else {
+    setLocal('giganet_brand_settings', settings);
+    return settings;
+  }
+}
+
 // --- FILE UPLOAD / STORAGE ---
-export async function uploadFile(bucket: 'logos' | 'banners' | 'uploads', path: string, file: File): Promise<string> {
+export async function uploadFile(bucket: 'logos' | 'banners' | 'uploads' | 'site-images', path: string, file: File): Promise<string> {
   updateTimestamp();
   if (isRealSupabase && supabase) {
     try {

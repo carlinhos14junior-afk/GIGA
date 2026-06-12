@@ -68,10 +68,10 @@ export default function Header({ config, onNavigate, currentView }: HeaderProps)
               className="cursor-pointer"
             >
               <div className="hidden sm:block">
-                <Logo size="md" lightVersion={true} logoUrl={config.logo_url} logoBrancaUrl={config.logo_branca_url} nomeEmpresa={config.nome_empresa} />
+                <Logo size="md" lightVersion={true} logoUrl={config.logo_url} logoBrancaUrl={config.logo_white_url} nomeEmpresa={config.nome_empresa} />
               </div>
               <div className="block sm:hidden">
-                <Logo size="sm" lightVersion={true} logoUrl={config.logo_mobile_url || config.logo_url} logoBrancaUrl={config.logo_branca_url} nomeEmpresa={config.nome_empresa} />
+                <Logo size="sm" lightVersion={true} logoUrl={config.logo_mobile_url || config.logo_url} logoBrancaUrl={config.logo_white_url} nomeEmpresa={config.nome_empresa} />
               </div>
             </div>
 
