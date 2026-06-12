@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Menu, X, Phone, MapPin, Car, Instagram, MessageCircle, Lock } from 'lucide-react';
+import { Menu, X, MessageCircle, Lock } from 'lucide-react';
 import { SiteConfig } from '../types';
 import Logo from './Logo';
 
@@ -26,17 +26,6 @@ export default function Header({ config, onNavigate, currentView }: HeaderProps)
     `Olá ${config.nome_empresa || 'GIGATEL FIBRA'}! Quero conhecer os planos de internet fibra de alta performance.`
   )}`;
 
-  const formattedAddress = `${config.endereco}${config.bairro ? `, ${config.bairro}` : ''}${config.cidade ? `, ${config.cidade}` : ''}${config.estado ? ` - ${config.estado}` : ''}${config.cep ? ` - CEP ${config.cep}` : ''}`;
-  
-  const formattedCarTime = config.tempo_carro ? (config.tempo_carro.toLowerCase().includes('carro') ? config.tempo_carro : `${config.tempo_carro} de carro`) : '15 min de carro';
-  const formattedMotoTime = config.tempo_moto ? (config.tempo_moto.toLowerCase().includes('moto') ? config.tempo_moto : `${config.tempo_moto} de moto`) : '5 min de moto';
-
-  const phoneLink = `tel:${config.telefone ? config.telefone.replace(/\D/g, '') : '11910050121'}`;
-  const displayPhone = config.telefone || '(11) 91005-0121';
-
-  const instagramUser = config.instagram ? config.instagram.replace('@', '') : 'gigatelfiberofc';
-  const instagramLink = `https://instagram.com/${instagramUser}`;
-
   const navItems = [
     { label: 'Início', href: '#inicio' },
     { label: 'Planos', href: '#planos' },
@@ -62,44 +51,7 @@ export default function Header({ config, onNavigate, currentView }: HeaderProps)
       id="site-header"
       className="fixed top-0 left-0 right-0 z-50 flex flex-col w-full shadow-sm"
     >
-      {/* 1. TOP INFORMATION BAR (TOPO DO SITE) */}
-      <div className="bg-top-bar text-[11px] text-[#0A1F44] py-2 px-4 relative z-50 font-bold border-b border-blue-100/50">
-        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-2 lg:gap-4 text-center lg:text-left">
-          {/* Left: Address and travel info */}
-          <div className="flex flex-wrap items-center justify-center lg:justify-start gap-x-4 gap-y-1">
-            <span className="flex items-center text-[#0A1F44] font-semibold">
-              <MapPin size={12} className="text-[#E53935] mr-1.5 shrink-0" />
-              {formattedAddress}
-            </span>
-            <span className="hidden sm:inline-flex items-center text-[#0A1F44]/90 font-medium">
-              <Car size={13} className="text-[#E53935] mr-1.5 shrink-0" />
-              Chegue em: <strong className="text-[#0A1F44] ml-1 font-black">{formattedCarTime} ou {formattedMotoTime}</strong>
-            </span>
-          </div>
-
-          {/* Right: Phone and Instagram */}
-          <div className="flex items-center justify-center gap-5">
-            <a 
-              href={phoneLink} 
-              className="flex items-center text-[#0A1F44] hover:text-[#0057FF] transition-colors font-black"
-            >
-              <Phone size={12} className="text-[#E53935] mr-1.5 shrink-0" />
-              {displayPhone}
-            </a>
-            <a 
-              href={instagramLink} 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="flex items-center text-[#0A1F44] hover:text-[#0057FF] transition-colors font-semibold"
-            >
-              <Instagram size={12} className="text-[#E53935] mr-1.5 shrink-0" />
-              @{instagramUser}
-            </a>
-          </div>
-        </div>
-      </div>
-
-      {/* 2. MAIN NAVIGATION MENU (HEADER WITH BLUR EFFECT) */}
+      {/* MAIN NAVIGATION MENU (HEADER WITH BLUR EFFECT) */}
       <div
         className={`w-full transition-all duration-300 ${
           scrolled || currentView === 'admin'
