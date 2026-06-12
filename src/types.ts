@@ -3,6 +3,8 @@ export interface SiteConfig {
   nome_empresa: string;
   logo_url: string;
   logo_branca_url?: string;
+  logo_rodape_url?: string;
+  logo_mobile_url?: string;
   favicon_url?: string;
   whatsapp: string;
   telefone: string;
@@ -109,6 +111,8 @@ export interface Empresa {
   facebook?: string;
   logo_url?: string;
   logo_branca_url?: string;
+  logo_rodape_url?: string;
+  logo_mobile_url?: string;
   favicon_url?: string;
   created_at?: string;
   updated_at?: string;

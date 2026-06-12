@@ -12,7 +12,7 @@ import Contato from './components/Contato';
 import Footer from './components/Footer';
 import AdminPanel from './components/AdminPanel';
 import Logo from './components/Logo';
-import { getSiteConfig, getPlanos, getBanners, getEmpresa } from './lib/supabase';
+import { getSiteConfig, getPlanos, getBanners, getEmpresa, getSEO, isRealSupabase, supabase } from './lib/supabase';
 import { SiteConfig, Plano, Banner } from './types';
 
 export default function App() {
@@ -123,8 +123,28 @@ export default function App() {
   useEffect(() => {
     if (!siteConfig) return;
 
+    // Fetch SEO config if available or use siteConfig
+    const updateSEO = async () => {
+      try {
+        const seo = await getSEO();
+        if (seo && seo.status === 'ativo') {
+          document.title = seo.title;
+          updateMetaTag('description', seo.meta_description, 'name');
+          updateMetaTag('keywords', seo.keywords, 'name');
+          updateMetaTag('og:title', seo.open_graph_title);
+          updateMetaTag('og:description', seo.open_graph_description);
+        } else {
+          document.title = siteConfig.nome_empresa;
+        }
+      } catch (err) {
+        document.title = siteConfig.nome_empresa;
+      }
+    };
+
+    updateSEO();
+
     // Helper to update or create meta tags
-    const updateMetaTag = (property: string, content: string, attr: 'property' | 'name' = 'property') => {
+    function updateMetaTag(property: string, content: string, attr: 'property' | 'name' = 'property') {
       let tag = document.querySelector(`meta[${attr}='${property}']`);
       if (!tag) {
         tag = document.createElement('meta');
@@ -139,6 +159,25 @@ export default function App() {
       updateMetaTag('twitter:image', siteConfig.logo_url, 'name');
     }
   }, [siteConfig]);
+
+  // Supabase Realtime Listeners for instant updates
+  useEffect(() => {
+    if (!isRealSupabase || !supabase) return;
+
+    const channels = [
+      supabase.channel('public:configuracoes_site').on('postgres_changes', { event: '*', schema: 'public', table: 'configuracoes_site' }, () => loadData()),
+      supabase.channel('public:empresa').on('postgres_changes', { event: '*', schema: 'public', table: 'empresa' }, () => loadData()),
+      supabase.channel('public:planos').on('postgres_changes', { event: '*', schema: 'public', table: 'planos' }, () => loadData()),
+      supabase.channel('public:banners').on('postgres_changes', { event: '*', schema: 'public', table: 'banners' }, () => loadData()),
+      supabase.channel('public:seo').on('postgres_changes', { event: '*', schema: 'public', table: 'seo' }, () => loadData())
+    ];
+
+    channels.forEach(channel => channel.subscribe());
+
+    return () => {
+      channels.forEach(channel => supabase.removeChannel(channel));
+    };
+  }, []);
 
   const handleNavigate = (newView: 'main' | 'admin') => {
     const isAdminLogged = localStorage.getItem('admin_logged') === 'true';

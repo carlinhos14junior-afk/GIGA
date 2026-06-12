@@ -92,6 +92,8 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
   const [uploadMobileLoading, setUploadMobileLoading] = useState(false);
   const [uploadLogoLoading, setUploadLogoLoading] = useState(false);
   const [uploadLogoBrancaLoading, setUploadLogoBrancaLoading] = useState(false);
+  const [uploadLogoRodapeLoading, setUploadLogoRodapeLoading] = useState(false);
+  const [uploadLogoMobileLoading, setUploadLogoMobileLoading] = useState(false);
   const [uploadFaviconLoading, setUploadFaviconLoading] = useState(false);
 
   // Trigger helper Alert popup
@@ -359,6 +361,8 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
           cnpj: saved.cnpj,
           logo_url: saved.logo_url || '',
           logo_branca_url: saved.logo_branca_url || '',
+          logo_rodape_url: saved.logo_rodape_url || '',
+          logo_mobile_url: saved.logo_mobile_url || '',
           favicon_url: saved.favicon_url || ''
         };
         await saveSiteConfig(synced);
@@ -541,11 +545,13 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
   };
 
   // Upload Logo/Identity Helpers
-  const handleLogoIdentityUpload = async (type: 'logo_url' | 'logo_branca_url' | 'favicon_url', file: File) => {
+  const handleLogoIdentityUpload = async (type: 'logo_url' | 'logo_branca_url' | 'favicon_url' | 'logo_rodape_url' | 'logo_mobile_url', file: File) => {
     if (!empresaDetail) return;
     
     if (type === 'logo_url') setUploadLogoLoading(true);
     else if (type === 'logo_branca_url') setUploadLogoBrancaLoading(true);
+    else if (type === 'logo_rodape_url') setUploadLogoRodapeLoading(true);
+    else if (type === 'logo_mobile_url') setUploadLogoMobileLoading(true);
     else setUploadFaviconLoading(true);
 
     try {
@@ -557,12 +563,14 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
         [type]: url
       } : null);
 
-      showAlert(`Item de identidade (${type.replace('_url', '')}) carregado com sucesso!`);
+      showAlert(`Item de identidade (${type.replace('_url', '').replace('_', ' ')}) carregado com sucesso!`);
     } catch (err) {
       showAlert('Erro ao subir logotipo.', 'error');
     } finally {
       if (type === 'logo_url') setUploadLogoLoading(false);
       else if (type === 'logo_branca_url') setUploadLogoBrancaLoading(false);
+      else if (type === 'logo_rodape_url') setUploadLogoRodapeLoading(false);
+      else if (type === 'logo_mobile_url') setUploadLogoMobileLoading(false);
       else setUploadFaviconLoading(false);
     }
   };
@@ -1532,9 +1540,9 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
                           </button>
                           <button 
                             onClick={() => excluirBanner(banner.id)}
-                            className="p-1 px-3 py-1.5 rounded-xl bg-red-50 hover:bg-red-600 hover:text-white border border-red-100 text-red-650 font-bold flex items-center gap-1.5 transition-all"
+                            className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition-all shadow-sm shadow-red-500/20 uppercase tracking-wider"
                           >
-                            <Trash2 size={13} /> Excluir
+                            Excluir
                           </button>
                         </div>
                       </div>
@@ -2555,6 +2563,88 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
                         </>
                       ) : (
                         <span className="text-[10px] font-bold text-white/20">Nenhum logo branco carregado</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Logo Rodapé */}
+              <div className="space-y-4">
+                <div className="flex flex-col space-y-1">
+                  <label className="font-bold text-slate-800 uppercase text-[10px]">Logo para Rodapé</label>
+                  <p className="text-[10px] text-slate-500 mb-2">Exibido na parte inferior do site.</p>
+                  <div className="flex flex-col space-y-3">
+                    <div className="flex space-x-2">
+                      <input 
+                        type="text" 
+                        value={empresaDetail.logo_rodape_url || ''}
+                        onChange={(e) => setEmpresaDetail({ ...empresaDetail, logo_rodape_url: e.target.value })}
+                        className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white flex-grow text-xs font-mono"
+                        placeholder="URL do Logo Rodapé"
+                      />
+                      <label className="flex items-center space-x-1.5 px-3 py-2 bg-slate-900 hover:bg-slate-800 rounded-xl cursor-pointer text-[10px] font-bold text-white shrink-0 select-none transition-colors">
+                        {uploadLogoRodapeLoading ? <span className="animate-spin">⌛</span> : <Upload size={12} />}
+                        <span>Upload</span>
+                        <input type="file" className="hidden" accept="image/*" onChange={(e) => e.target.files && handleLogoIdentityUpload('logo_rodape_url', e.target.files[0])} />
+                      </label>
+                    </div>
+                    
+                    <div className="relative group aspect-video bg-slate-900 rounded-2xl border-2 border-dashed border-white/10 flex items-center justify-center p-4 overflow-hidden">
+                      {empresaDetail.logo_rodape_url ? (
+                        <>
+                          <img src={empresaDetail.logo_rodape_url} alt="Logo Rodapé" className="max-h-full object-contain" referrerPolicy="no-referrer" />
+                          <button 
+                            type="button"
+                            onClick={() => setEmpresaDetail({...empresaDetail, logo_rodape_url: ''})}
+                            className="absolute top-2 right-2 p-1 bg-red-100 text-red-600 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <Trash2 size={12} />
+                          </button>
+                        </>
+                      ) : (
+                        <span className="text-[10px] font-bold text-white/20">Sem logo rodapé</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Logo Mobile */}
+              <div className="space-y-4">
+                <div className="flex flex-col space-y-1">
+                  <label className="font-bold text-slate-800 uppercase text-[10px]">Logo para Versão Mobile</label>
+                  <p className="text-[10px] text-slate-500 mb-2">Logo compacta para telas menores.</p>
+                  <div className="flex flex-col space-y-3">
+                    <div className="flex space-x-2">
+                      <input 
+                        type="text" 
+                        value={empresaDetail.logo_mobile_url || ''}
+                        onChange={(e) => setEmpresaDetail({ ...empresaDetail, logo_mobile_url: e.target.value })}
+                        className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white flex-grow text-xs font-mono"
+                        placeholder="URL do Logo Mobile"
+                      />
+                      <label className="flex items-center space-x-1.5 px-3 py-2 bg-slate-900 hover:bg-slate-800 rounded-xl cursor-pointer text-[10px] font-bold text-white shrink-0 select-none transition-colors">
+                        {uploadLogoMobileLoading ? <span className="animate-spin">⌛</span> : <Upload size={12} />}
+                        <span>Upload</span>
+                        <input type="file" className="hidden" accept="image/*" onChange={(e) => e.target.files && handleLogoIdentityUpload('logo_mobile_url', e.target.files[0])} />
+                      </label>
+                    </div>
+                    
+                    <div className="relative group aspect-video bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200 flex items-center justify-center p-4 overflow-hidden">
+                      {empresaDetail.logo_mobile_url ? (
+                        <>
+                          <img src={empresaDetail.logo_mobile_url} alt="Logo Mobile" className="max-h-full object-contain" referrerPolicy="no-referrer" />
+                          <button 
+                            type="button"
+                            onClick={() => setEmpresaDetail({...empresaDetail, logo_mobile_url: ''})}
+                            className="absolute top-2 right-2 p-1 bg-red-100 text-red-600 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <Trash2 size={12} />
+                          </button>
+                        </>
+                      ) : (
+                        <span className="text-[10px] font-bold text-slate-400">Sem logo mobile</span>
                       )}
                     </div>
                   </div>

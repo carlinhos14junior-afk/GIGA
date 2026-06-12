@@ -18,6 +18,8 @@ const DEFAULT_CONFIG: SiteConfig = {
   nome_empresa: 'GIGATEL FIBER',
   logo_url: '',
   logo_branca_url: '',
+  logo_rodape_url: '',
+  logo_mobile_url: '',
   favicon_url: '',
   whatsapp: '5511910050121',
   telefone: '(11) 91005-0121',
@@ -155,6 +157,8 @@ const DEFAULT_EMPRESA: Empresa = {
   facebook: 'gigatelfiberofc',
   logo_url: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&q=80&w=200',
   logo_branca_url: '',
+  logo_rodape_url: '',
+  logo_mobile_url: '',
   favicon_url: '',
   created_at: new Date().toISOString()
 };
