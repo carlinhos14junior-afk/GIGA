@@ -47,6 +47,10 @@ export interface Empresa {
   longitude: string;
   horario_funcionamento: string;
   status: 'ativo' | 'inativo';
+  cnpj?: string;
+  instagram?: string;
+  facebook?: string;
+  logo_url?: string;
   created_at?: string;
   updated_at?: string;
 }

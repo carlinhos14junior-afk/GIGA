@@ -80,6 +80,9 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
   // Upload loaders
   const [uploadLoading, setUploadLoading] = useState(false);
   const [mediaFile, setMediaFile] = useState<File | null>(null);
+  const [uploadDesktopLoading, setUploadDesktopLoading] = useState(false);
+  const [uploadMobileLoading, setUploadMobileLoading] = useState(false);
+  const [uploadLogoLoading, setUploadLogoLoading] = useState(false);
 
   // Trigger helper Alert popup
   const showAlert = (text: string, type: 'success' | 'error' = 'success') => {
@@ -529,6 +532,54 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
       } catch (err) {
         showAlert('Falha ao remover mídia.', 'error');
       }
+    }
+  };
+
+  // Upload Banner Image Helpers
+  const handleBannerImageUpload = async (type: 'desktop' | 'mobile', file: File) => {
+    if (!editingBanner) return;
+    if (type === 'desktop') setUploadDesktopLoading(true);
+    else setUploadMobileLoading(true);
+
+    try {
+      const fileName = `banner_${type}_${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
+      const url = await uploadFile('banners', fileName, file);
+      
+      setEditingBanner(prev => prev ? {
+        ...prev,
+        [type === 'desktop' ? 'imagem_desktop' : 'imagem_mobile']: url
+      } : null);
+
+      showAlert(`Imagem ${type === 'desktop' ? 'Desktop' : 'Mobile'} do banner carregada!`);
+    } catch (err) {
+      console.error(err);
+      showAlert('Erro ao subir imagem do banner. Tente novamente.', 'error');
+    } finally {
+      if (type === 'desktop') setUploadDesktopLoading(false);
+      else setUploadMobileLoading(false);
+    }
+  };
+
+  // Upload Logo Helper
+  const handleLogoUpload = async (file: File) => {
+    if (!empresaDetail) return;
+    setUploadLogoLoading(true);
+
+    try {
+      const fileName = `logo_${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
+      const url = await uploadFile('logos', fileName, file);
+      
+      setEmpresaDetail(prev => prev ? {
+        ...prev,
+        logo_url: url
+      } : null);
+
+      showAlert('Logo da empresa foi carregado com sucesso!');
+    } catch (err) {
+      console.error(err);
+      showAlert('Erro ao carregar imagem contendo logo. Tente novamente.', 'error');
+    } finally {
+      setUploadLogoLoading(false);
     }
   };
 
@@ -1102,25 +1153,61 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
                   </div>
 
                   <div className="flex flex-col space-y-1">
-                    <label className="text-[10px] uppercase font-bold text-slate-400">Imagem Desktop URL</label>
-                    <input 
-                      type="text" 
-                      required
-                      value={editingBanner.imagem_desktop || ''}
-                      onChange={(e) => setEditingBanner({ ...editingBanner, imagem_desktop: e.target.value })}
-                      className="p-2.5 text-xs border border-slate-200 rounded-xl focus:outline-slate-400 bg-white"
-                    />
+                    <label className="text-[10px] uppercase font-bold text-slate-400">Imagem Desktop</label>
+                    <div className="flex space-x-2">
+                      <input 
+                        type="text" 
+                        required
+                        value={editingBanner.imagem_desktop || ''}
+                        onChange={(e) => setEditingBanner({ ...editingBanner, imagem_desktop: e.target.value })}
+                        className="p-2.5 text-xs border border-slate-200 rounded-xl focus:outline-slate-400 bg-white flex-grow"
+                        placeholder="https://..."
+                      />
+                      <label className="flex items-center space-x-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 rounded-xl cursor-pointer text-xs font-bold text-slate-700 border border-slate-200 shrink-0 select-none">
+                        {uploadDesktopLoading ? (
+                          <span className="animate-spin mr-1">⌛</span>
+                        ) : '📁 Upload'}
+                        <input 
+                          type="file" 
+                          accept="image/*" 
+                          className="hidden" 
+                          onChange={(e) => {
+                            if (e.target.files && e.target.files[0]) {
+                              handleBannerImageUpload('desktop', e.target.files[0]);
+                            }
+                          }}
+                        />
+                      </label>
+                    </div>
                   </div>
 
                   <div className="flex flex-col space-y-1">
-                    <label className="text-[10px] uppercase font-bold text-slate-400">Imagem Mobile URL</label>
-                    <input 
-                      type="text" 
-                      required
-                      value={editingBanner.imagem_mobile || ''}
-                      onChange={(e) => setEditingBanner({ ...editingBanner, imagem_mobile: e.target.value })}
-                      className="p-2.5 text-xs border border-slate-200 rounded-xl focus:outline-slate-400 bg-white"
-                    />
+                    <label className="text-[10px] uppercase font-bold text-slate-400">Imagem Mobile</label>
+                    <div className="flex space-x-2">
+                      <input 
+                        type="text" 
+                        required
+                        value={editingBanner.imagem_mobile || ''}
+                        onChange={(e) => setEditingBanner({ ...editingBanner, imagem_mobile: e.target.value })}
+                        className="p-2.5 text-xs border border-slate-200 rounded-xl focus:outline-slate-400 bg-white flex-grow"
+                        placeholder="https://..."
+                      />
+                      <label className="flex items-center space-x-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 rounded-xl cursor-pointer text-xs font-bold text-slate-700 border border-slate-200 shrink-0 select-none">
+                        {uploadMobileLoading ? (
+                          <span className="animate-spin mr-1">⌛</span>
+                        ) : '📁 Upload'}
+                        <input 
+                          type="file" 
+                          accept="image/*" 
+                          className="hidden" 
+                          onChange={(e) => {
+                            if (e.target.files && e.target.files[0]) {
+                              handleBannerImageUpload('mobile', e.target.files[0]);
+                            }
+                          }}
+                        />
+                      </label>
+                    </div>
                   </div>
 
                   <div className="flex flex-col space-y-1">
@@ -1376,6 +1463,78 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
                   onChange={(e) => setEmpresaDetail({ ...empresaDetail, longitude: e.target.value })}
                   className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white font-mono"
                 />
+              </div>
+
+              <div className="flex flex-col space-y-1">
+                <label className="font-bold text-slate-400 uppercase text-[10px]">CNPJ da Empresa</label>
+                <input 
+                  type="text" 
+                  value={empresaDetail.cnpj || ''}
+                  onChange={(e) => setEmpresaDetail({ ...empresaDetail, cnpj: e.target.value })}
+                  className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                  placeholder="Ex: 45.182.293/0001-90"
+                />
+              </div>
+
+              <div className="flex flex-col space-y-1">
+                <label className="font-bold text-slate-400 uppercase text-[10px]">Instagram (Usuário sem @)</label>
+                <input 
+                  type="text" 
+                  value={empresaDetail.instagram || ''}
+                  onChange={(e) => setEmpresaDetail({ ...empresaDetail, instagram: e.target.value })}
+                  className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                  placeholder="gigatelfiberofc"
+                />
+              </div>
+
+              <div className="flex flex-col space-y-1">
+                <label className="font-bold text-slate-400 uppercase text-[10px]">Facebook (Usuário)</label>
+                <input 
+                  type="text" 
+                  value={empresaDetail.facebook || ''}
+                  onChange={(e) => setEmpresaDetail({ ...empresaDetail, facebook: e.target.value })}
+                  className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                  placeholder="gigatelfiberofc"
+                />
+              </div>
+
+              <div className="flex flex-col space-y-1 sm:col-span-2">
+                <label className="font-bold text-slate-400 uppercase text-[10px]">Logomarca da Empresa (Logo URL)</label>
+                <div className="flex space-x-2">
+                  <input 
+                    type="text" 
+                    value={empresaDetail.logo_url || ''}
+                    onChange={(e) => setEmpresaDetail({ ...empresaDetail, logo_url: e.target.value })}
+                    className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white flex-grow"
+                    placeholder="https://..."
+                  />
+                  <label className="flex items-center space-x-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 rounded-xl cursor-pointer text-xs font-bold text-slate-700 border border-slate-200 shrink-0 select-none">
+                    {uploadLogoLoading ? (
+                      <span className="animate-spin mr-1">⌛</span>
+                    ) : '📁 Upload Logo'}
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      className="hidden" 
+                      onChange={(e) => {
+                        if (e.target.files && e.target.files[0]) {
+                          handleLogoUpload(e.target.files[0]);
+                        }
+                      }}
+                    />
+                  </label>
+                </div>
+                {empresaDetail.logo_url && (
+                  <div className="mt-2 p-3 bg-slate-50 rounded-xl border border-dashed border-slate-200 inline-flex items-center space-x-2 self-start">
+                    <span className="text-[10px] uppercase font-bold text-slate-400">Pré-visualização do Logo:</span>
+                    <img 
+                      src={empresaDetail.logo_url} 
+                      alt="Logo Preview" 
+                      className="h-9 object-contain max-w-[150px]"
+                      referrerPolicy="no-referrer"
+                    />
+                  </div>
+                )}
               </div>
             </div>
 

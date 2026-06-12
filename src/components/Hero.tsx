@@ -1,19 +1,59 @@
-import { ArrowRight, MessageCircle, CheckCircle, Network, Users, Zap, Shield, HelpCircle, Activity, Headphones } from 'lucide-react';
-import { SiteConfig } from '../types';
+import { useState, useEffect } from 'react';
+import { ArrowRight, MessageCircle, CheckCircle, Users, Zap, Headphones, Activity, ChevronLeft, ChevronRight } from 'lucide-react';
+import { SiteConfig, Banner } from '../types';
 
 interface HeroProps {
   config: SiteConfig;
+  banners?: Banner[];
 }
 
-export default function Hero({ config }: HeroProps) {
-  const whatsAppLink = `https://wa.me/5511910050121?text=${encodeURIComponent(
+export default function Hero({ config, banners = [] }: HeroProps) {
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  const activeBanners = banners
+    .filter(b => b.status === 'ativo')
+    .sort((a, b) => (Number(a.ordem) || 0) - (Number(b.ordem) || 0));
+
+  // Auto slide timers if multiple active slides
+  useEffect(() => {
+    if (activeBanners.length <= 1) return;
+    const timer = setInterval(() => {
+      setCurrentSlide(prev => (prev + 1) % activeBanners.length);
+    }, 6000);
+    return () => clearInterval(timer);
+  }, [activeBanners.length]);
+
+  const nextSlide = () => {
+    setCurrentSlide(prev => (prev + 1) % activeBanners.length);
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide(prev => (prev - 1 + activeBanners.length) % activeBanners.length);
+  };
+
+  // Fallback banner if database results empty
+  const currentBanner = activeBanners.length > 0 ? activeBanners[currentSlide] : {
+    titulo: 'INTERNET FIBRA ÓPTICA\nULTRARRÁPIDA',
+    subtitulo: 'Mais velocidade.\nMais estabilidade.\nMais tecnologia para sua casa.',
+    texto_botao: 'Contratar Agora',
+    link_botao: '#planos',
+    imagem_desktop: '/src/assets/images/gigatel_premium_hero_1781266310979.jpg',
+    imagem_mobile: '/src/assets/images/gigatel_premium_hero_1781266310979.jpg'
+  };
+
+  const cleanWhatsapp = config.whatsapp ? config.whatsapp.replace(/\D/g, '') : '5511910050121';
+  const whatsAppLink = `https://wa.me/${cleanWhatsapp}?text=${encodeURIComponent(
     `Olá GIGATEL FIBER! Quero contratar internet fibra ultraveloz agora de forma rápida.`
   )}`;
 
-  const handleContractClick = () => {
-    const element = document.getElementById('planos');
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+  const handleContractClick = (link: string) => {
+    if (link.startsWith('#')) {
+      const element = document.getElementById(link.substring(1));
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else {
+      window.open(link, '_blank');
     }
   };
 
@@ -51,7 +91,7 @@ export default function Hero({ config }: HeroProps) {
   return (
     <section
       id="inicio"
-      className="relative pt-36 pb-20 md:pt-48 md:pb-28 bg-[linear-gradient(135deg,#0A1F44,#0057FF)] overflow-hidden text-white"
+      className="relative pt-36 pb-20 md:pt-48 md:pb-28 bg-[linear-gradient(135deg,#0A1F44,#0057FF)] overflow-hidden text-white animate-fade-in"
     >
       {/* Discrete high-tech grid overlay */}
       <div className="absolute inset-0 opacity-[0.06] pointer-events-none mix-blend-overlay">
@@ -93,27 +133,22 @@ export default function Hero({ config }: HeroProps) {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
           
           {/* Left Column: Title and Core Pitch */}
-          <div className="lg:col-span-6 flex flex-col space-y-6 text-center lg:text-left">
-            <h1 className="font-display font-black text-4xl sm:text-5xl lg:text-6xl leading-[1.08] tracking-tighter text-white uppercase">
-              INTERNET FIBRA ÓPTICA<br />
-              <span className="text-[#00AEEF] font-extrabold bg-gradient-to-r from-[#00AEEF] to-[#FFFFFF] bg-clip-text text-transparent">
-                ULTRARRÁPIDA
-              </span>
+          <div className="lg:col-span-6 flex flex-col space-y-6 text-center lg:text-left min-h-[300px] justify-center">
+            <h1 className="font-display font-black text-4xl sm:text-5xl lg:text-6xl leading-[1.08] tracking-tighter text-white uppercase break-words whitespace-pre-line">
+              {currentBanner.titulo}
             </h1>
 
-            <p className="text-blue-100 text-base sm:text-lg lg:text-xl font-medium max-w-xl mx-auto lg:mx-0 leading-relaxed font-semibold">
-              Mais velocidade.<br />
-              Mais estabilidade.<br />
-              Mais tecnologia para sua casa.
+            <p className="text-blue-100 text-base sm:text-lg lg:text-xl font-medium max-w-xl mx-auto lg:mx-0 leading-relaxed font-semibold whitespace-pre-line">
+              {currentBanner.subtitulo}
             </p>
 
             {/* CTA buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4">
               <button
-                onClick={handleContractClick}
+                onClick={() => handleContractClick(currentBanner.link_botao || '#planos')}
                 className="group flex items-center justify-center space-x-2 bg-[#E53935] hover:bg-[#c62828] text-white font-extrabold text-xs uppercase tracking-widest px-8 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
               >
-                <span>Contratar Agora</span>
+                <span>{currentBanner.texto_botao || 'Contratar Agora'}</span>
                 <ArrowRight size={15} className="group-hover:translate-x-1.5 transition-transform" />
               </button>
 
@@ -140,24 +175,60 @@ export default function Hero({ config }: HeroProps) {
             </div>
           </div>
 
-          {/* Right Column: Clean Premium Image container */}
+          {/* Right Column: Clean Premium Image container with Slider controls */}
           <div className="lg:col-span-6 relative flex justify-center items-center mt-6 lg:mt-0">
             {/* Very soft shadow background flare */}
             <div className="absolute inset-0 bg-[#00AEEF]/20 rounded-[3rem] filter blur-3xl opacity-60 -z-10" />
 
-            {/* Clean shadow box with no glowing neon outlines */}
+            {/* Clean shadow box with navigation overlays */}
             <div className="relative w-full max-w-lg aspect-[4/3] rounded-3xl overflow-hidden p-1 bg-white/10 border border-white/20 shadow-2xl transition-all duration-300 hover:scale-[1.01] group">
               <div className="w-full h-full rounded-[1.4rem] overflow-hidden bg-[#0A1F44] relative">
                 
-                <img 
-                  src="/src/assets/images/gigatel_premium_hero_1781266310979.jpg" 
-                  alt="GIGATEL FIBER Internet Premium fibra óptica"
-                  referrerPolicy="no-referrer"
-                  className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-700 brightness-95"
-                />
+                <picture className="w-full h-full">
+                  <source media="(max-width: 640px)" srcSet={currentBanner.imagem_mobile || currentBanner.imagem_desktop} />
+                  <img 
+                    src={currentBanner.imagem_desktop} 
+                    alt={currentBanner.titulo}
+                    referrerPolicy="no-referrer"
+                    className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-750 brightness-95"
+                  />
+                </picture>
 
                 {/* Light gradient overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent opacity-80" />
+
+                {/* Slider pagination arrows for carrossel feel */}
+                {activeBanners.length > 1 && (
+                  <div className="absolute inset-x-4 top-1/2 -translate-y-1/2 flex justify-between pointer-events-none">
+                    <button
+                      onClick={prevSlide}
+                      className="p-2 rounded-full bg-slate-950/40 hover:bg-slate-950/70 border border-white/10 text-white pointer-events-auto transition-colors"
+                      title="Anterior"
+                    >
+                      <ChevronLeft size={16} />
+                    </button>
+                    <button
+                      onClick={nextSlide}
+                      className="p-2 rounded-full bg-slate-950/40 hover:bg-slate-950/70 border border-white/10 text-white pointer-events-auto transition-colors"
+                      title="Próximo"
+                    >
+                      <ChevronRight size={16} />
+                    </button>
+                  </div>
+                )}
+
+                {/* Bullet indicator dots */}
+                {activeBanners.length > 1 && (
+                  <div className="absolute bottom-16 inset-x-0 flex justify-center space-x-1.5 z-20 pointer-events-auto">
+                    {activeBanners.map((_, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setCurrentSlide(idx)}
+                        className={`h-2.5 rounded-full transition-all duration-300 ${idx === currentSlide ? 'w-6 bg-[#E53935]' : 'w-2.5 bg-white/55 hover:bg-white'}`}
+                      />
+                    ))}
+                  </div>
+                )}
 
                 {/* Floating location / device badges */}
                 <div className="absolute bottom-5 left-5 right-5 flex flex-wrap gap-2 pointer-events-none md:flex-row flex-col justify-between">

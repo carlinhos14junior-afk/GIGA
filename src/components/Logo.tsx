@@ -5,9 +5,27 @@ interface LogoProps {
   variant?: 'full' | 'icon';
   size?: 'sm' | 'md' | 'lg' | 'xl';
   lightVersion?: boolean;
+  logoUrl?: string;
 }
 
-export default function Logo({ className = '', variant = 'full', size = 'md', lightVersion = false }: LogoProps) {
+export default function Logo({ className = '', variant = 'full', size = 'md', lightVersion = false, logoUrl }: LogoProps) {
+  if (logoUrl && logoUrl.trim() !== '') {
+    const heightMap = {
+      sm: "h-8",
+      md: "h-11",
+      lg: "h-16",
+      xl: "h-24"
+    };
+    return (
+      <img 
+        src={logoUrl} 
+        alt="GIGATEL FIBER" 
+        className={`${heightMap[size] || "h-11"} object-contain max-w-full ${className}`}
+        referrerPolicy="no-referrer"
+      />
+    );
+  }
+
   // Determine dimensional constraints
   let iconDims = "w-10 h-10";
   let textSizes = {

@@ -98,6 +98,10 @@ const DEFAULT_EMPRESA: Empresa = {
   longitude: '-46.6333',
   horario_funcionamento: 'Segunda a Sexta: 08h às 20h, Sábado: 08h às 14h',
   status: 'ativo',
+  cnpj: '45.182.293/0001-90',
+  instagram: 'gigatelfiberofc',
+  facebook: 'gigatelfiberofc',
+  logo_url: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&q=80&w=200',
   created_at: new Date().toISOString()
 };
 
@@ -1026,7 +1030,7 @@ export interface AdminUser {
 }
 
 const DEFAULT_ADMIN: AdminUser = {
-  email: 'adm@gigatelfiber.com.br',
+  email: 'adm@gigatelfiber.com',
   senha: '123456',
   ativo: true,
   nivel: 'admin'

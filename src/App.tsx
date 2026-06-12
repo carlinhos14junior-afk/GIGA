@@ -12,13 +12,14 @@ import Contato from './components/Contato';
 import Footer from './components/Footer';
 import AdminPanel from './components/AdminPanel';
 import Logo from './components/Logo';
-import { getSiteConfig, getPlanos } from './lib/supabase';
-import { SiteConfig, Plano } from './types';
+import { getSiteConfig, getPlanos, getBanners } from './lib/supabase';
+import { SiteConfig, Plano, Banner } from './types';
 
 export default function App() {
   const [view, setView] = useState<'main' | 'admin'>('main');
   const [siteConfig, setSiteConfig] = useState<SiteConfig | null>(null);
   const [planosList, setPlanosList] = useState<Plano[]>([]);
+  const [bannersList, setBannersList] = useState<Banner[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Load site variables
@@ -29,6 +30,9 @@ export default function App() {
 
       const pls = await getPlanos();
       setPlanosList(pls);
+
+      const bans = await getBanners();
+      setBannersList(bans);
     } catch (e) {
       console.error('Falha ao carregar informações de banco:', e);
     } finally {
@@ -95,7 +99,7 @@ export default function App() {
         <div className="flex flex-col items-center">
           {/* Elegant modern GIGATEL FIBER loader */}
           <div className="relative transform hover:scale-105 transition-transform duration-300">
-            <Logo size="lg" className="animate-pulse" />
+            <Logo size="lg" className="animate-pulse" logoUrl={siteConfig?.logo_url} />
           </div>
           <p className="text-[11px] font-bold text-slate-400 tracking-widest mt-8 uppercase animate-pulse font-mono">
             GIGATEL FIBER • Conectando você ao mundo...
@@ -143,7 +147,7 @@ export default function App() {
         {view === 'main' ? (
           <div>
             {/* 1. Hero visual section with interactive CTA */}
-            <Hero config={activeConfig} />
+            <Hero config={activeConfig} banners={bannersList} />
             
             {/* 2. Fiber plans cards dynamic grid */}
             <Planos config={activeConfig} planos={planosList} />
