@@ -1,40 +1,57 @@
 import { useState } from 'react';
 import { HelpCircle, ChevronDown, ChevronUp } from 'lucide-react';
+import { SiteConfig } from '../types';
 
 interface FaqItem {
   pergunta: string;
   resposta: string;
 }
 
-export default function FAQ() {
+interface FAQProps {
+  config: SiteConfig;
+}
+
+export default function FAQ({ config }: FAQProps) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
-  const faqs: FaqItem[] = [
-    {
-      pergunta: 'Como consultar a disponibilidade de internet para minha rua?',
-      resposta: 'É muito simples! Basta preencher o nosso formulário na seção "Cobertura" informando seu CEP e endereço. Nossa equipe comercial fará uma auditoria imediata nos mapas de rede e entrará em contato pelo seu WhatsApp para confirmar a viabilidade disponível na sua região.'
-    },
-    {
-      pergunta: 'Os planos de fibra óptica possuem fidelidade contratual?',
-      resposta: 'Nossos planos residenciais padrão possuem fidelidade recomendada de 12 meses, o que nos permite garantir taxa de instalação totalmente gratuita na maioria das regiões. Caso prefira planos sem fidelidade, faça uma consulta com nossa equipe comercial no WhatsApp para condições regulamentares específicas.'
-    },
-    {
-      pergunta: 'O roteador Wi-Fi está incluso no valor do plano?',
-      resposta: 'Sim, totalmente incluso e em regime de comodato (sem custo de locação). Instalamos roteadores Gigabit modernos Dual Band de excelente alcance, que gerenciam de modo inteligente as conexões de 2.4Ghz e 5.0Ghz para manter o melhor sinal em todos os seus dispositivos.'
-    },
-    {
-      pergunta: 'Como funciona o processo de instalação em meu endereço?',
-      resposta: 'Após aprovação da sua solicitação, agendamos o melhor dia e horário para você. Nossos técnicos certificados trazem o cabo de fibra óptica do poste até o interior de sua residência ou empresa, realizam a configuração do roteador e efetuam testes práticos na sua frente para garantir a qualidade impecável da banda contratada.'
-    },
-    {
-      pergunta: 'Posso solicitar e agendar a instalação direto pelo WhatsApp?',
-      resposta: 'Com certeza! Praticamente todo o nosso fluxo de atendimento e expedição de contratos pode ser realizado direto pelo WhatsApp. Basta clicar no botão de WhatsApp do site para dar início imediato ao atendimento com um consultor.'
-    },
-    {
-      pergunta: 'Como funciona o suporte técnico em caso de imprevistos?',
-      resposta: 'Oferecemos suporte técnico focado em soluções ágeis. Você fala com nossa equipe de especialistas de prontidão via WhatsApp ou telefone. Sanamos a maioria das oscilações de forma remota em instantes, e se for necessária uma inspeção física, agendamos visitas técnicas com extrema agilidade.'
+  let faqs: FaqItem[] = [];
+  
+  try {
+    if (config.faq_lista_json) {
+      faqs = JSON.parse(config.faq_lista_json);
     }
-  ];
+  } catch (e) {
+    console.error("Error parsing FAQ JSON:", e);
+  }
+
+  if (faqs.length === 0) {
+    faqs = [
+      {
+        pergunta: 'Como consultar a disponibilidade de internet para minha rua?',
+        resposta: 'É muito simples! Basta preencher o nosso formulário na seção "Cobertura" informando seu CEP e endereço. Nossa equipe comercial fará uma auditoria imediata nos mapas de rede e entrará em contato pelo seu WhatsApp para confirmar a viabilidade disponível na sua região.'
+      },
+      {
+        pergunta: 'Os planos de fibra óptica possuem fidelidade contratual?',
+        resposta: 'Nossos planos residenciais padrão possuem fidelidade recomendada de 12 meses, o que nos permite garantir taxa de instalação totalmente gratuita na maioria das regiões. Caso prefira planos sem fidelidade, faça uma consulta com nossa equipe comercial no WhatsApp para condições regulamentares específicas.'
+      },
+      {
+        pergunta: 'O roteador Wi-Fi está incluso no valor do plano?',
+        resposta: 'Sim, totalmente incluso e em regime de comodato (sem custo de locação). Instalamos roteadores Gigabit modernos Dual Band de excelente alcance, que gerenciam de modo inteligente as conexões de 2.4Ghz e 5.0Ghz para manter o melhor sinal em todos os seus dispositivos.'
+      },
+      {
+        pergunta: 'Como funciona o processo de instalação em meu endereço?',
+        resposta: 'Após aprovação da sua solicitação, agendamos o melhor dia e horário para você. Nossos técnicos certificados trazem o cabo de fibra óptica do poste até o interior de sua residência ou empresa, realizam a configuração do roteador e efetuam testes práticos na sua frente para garantir a qualidade impecável da banda contratada.'
+      },
+      {
+        pergunta: 'Posso solicitar e agendar a instalação direto pelo WhatsApp?',
+        resposta: 'Com certeza! Praticamente todo o nosso fluxo de atendimento e expedição de contratos pode ser realizado direto pelo WhatsApp. Basta clicar no botão de WhatsApp do site para dar início imediato ao atendimento com um consultor.'
+      },
+      {
+        pergunta: 'Como funciona o suporte técnico em caso de imprevistos?',
+        resposta: 'Oferecemos suporte técnico focado em soluções ágeis. Você fala com nossa equipe de especialistas de prontidão via WhatsApp ou telefone. Sanamos a maioria das oscilações de forma remota em instantes, e se for necessária uma inspeção física, agendamos visitas técnicas com extrema agilidade.'
+      }
+    ];
+  }
 
   const handleToggle = (index: number) => {
     setOpenIndex(openIndex === index ? null : index);
@@ -48,14 +65,20 @@ export default function FAQ() {
         <div className="text-center mb-20">
           <div className="inline-flex items-center space-x-2 bg-blue-50 border border-blue-100 px-4 py-1.5 rounded-full text-[#005BFF] font-black text-xs uppercase mb-4 tracking-widest">
             <HelpCircle size={14} className="text-[#005BFF]" />
-            <span>Perguntas Frequentes</span>
+            <span>{config.faq_titulo || 'Perguntas Frequentes'}</span>
           </div>
 
           <h2 className="font-display font-black text-4xl sm:text-5xl text-slate-900 tracking-tighter leading-none uppercase">
-            DÚVIDAS FREQUENTES SOBRE A <br />
-            <span className="text-[#005BFF] font-extrabold bg-gradient-to-r from-[#005BFF] to-[#0188FF] bg-clip-text text-transparent">
-              GIGATEL FIBRA
-            </span>
+            {config.faq_subtitulo ? (
+              <span className="whitespace-pre-line">{config.faq_subtitulo}</span>
+            ) : (
+              <>
+                DÚVIDAS FREQUENTES SOBRE A <br />
+                <span className="text-[#005BFF] font-extrabold bg-gradient-to-r from-[#005BFF] to-[#0188FF] bg-clip-text text-transparent">
+                  {config.nome_empresa}
+                </span>
+              </>
+            )}
           </h2>
 
           <p className="text-slate-650 text-sm sm:text-base font-medium max-w-2xl mx-auto leading-relaxed mt-4">

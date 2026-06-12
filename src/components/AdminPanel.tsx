@@ -26,7 +26,7 @@ interface AdminPanelProps {
   onPlanosChange: () => void;
 }
 
-type TabType = 'dashboard' | 'banners' | 'empresa' | 'planos' | 'cobertura' | 'redes_sociais' | 'seo' | 'usuarios' | 'configuracoes';
+type TabType = 'dashboard' | 'banners' | 'empresa' | 'planos' | 'cobertura' | 'redes_sociais' | 'seo' | 'usuarios' | 'configuracoes' | 'rodape' | 'conteudo';
 
 export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPanelProps) {
   // Theme Toggle state (with persistence in localStorage)
@@ -305,6 +305,20 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
     }
   };
 
+  // MÓDULO CONTEÚDO E RODAPÉ: Generic config save
+  const handleSiteConfigGeneralSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!siteConfig) return;
+    try {
+      const saved = await saveSiteConfig(siteConfig);
+      setSiteConfig(saved);
+      onConfigChange();
+      showAlert('Conteúdo do site atualizado com sucesso!');
+    } catch (err) {
+      showAlert('Erro ao gravar conteúdo.', 'error');
+    }
+  };
+
   // MÓDULO DADOS DA EMPRESA: Submit
   const handleEmpresaSaveSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -321,7 +335,8 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
           telefone: saved.telefone,
           whatsapp: saved.whatsapp,
           email: saved.email,
-          endereco: `${saved.endereco}, ${saved.numero}`
+          endereco: `${saved.endereco}, ${saved.numero}`,
+          cnpj: saved.cnpj // Ensure CNPJ is also synced
         };
         await saveSiteConfig(synced);
         setSiteConfig(synced);
@@ -983,9 +998,11 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
             {[
               { id: 'dashboard', label: 'Dashboard', icon: Grid },
               { id: 'banners', label: 'Banners Slideshow', icon: ImageIcon },
+              { id: 'conteudo', label: 'Conteúdo Site', icon: Edit3 },
               { id: 'empresa', label: 'Dados da Empresa', icon: Settings },
               { id: 'planos', label: 'Planos de Fibra', icon: Wifi },
               { id: 'cobertura', label: 'Cobertura Cidades', icon: Globe },
+              { id: 'rodape', label: 'Rodapé Site', icon: ArrowDownToLine },
               { id: 'redes_sociais', label: 'Redes Sociais', icon: Share2 },
               { id: 'seo', label: 'SEO e Metatags', icon: Key },
               { id: 'usuarios', label: 'Usuários Admin', icon: Users },
@@ -1073,9 +1090,11 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
             >
               <option value="dashboard">📊 Dashboard Geral</option>
               <option value="banners">🖼️ Banners Slideshow</option>
+              <option value="conteudo">📝 Conteúdo do Site</option>
               <option value="empresa">🏢 Dados da Empresa</option>
               <option value="planos">📶 Planos de Fibra</option>
               <option value="cobertura">🌐 Cobertura Cidades</option>
+              <option value="rodape">👣 Rodapé do Site</option>
               <option value="redes_sociais">🔔 Redes Sociais</option>
               <option value="seo">🔑 SEO e Metatags</option>
               <option value="usuarios">👥 Usuários Admin</option>
@@ -1498,6 +1517,482 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
         )}
 
         {/* ========================================================
+            TAB: CONTEÚDO DO SITE
+            ======================================================== */}
+        {activeTab === 'conteudo' && siteConfig && (
+          <form onSubmit={handleSiteConfigGeneralSubmit} className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm space-y-6 animate-fade-in">
+            <div className="pb-3 border-b border-slate-100">
+              <h3 className="font-display font-black text-xs text-slate-800 uppercase tracking-wider">Edição de Conteúdos do Site</h3>
+              <p className="text-[11px] text-slate-500 mt-0.5">Ajuste os textos principais de todas as seções da página inicial.</p>
+            </div>
+
+            <div className="space-y-6 text-xs">
+              {/* HERO SECTION */}
+              <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-4">
+                <h4 className="font-bold text-slate-900 border-b pb-2 flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                  SEÇÃO HERO (TOPO)
+                </h4>
+                <div className="grid grid-cols-1 gap-4">
+                  <div className="flex flex-col space-y-1">
+                    <label className="font-bold text-slate-400 uppercase text-[10px]">Título Principal (Use \n para nova linha)</label>
+                    <textarea 
+                      rows={2}
+                      value={siteConfig.hero_titulo || ''}
+                      onChange={(e) => setSiteConfig({ ...siteConfig, hero_titulo: e.target.value })}
+                      className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                    />
+                  </div>
+                  <div className="flex flex-col space-y-1">
+                    <label className="font-bold text-slate-400 uppercase text-[10px]">Subtítulo / Descrição</label>
+                    <textarea 
+                      rows={2}
+                      value={siteConfig.hero_subtitulo || ''}
+                      onChange={(e) => setSiteConfig({ ...siteConfig, hero_subtitulo: e.target.value })}
+                      className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="flex flex-col space-y-1">
+                      <label className="font-bold text-slate-400 uppercase text-[10px]">Texto do Botão Hero</label>
+                      <input 
+                        type="text" 
+                        value={siteConfig.hero_texto_botao || ''}
+                        onChange={(e) => setSiteConfig({ ...siteConfig, hero_texto_botao: e.target.value })}
+                        className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                      />
+                    </div>
+                    <div className="flex flex-col space-y-1">
+                      <label className="font-bold text-slate-400 uppercase text-[10px]">Link do Botão Hero</label>
+                      <input 
+                        type="text" 
+                        value={siteConfig.hero_link_botao || ''}
+                        onChange={(e) => setSiteConfig({ ...siteConfig, hero_link_botao: e.target.value })}
+                        className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* VANTAGENS SECTION */}
+              <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-4">
+                <h4 className="font-bold text-slate-900 border-b pb-2 flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+                  DIFERENCIAIS / VANTAGENS
+                </h4>
+                <div className="grid grid-cols-1 gap-4">
+                  <div className="flex flex-col space-y-1">
+                    <label className="font-bold text-slate-400 uppercase text-[10px]">Título da Seção</label>
+                    <input 
+                      type="text" 
+                      value={siteConfig.vantagens_titulo || ''}
+                      onChange={(e) => setSiteConfig({ ...siteConfig, vantagens_titulo: e.target.value })}
+                      className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                    />
+                  </div>
+                  <div className="flex flex-col space-y-1">
+                    <label className="font-bold text-slate-400 uppercase text-[10px]">Descrição da Seção</label>
+                    <textarea 
+                      rows={2}
+                      value={siteConfig.vantagens_subtitulo || ''}
+                      onChange={(e) => setSiteConfig({ ...siteConfig, vantagens_subtitulo: e.target.value })}
+                      className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                    />
+                  </div>
+                  <div className="flex flex-col space-y-1">
+                    <label className="font-bold text-slate-400 uppercase text-[10px]">Lista de Diferenciais (JSON Format)</label>
+                    <textarea 
+                      rows={5}
+                      value={siteConfig.vantagens_lista_json || ''}
+                      onChange={(e) => setSiteConfig({ ...siteConfig, vantagens_lista_json: e.target.value })}
+                      className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white font-mono text-[10px]"
+                    />
+                    <p className="text-[10px] text-slate-400">Formato: [ {"{"} "titulo": "...", "descricao": "..." {"}"}, ... ]</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* SOBRE NÓS SECTION */}
+              <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-4">
+                <h4 className="font-bold text-slate-900 border-b pb-2 flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-indigo-500"></div>
+                  SOBRE NÓS
+                </h4>
+                <div className="grid grid-cols-1 gap-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="flex flex-col space-y-1">
+                      <label className="font-bold text-slate-400 uppercase text-[10px]">Tag (Ex: Sobre Nós)</label>
+                      <input 
+                        type="text" 
+                        value={siteConfig.sobre_titulo_tag || ''}
+                        onChange={(e) => setSiteConfig({ ...siteConfig, sobre_titulo_tag: e.target.value })}
+                        className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                      />
+                    </div>
+                    <div className="flex flex-col space-y-1">
+                      <label className="font-bold text-slate-400 uppercase text-[10px]">URL da Imagem Sobre</label>
+                      <input 
+                        type="text" 
+                        value={siteConfig.sobre_imagem_url || ''}
+                        onChange={(e) => setSiteConfig({ ...siteConfig, sobre_imagem_url: e.target.value })}
+                        className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex flex-col space-y-1">
+                    <label className="font-bold text-slate-400 uppercase text-[10px]">Título Chamativo</label>
+                    <textarea 
+                      rows={2}
+                      value={siteConfig.sobre_titulo || ''}
+                      onChange={(e) => setSiteConfig({ ...siteConfig, sobre_titulo: e.target.value })}
+                      className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white font-bold"
+                    />
+                  </div>
+                  <div className="flex flex-col space-y-1">
+                    <label className="font-bold text-slate-400 uppercase text-[10px]">Texto de Destaque</label>
+                    <textarea 
+                      rows={3}
+                      value={siteConfig.sobre_destaque || ''}
+                      onChange={(e) => setSiteConfig({ ...siteConfig, sobre_destaque: e.target.value })}
+                      className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white font-semibold"
+                    />
+                  </div>
+                  <div className="flex flex-col space-y-1">
+                    <label className="font-bold text-slate-400 uppercase text-[10px]">Descrição Detalhada</label>
+                    <textarea 
+                      rows={4}
+                      value={siteConfig.sobre_descricao || ''}
+                      onChange={(e) => setSiteConfig({ ...siteConfig, sobre_descricao: e.target.value })}
+                      className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-4">
+                      <div className="flex flex-col space-y-1">
+                        <label className="font-bold text-slate-400 uppercase text-[10px]">Título Propósito</label>
+                        <input 
+                          type="text" 
+                          value={siteConfig.sobre_proposito_titulo || ''}
+                          onChange={(e) => setSiteConfig({ ...siteConfig, sobre_proposito_titulo: e.target.value })}
+                          className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                        />
+                      </div>
+                      <div className="flex flex-col space-y-1">
+                        <label className="font-bold text-slate-400 uppercase text-[10px]">Descrição Propósito</label>
+                        <textarea 
+                          rows={2}
+                          value={siteConfig.sobre_proposito_desc || ''}
+                          onChange={(e) => setSiteConfig({ ...siteConfig, sobre_proposito_desc: e.target.value })}
+                          className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-4">
+                      <div className="flex flex-col space-y-1">
+                        <label className="font-bold text-slate-400 uppercase text-[10px]">Título Valor</label>
+                        <input 
+                          type="text" 
+                          value={siteConfig.sobre_valor_titulo || ''}
+                          onChange={(e) => setSiteConfig({ ...siteConfig, sobre_valor_titulo: e.target.value })}
+                          className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                        />
+                      </div>
+                      <div className="flex flex-col space-y-1">
+                        <label className="font-bold text-slate-400 uppercase text-[10px]">Descrição Valor</label>
+                        <textarea 
+                          rows={2}
+                          value={siteConfig.sobre_valor_desc || ''}
+                          onChange={(e) => setSiteConfig({ ...siteConfig, sobre_valor_desc: e.target.value })}
+                          className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* CONTATO SECTION */}
+              <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-4">
+                <h4 className="font-bold text-slate-900 border-b pb-2 flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                  SEÇÃO DE CONTATO
+                </h4>
+                <div className="grid grid-cols-1 gap-4">
+                  <div className="flex flex-col space-y-1">
+                    <label className="font-bold text-slate-400 uppercase text-[10px]">Título de Chamada</label>
+                    <textarea 
+                      rows={2}
+                      value={siteConfig.contato_titulo || ''}
+                      onChange={(e) => setSiteConfig({ ...siteConfig, contato_titulo: e.target.value })}
+                      className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white font-bold"
+                    />
+                  </div>
+                  <div className="flex flex-col space-y-1">
+                    <label className="font-bold text-slate-400 uppercase text-[10px]">Tag de Contato (Ex: CONECTE-SE AGORA)</label>
+                    <input 
+                      type="text" 
+                      value={siteConfig.contato_subtitulo || ''}
+                      onChange={(e) => setSiteConfig({ ...siteConfig, contato_subtitulo: e.target.value })}
+                      className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                    />
+                  </div>
+                  <div className="flex flex-col space-y-1">
+                    <label className="font-bold text-slate-400 uppercase text-[10px]">Descrição Chamativa</label>
+                    <textarea 
+                      rows={3}
+                      value={siteConfig.contato_descricao || ''}
+                      onChange={(e) => setSiteConfig({ ...siteConfig, contato_descricao: e.target.value })}
+                      className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                    />
+                  </div>
+                  <div className="flex flex-col space-y-1">
+                    <label className="font-bold text-slate-400 uppercase text-[10px]">Texto Legal Rodapé (LGPD)</label>
+                    <textarea 
+                      rows={2}
+                      value={siteConfig.contato_legal || ''}
+                      onChange={(e) => setSiteConfig({ ...siteConfig, contato_legal: e.target.value })}
+                      className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white text-[10px]"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* FAQ SECTION */}
+              <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-4">
+                <h4 className="font-bold text-slate-900 border-b pb-2 flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
+                  PERGUNTAS FREQUENTES (FAQ)
+                </h4>
+                <div className="grid grid-cols-1 gap-4">
+                  <div className="flex flex-col space-y-1">
+                    <label className="font-bold text-slate-400 uppercase text-[10px]">Título do FAQ</label>
+                    <input 
+                      type="text" 
+                      value={siteConfig.faq_titulo || ''}
+                      onChange={(e) => setSiteConfig({ ...siteConfig, faq_titulo: e.target.value })}
+                      className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                    />
+                  </div>
+                  <div className="flex flex-col space-y-1">
+                    <label className="font-bold text-slate-400 uppercase text-[10px]">Subtítulo do FAQ</label>
+                    <textarea 
+                      rows={2}
+                      value={siteConfig.faq_subtitulo || ''}
+                      onChange={(e) => setSiteConfig({ ...siteConfig, faq_subtitulo: e.target.value })}
+                      className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                    />
+                  </div>
+                  <div className="flex flex-col space-y-1">
+                    <label className="font-bold text-slate-400 uppercase text-[10px]">Lista de FAQ (JSON Format)</label>
+                    <textarea 
+                      rows={5}
+                      value={siteConfig.faq_lista_json || ''}
+                      onChange={(e) => setSiteConfig({ ...siteConfig, faq_lista_json: e.target.value })}
+                      className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white font-mono text-[10px]"
+                    />
+                    <p className="text-[10px] text-slate-400">Formato: [ {"{"} "pergunta": "...", "resposta": "..." {"}"}, ... ]</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* DEPOIMENTOS SECTION */}
+              <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-4">
+                <h4 className="font-bold text-slate-900 border-b pb-2 flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-orange-500"></div>
+                  DEPOIMENTOS / AVALIAÇÕES
+                </h4>
+                <div className="grid grid-cols-1 gap-4">
+                  <div className="flex flex-col space-y-1">
+                    <label className="font-bold text-slate-400 uppercase text-[10px]">Título de Avaliações</label>
+                    <input 
+                      type="text" 
+                      value={siteConfig.depoimentos_titulo || ''}
+                      onChange={(e) => setSiteConfig({ ...siteConfig, depoimentos_titulo: e.target.value })}
+                      className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                    />
+                  </div>
+                  <div className="flex flex-col space-y-1">
+                    <label className="font-bold text-slate-400 uppercase text-[10px]">Subtítulo de Avaliações</label>
+                    <textarea 
+                      rows={2}
+                      value={siteConfig.depoimentos_subtitulo || ''}
+                      onChange={(e) => setSiteConfig({ ...siteConfig, depoimentos_subtitulo: e.target.value })}
+                      className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                    />
+                  </div>
+                  <div className="flex flex-col space-y-1">
+                    <label className="font-bold text-slate-400 uppercase text-[10px]">Lista de Depoimentos (JSON Format)</label>
+                    <textarea 
+                      rows={5}
+                      value={siteConfig.depoimentos_lista_json || ''}
+                      onChange={(e) => setSiteConfig({ ...siteConfig, depoimentos_lista_json: e.target.value })}
+                      className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white font-mono text-[10px]"
+                    />
+                    <p className="text-[10px] text-slate-400">Formato: [ {"{"} "nome": "...", "texto": "...", "cargo": "...", "plano": "...", "estrelas": 5, "avatar": "..." {"}"}, ... ]</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-3 border-t flex justify-end">
+              <button 
+                type="submit" 
+                className="px-6 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl flex items-center space-x-1.5 shadow-md shadow-emerald-200"
+              >
+                <Save size={14} />
+                <span>Salvar Conteúdo</span>
+              </button>
+            </div>
+          </form>
+        )}
+
+        {/* ========================================================
+            TAB: RODAPÉ DO SITE
+            ======================================================== */}
+        {activeTab === 'rodape' && siteConfig && (
+          <form onSubmit={handleSiteConfigGeneralSubmit} className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm space-y-5 animate-fade-in">
+            <div className="pb-3 border-b border-slate-100">
+              <h3 className="font-display font-black text-xs text-slate-800 uppercase tracking-wider">Configuração Completa do Rodapé</h3>
+              <p className="text-[11px] text-slate-500 mt-0.5">Gerencie todas as informações exibidas na parte inferior do portal.</p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+              <div className="flex flex-col space-y-1">
+                <label className="font-bold text-slate-400 uppercase text-[10px]">Título da Coluna Principal</label>
+                <input 
+                  type="text" 
+                  value={siteConfig.footer_titulo || ''}
+                  onChange={(e) => setSiteConfig({ ...siteConfig, footer_titulo: e.target.value })}
+                  className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                />
+              </div>
+
+              <div className="flex flex-col space-y-1">
+                <label className="font-bold text-slate-400 uppercase text-[10px]">CNPJ Exibido no Rodapé</label>
+                <input 
+                  type="text" 
+                  value={siteConfig.footer_cnpj || ''}
+                  onChange={(e) => setSiteConfig({ ...siteConfig, footer_cnpj: e.target.value })}
+                  className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                />
+              </div>
+
+              <div className="flex flex-col space-y-1 sm:col-span-2">
+                <label className="font-bold text-slate-400 uppercase text-[10px]">Sugestão de Descrição / Slogan</label>
+                <textarea 
+                  rows={2}
+                  value={siteConfig.footer_descricao || ''}
+                  onChange={(e) => setSiteConfig({ ...siteConfig, footer_descricao: e.target.value })}
+                  className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                />
+              </div>
+
+              <div className="flex flex-col space-y-1">
+                <label className="font-bold text-slate-400 uppercase text-[10px]">Endereço Exibido</label>
+                <input 
+                  type="text" 
+                  value={siteConfig.footer_endereco || ''}
+                  onChange={(e) => setSiteConfig({ ...siteConfig, footer_endereco: e.target.value })}
+                  className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                />
+              </div>
+
+              <div className="flex flex-col space-y-1">
+                <label className="font-bold text-slate-400 uppercase text-[10px]">E-mail Exibido</label>
+                <input 
+                  type="email" 
+                  value={siteConfig.footer_email || ''}
+                  onChange={(e) => setSiteConfig({ ...siteConfig, footer_email: e.target.value })}
+                  className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                />
+              </div>
+
+              <div className="flex flex-col space-y-1">
+                <label className="font-bold text-slate-400 uppercase text-[10px]">Telefone Exibido</label>
+                <input 
+                  type="text" 
+                  value={siteConfig.footer_telefone || ''}
+                  onChange={(e) => setSiteConfig({ ...siteConfig, footer_telefone: e.target.value })}
+                  className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                />
+              </div>
+
+              <div className="flex flex-col space-y-1">
+                <label className="font-bold text-slate-400 uppercase text-[10px]">Instagram (Username)</label>
+                <input 
+                  type="text" 
+                  value={siteConfig.footer_instagram || ''}
+                  onChange={(e) => setSiteConfig({ ...siteConfig, footer_instagram: e.target.value })}
+                  className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                />
+              </div>
+
+              <div className="flex flex-col space-y-1">
+                <label className="font-bold text-slate-400 uppercase text-[10px]">Facebook (Username)</label>
+                <input 
+                  type="text" 
+                  value={siteConfig.footer_facebook || ''}
+                  onChange={(e) => setSiteConfig({ ...siteConfig, footer_facebook: e.target.value })}
+                  className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                />
+              </div>
+
+              <div className="flex flex-col space-y-1">
+                <label className="font-bold text-slate-400 uppercase text-[10px]">Horários de Atendimento</label>
+                <input 
+                  type="text" 
+                  value={siteConfig.footer_horario || ''}
+                  onChange={(e) => setSiteConfig({ ...siteConfig, footer_horario: e.target.value })}
+                  className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                />
+              </div>
+
+              <div className="flex flex-col space-y-1 sm:col-span-2">
+                <label className="font-bold text-slate-400 uppercase text-[10px]">Texto Legal / OBS Rodapé</label>
+                <textarea 
+                  rows={2}
+                  value={siteConfig.footer_texto_legal || ''}
+                  onChange={(e) => setSiteConfig({ ...siteConfig, footer_texto_legal: e.target.value })}
+                  className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                />
+              </div>
+
+              <div className="flex flex-col space-y-1">
+                <label className="font-bold text-slate-400 uppercase text-[10px]">Texto Copyright</label>
+                <input 
+                  type="text" 
+                  value={siteConfig.footer_copyright || ''}
+                  onChange={(e) => setSiteConfig({ ...siteConfig, footer_copyright: e.target.value })}
+                  className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                />
+              </div>
+
+              <div className="flex flex-col space-y-1 sm:col-span-2">
+                <label className="font-bold text-slate-400 uppercase text-[10px]">Links Rápidos (Slug: Label, uma por linha)</label>
+                <textarea 
+                  rows={4}
+                  value={siteConfig.footer_links_rapidos || ''}
+                  onChange={(e) => setSiteConfig({ ...siteConfig, footer_links_rapidos: e.target.value })}
+                  className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white font-mono"
+                  placeholder="Início: #inicio\nPlanos: #planos"
+                />
+              </div>
+            </div>
+
+            <div className="pt-3 border-t flex justify-end">
+              <button 
+                type="submit" 
+                className="px-6 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl flex items-center space-x-1.5"
+              >
+                <Save size={14} />
+                <span>Salvar Rodapé</span>
+              </button>
+            </div>
+          </form>
+        )}
+
+        {/* ========================================================
             TAB 3: DADOS DA EMPRESA
             ======================================================== */}
         {activeTab === 'empresa' && empresaDetail && (
@@ -1571,6 +2066,17 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
                   value={empresaDetail.numero}
                   onChange={(e) => setEmpresaDetail({ ...empresaDetail, numero: e.target.value })}
                   className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                />
+              </div>
+
+              <div className="flex flex-col space-y-1">
+                <label className="font-bold text-slate-400 uppercase text-[10px]">CNPJ da Empresa</label>
+                <input 
+                  type="text" 
+                  value={empresaDetail.cnpj || ''}
+                  onChange={(e) => setEmpresaDetail({ ...empresaDetail, cnpj: e.target.value })}
+                  className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                  placeholder="00.000.000/0000-00"
                 />
               </div>
 

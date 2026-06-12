@@ -189,10 +189,10 @@ export default function App() {
             <SobreNos config={activeConfig} />
 
             {/* 6. Fictional real customer testimonies */}
-            <Depoimentos />
+            <Depoimentos config={activeConfig} />
 
             {/* 7. Contract and routers accordion FAQ */}
-            <FAQ />
+            <FAQ config={activeConfig} />
 
             {/* 8. Full interactive contact detail indicators */}
             <Contato config={activeConfig} />

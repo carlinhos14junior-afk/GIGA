@@ -61,6 +61,14 @@ export interface SiteConfig {
   footer_cnpj?: string;
   footer_horario?: string;
   footer_texto_legal?: string;
+  
+  // FAQ & Depoimentos
+  faq_titulo?: string;
+  faq_subtitulo?: string;
+  faq_lista_json?: string;
+  depoimentos_titulo?: string;
+  depoimentos_subtitulo?: string;
+  depoimentos_lista_json?: string;
 }
 
 export interface Banner {

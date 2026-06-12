@@ -6,9 +6,17 @@ interface LogoProps {
   size?: 'sm' | 'md' | 'lg' | 'xl';
   lightVersion?: boolean;
   logoUrl?: string;
+  nomeEmpresa?: string;
 }
 
-export default function Logo({ className = '', variant = 'full', size = 'md', lightVersion = false, logoUrl }: LogoProps) {
+export default function Logo({ 
+  className = '', 
+  variant = 'full', 
+  size = 'md', 
+  lightVersion = false, 
+  logoUrl,
+  nomeEmpresa = 'GIGATEL FIBER'
+}: LogoProps) {
   if (logoUrl && logoUrl.trim() !== '') {
     const heightMap = {
       sm: "h-8",
@@ -19,12 +27,17 @@ export default function Logo({ className = '', variant = 'full', size = 'md', li
     return (
       <img 
         src={logoUrl} 
-        alt="GIGATEL FIBER" 
+        alt={nomeEmpresa} 
         className={`${heightMap[size] || "h-11"} object-contain max-w-full ${className}`}
         referrerPolicy="no-referrer"
       />
     );
   }
+
+  // Split name if it has two words for the style
+  const names = nomeEmpresa.toUpperCase().split(' ');
+  const gigaPart = names[0] || 'GIGATEL';
+  const fiberPart = names.slice(1).join(' ') || 'fiber';
 
   // Determine dimensional constraints
   let iconDims = "w-10 h-10";
@@ -126,14 +139,14 @@ export default function Logo({ className = '', variant = 'full', size = 'md', li
         <div className="flex flex-col">
           {/* Bold, heavy wordmark */}
           <span className={`${textSizes.giga} font-display font-black tracking-tighter ${gigaColorClass} leading-none uppercase group-hover:scale-[1.01] transition-all origin-left`}>
-            GIGATEL
+            {gigaPart}
           </span>
           {/* Handwritten Cursive Satisfy font for the 'fiber' script */}
           <span 
             style={{ fontFamily: "'Satisfy', cursive" }}
-            className={`${textSizes.fiber} font-normal ${fiberColorClass} italic tracking-normal self-end -mt-1 leading-none pl-6 pr-1 group-hover:translate-x-1 transition-transform duration-300`}
+            className={`${textSizes.fiber} font-normal ${fiberColorClass} italic tracking-normal self-end -mt-1 leading-none pl-6 pr-1 group-hover:translate-x-1 transition-transform duration-300 uppercase`}
           >
-            fiber
+            {fiberPart}
           </span>
         </div>
       )}

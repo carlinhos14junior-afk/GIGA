@@ -1,43 +1,70 @@
 import { useState, useEffect } from 'react';
 import { Star, Quote, ChevronLeft, ChevronRight } from 'lucide-react';
+import { SiteConfig } from '../types';
 
-export default function Depoimentos() {
+interface DepoimentoItem {
+  nome: string;
+  cargo: string;
+  plano: string;
+  texto: string;
+  estrelas: number;
+  avatar: string;
+}
+
+interface DepoimentosProps {
+  config: SiteConfig;
+}
+
+export default function Depoimentos({ config }: DepoimentosProps) {
   const [activeIndex, setActiveIndex] = useState(0);
 
-  const avaliacoes = [
-    {
-      nome: 'Carla Mendes',
-      cargo: 'Designer Freelancer (Home Office)',
-      plano: 'GIGATEL 500 MEGA',
-      texto: 'Estou chocada com a estabilidade! Trabalho em home office enviando arquivos pesados e participando de chamadas em vídeo. Tudo roda perfeitamente, sem nenhuma queda ou lentidão. O atendimento local no WhatsApp é nota 10!',
-      estrelas: 5,
-      avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=150'
-    },
-    {
-      nome: 'João Paulo Ramos',
-      cargo: 'Gamer Competitivo & Streamer',
-      plano: 'GIGATEL GIGA BLACK',
-      texto: 'O ping nos jogos online caiu drasticamente! Consigo fazer lives e downloads de gigabytes terminando em poucos minutos, sem afetar o resto dos dispositivos da casa. Recomendo a Gigatel de olhos fechados!',
-      estrelas: 5,
-      avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=150'
-    },
-    {
-      nome: 'Mariana Silva',
-      cargo: 'Advogada & Mãe de Dois Filhos',
-      plano: 'GIGATEL GIGA BLACK (1 Giga)',
-      texto: 'Finalmente um provedor que cumpre o que promete. Em casa, somos quatro pessoas conectadas simultaneamente. Assistimos filmes em 4K e jogamos ao mesmo tempo sem as irritantes telas de carregamento. Suporte nota mil!',
-      estrelas: 5,
-      avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=150'
+  let avaliacoes: DepoimentoItem[] = [];
+  
+  try {
+    if (config.depoimentos_lista_json) {
+      avaliacoes = JSON.parse(config.depoimentos_lista_json);
     }
-  ];
+  } catch (e) {
+    console.error("Error parsing Testimonials JSON:", e);
+  }
+
+  if (avaliacoes.length === 0) {
+    avaliacoes = [
+      {
+        nome: 'Carla Mendes',
+        cargo: 'Designer Freelancer (Home Office)',
+        plano: 'GIGATEL 500 MEGA',
+        texto: 'Estou chocada com a estabilidade! Trabalho em home office enviando arquivos pesados e participando de chamadas em vídeo. Tudo roda perfeitamente, sem nenhuma queda ou lentidão. O atendimento local no WhatsApp é nota 10!',
+        estrelas: 5,
+        avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=150'
+      },
+      {
+        nome: 'João Paulo Ramos',
+        cargo: 'Gamer Competitivo & Streamer',
+        plano: 'GIGATEL GIGA BLACK',
+        texto: 'O ping nos jogos online caiu drasticamente! Consigo fazer lives e downloads de gigabytes terminando em poucos minutos, sem afetar o resto dos dispositivos da casa. Recomendo a Gigatel de olhos fechados!',
+        estrelas: 5,
+        avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=150'
+      },
+      {
+        nome: 'Mariana Silva',
+        cargo: 'Advogada & Mãe de Dois Filhos',
+        plano: 'GIGATEL GIGA BLACK (1 Giga)',
+        texto: 'Finalmente um provedor que cumpre o que promete. Em casa, somos quatro pessoas conectadas simultaneamente. Assistimos filmes em 4K e jogamos ao mesmo tempo sem as irritantes telas de carregamento. Suporte nota mil!',
+        estrelas: 5,
+        avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=150'
+      }
+    ];
+  }
 
   // Auto scroll/play setup
   useEffect(() => {
+    if (avaliacoes.length <= 1) return;
     const interval = setInterval(() => {
       handleNext();
     }, 6000);
     return () => clearInterval(interval);
-  }, [activeIndex]);
+  }, [activeIndex, avaliacoes.length]);
 
   const handlePrev = () => {
     setActiveIndex((prev) => (prev === 0 ? avaliacoes.length - 1 : prev - 1));
@@ -47,7 +74,9 @@ export default function Depoimentos() {
     setActiveIndex((prev) => (prev === avaliacoes.length - 1 ? 0 : prev + 1));
   };
 
-  const current = avaliacoes[activeIndex];
+  const current = avaliacoes[activeIndex] || avaliacoes[0];
+
+  if (!current) return null;
 
   return (
     <section className="relative py-28 bg-white overflow-hidden text-slate-800 border-b border-slate-150">
@@ -56,13 +85,19 @@ export default function Depoimentos() {
         {/* Section Heading */}
         <div className="text-center max-w-3xl mx-auto mb-16">
           <div className="inline-flex items-center space-x-2 bg-blue-50 border border-blue-100 px-4 py-1.5 rounded-full text-[#005BFF] font-black text-xs uppercase mb-4 tracking-widest">
-            <span>Avaliações dos Clientes</span>
+            <span>{config.depoimentos_titulo || 'Avaliações dos Clientes'}</span>
           </div>
           <h2 className="font-display font-black text-4xl sm:text-5xl lg:text-6xl text-slate-900 tracking-tighter mb-4 uppercase leading-none">
-            RECOMENDADO POR <br />
-            <span className="text-[#005BFF] font-extrabold bg-gradient-to-r from-[#005BFF] to-[#0188FF] bg-clip-text text-transparent">
-              QUEM USA DE VERDADE
-            </span>
+            {config.depoimentos_subtitulo ? (
+              <span className="whitespace-pre-line">{config.depoimentos_subtitulo}</span>
+            ) : (
+              <>
+                RECOMENDADO POR <br />
+                <span className="text-[#005BFF] font-extrabold bg-gradient-to-r from-[#005BFF] to-[#0188FF] bg-clip-text text-transparent">
+                  QUEM USA DE VERDADE
+                </span>
+              </>
+            )}
           </h2>
 
           <p className="text-slate-650 text-sm sm:text-base font-medium max-w-xl mx-auto leading-relaxed">

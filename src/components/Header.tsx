@@ -125,7 +125,7 @@ export default function Header({ config, onNavigate, currentView }: HeaderProps)
               onClick={() => { onNavigate('main'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
               className="cursor-pointer"
             >
-              <Logo size="md" lightVersion={true} logoUrl={config.logo_url} />
+              <Logo size="md" lightVersion={true} logoUrl={config.logo_url} nomeEmpresa={config.nome_empresa} />
             </div>
 
             {/* Navigation - Centered and elegant */}

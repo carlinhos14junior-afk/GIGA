@@ -17,7 +17,20 @@ export default function Footer({ config, onNavigate }: FooterProps) {
 
   const currentYear = new Date().getFullYear();
 
-  const formattedAddress = `${config.endereco}${config.bairro ? `, ${config.bairro}` : ''}${config.cidade ? `, ${config.cidade}` : ''}${config.estado ? ` - ${config.estado}` : ''}${config.cep ? ` - CEP ${config.cep}` : ''}`;
+  const formattedAddress = config.footer_endereco || `${config.endereco}${config.bairro ? `, ${config.bairro}` : ''}${config.cidade ? `, ${config.cidade}` : ''}${config.estado ? ` - ${config.estado}` : ''}${config.cep ? ` - CEP ${config.cep}` : ''}`;
+
+  const quickLinks = config.footer_links_rapidos 
+    ? config.footer_links_rapidos.split('\n').filter(l => l.includes(':')).map(l => {
+        const [label, href] = l.split(':').map(s => s.trim());
+        return { label, href };
+      })
+    : [
+        { label: 'Início', href: '#inicio' },
+        { label: 'Planos Fibra', href: '#planos' },
+        { label: 'Diferenciais', href: '#vantagens' },
+        { label: 'Consultar Cobertura', href: '#cobertura' },
+        { label: 'Perguntas FAQ', href: '#faq' }
+      ];
 
   return (
     <footer id="footer-giganet" className="relative bg-[#0A1F44] border-t border-white/5 pt-16 pb-12 text-slate-300 overflow-hidden">
@@ -32,17 +45,17 @@ export default function Footer({ config, onNavigate }: FooterProps) {
           
           {/* Logo / Brand block */}
           <div className="flex flex-col space-y-4">
-            <Logo size="md" logoUrl={config.logo_url} />
+            <Logo size="md" logoUrl={config.logo_url} nomeEmpresa={config.nome_empresa} />
             
             <p className="text-xs text-slate-300 leading-relaxed font-semibold">
-              Conexões ultrarrápidas, 100% fibra óptica de ponta a ponta e suporte humanizado qualificado para você navegar, jogar e assistir sem travamentos.
+              {config.footer_descricao || 'Conexões ultrarrápidas, 100% fibra óptica de ponta a ponta e suporte humanizado qualificado para você navegar, jogar e assistir sem travamentos.'}
             </p>
 
             {/* Social channels */}
             <div className="flex space-x-3 pt-2">
-              {config.instagram && (
+              {(config.footer_instagram || config.instagram) && (
                 <a
-                  href={`https://instagram.com/${config.instagram}`}
+                  href={`https://instagram.com/${config.footer_instagram || config.instagram}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="px-3 py-1.5 bg-white/10 hover:bg-white/20 border border-white/10 text-white rounded-lg transition-colors text-xs font-semibold"
@@ -50,9 +63,9 @@ export default function Footer({ config, onNavigate }: FooterProps) {
                   Instagram
                 </a>
               )}
-              {config.facebook && (
+              {(config.footer_facebook || config.facebook) && (
                 <a
-                  href={`https://facebook.com/${config.facebook}`}
+                  href={`https://facebook.com/${config.footer_facebook || config.facebook}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="px-3 py-1.5 bg-white/10 hover:bg-white/20 border border-white/10 text-white rounded-lg transition-colors text-xs font-semibold"
@@ -65,23 +78,17 @@ export default function Footer({ config, onNavigate }: FooterProps) {
 
           {/* Links Rápidos */}
           <div>
-            <h4 className="font-display font-black text-xs text-white uppercase tracking-wider mb-4">Navegação</h4>
+            <h4 className="font-display font-black text-xs text-white uppercase tracking-wider mb-4">
+              {config.footer_titulo || 'Navegação'}
+            </h4>
             <ul className="space-y-2 text-xs">
-              <li>
-                <a href="#inicio" className="text-[#00AEEF] hover:text-white font-semibold transition-colors">Início</a>
-              </li>
-              <li>
-                <a href="#planos" className="text-[#00AEEF] hover:text-white font-semibold transition-colors">Planos Fibra</a>
-              </li>
-              <li>
-                <a href="#vantagens" className="text-[#00AEEF] hover:text-white font-semibold transition-colors">Diferenciais</a>
-              </li>
-              <li>
-                <a href="#cobertura" className="text-[#00AEEF] hover:text-white font-semibold transition-colors">Consultar Cobertura</a>
-              </li>
-              <li>
-                <a href="#faq" className="text-[#00AEEF] hover:text-white font-semibold transition-colors">Perguntas FAQ</a>
-              </li>
+              {quickLinks.map((link, idx) => (
+                <li key={idx}>
+                  <a href={link.href} className="text-[#00AEEF] hover:text-white font-semibold transition-colors">
+                    {link.label}
+                  </a>
+                </li>
+              ))}
             </ul>
           </div>
 
@@ -91,11 +98,11 @@ export default function Footer({ config, onNavigate }: FooterProps) {
             <ul className="space-y-2.5 text-xs text-slate-300">
               <li className="flex items-center space-x-2">
                 <Phone size={13} className="text-[#E53935] shrink-0" />
-                <span className="font-semibold text-white">{config.telefone}</span>
+                <span className="font-semibold text-white">{config.footer_telefone || config.telefone}</span>
               </li>
               <li className="flex items-center space-x-2">
                 <Mail size={13} className="text-[#E53935] shrink-0" />
-                <span className="break-all font-semibold text-white">{config.email}</span>
+                <span className="break-all font-semibold text-white">{config.footer_email || config.email}</span>
               </li>
               <li className="flex items-start space-x-2">
                 <MapPin size={13} className="text-[#E53935] shrink-0 mt-0.5" />
@@ -108,10 +115,10 @@ export default function Footer({ config, onNavigate }: FooterProps) {
           <div>
             <h4 className="font-display font-black text-xs text-white uppercase tracking-wider mb-4">{config.nome_empresa}</h4>
             <p className="text-xs text-slate-300 leading-relaxed mb-2 font-semibold">
-              Sinal estável sem franquias de download para residências, comércios e corporações sob medida.
+              {config.footer_texto_legal || 'Sinal estável sem franquias de download para residências, comércios e corporações sob medida.'}
             </p>
             <p className="text-[11px] text-[#00AEEF] font-mono font-semibold">
-              Suporte das 08h às 21h pelo WhatsApp Comercial {config.nome_empresa}.
+              {config.footer_horario || `Suporte das 08h às 21h pelo WhatsApp Comercial ${config.nome_empresa}.`}
             </p>
           </div>
 
@@ -121,8 +128,8 @@ export default function Footer({ config, onNavigate }: FooterProps) {
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
           
           <div className="text-center sm:text-left text-slate-400 font-medium">
-            <p>© {currentYear} {config.nome_empresa}. Todos os direitos reservados.</p>
-            <p className="mt-1 font-mono text-[10px]/none text-slate-500 font-semibold">CNPJ: {config.cnpj || '45.182.293/0001-90'}</p>
+            <p>© {currentYear} {config.nome_empresa}. {config.footer_copyright || 'Todos os direitos reservados.'}</p>
+            <p className="mt-1 font-mono text-[10px]/none text-slate-500 font-semibold">CNPJ: {config.footer_cnpj || config.cnpj || '45.182.293/0001-90'}</p>
           </div>
 
           {/* Links e Modais triggers */}

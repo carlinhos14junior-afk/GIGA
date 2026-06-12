@@ -101,7 +101,6 @@ export default function SobreNos({ config }: SobreNosProps) {
             </div>
 
           </div>
-          </div>
 
         </div>
 
