@@ -1,15 +1,16 @@
 import { createClient } from '@supabase/supabase-js';
-import { SiteConfig, Plano, LeadCobertura } from '../types';
+import { SiteConfig, Plano, Lead, Usuario } from '../types';
 
-const supabaseUrl = (import.meta as any).env.VITE_SUPABASE_URL || '';
-const supabaseAnonKey = (import.meta as any).env.VITE_SUPABASE_ANON_KEY || '';
+// Let's support both NEXT_PUBLIC_ styles as well as VITE_ styles
+const supabaseUrl = (import.meta as any).env.NEXT_PUBLIC_SUPABASE_URL || (import.meta as any).env.VITE_SUPABASE_URL || '';
+const supabaseAnonKey = (import.meta as any).env.NEXT_PUBLIC_SUPABASE_ANON_KEY || (import.meta as any).env.VITE_SUPABASE_ANON_KEY || '';
 
 // Detect if we have real credentials
-export const isRealSupabase = supabaseUrl && supabaseAnonKey && supabaseUrl !== 'YOUR_SUPABASE_URL';
+export const isRealSupabase = supabaseUrl && supabaseAnonKey && supabaseUrl !== 'YOUR_SUPABASE_URL' && !supabaseUrl.includes('placeholder');
 
 export const supabase = isRealSupabase ? createClient(supabaseUrl, supabaseAnonKey) : null;
 
-// Initial seeds in case we are in simulated local environment
+// Initial seeds
 const DEFAULT_CONFIG: SiteConfig = {
   nome_empresa: 'GIGANET',
   logo_url: '',
@@ -31,8 +32,7 @@ const DEFAULT_PLANOS: Plano[] = [
       '100% Fibra Óptica',
       'Wi-Fi incluso',
       'Download ilimitado',
-      'Suporte técnico humanizado',
-      'Ideal para navegar e assistir streaming'
+      'Suporte técnico humanizado'
     ],
     destaque: false,
     ativo: true
@@ -47,11 +47,36 @@ const DEFAULT_PLANOS: Plano[] = [
       'Wi-Fi Dual Band incluso',
       'Download e Upload de alta performance',
       'Ideal para jogos, streaming e Home Office',
-      'Prioridade de suporte técnico',
-      'Instalação expressa'
+      'Suporte prioritário 24h',
+      'Instalação rápida e gratuita'
     ],
     destaque: true,
     ativo: true
+  },
+  {
+    id: '3',
+    nome: 'Plano Premium 1 Giga',
+    velocidade: '1 GIGA',
+    preco: 199.90,
+    beneficios: [
+      '100% Fibra Óptica simétrica',
+      'Roteador Wi-Fi 6 topo de linha',
+      'Perfeito para múltiplos dispositivos',
+      'Altíssima taxa de upload',
+      'Suporte VIP com técnico dedicado',
+      'IP Fixo disponível'
+    ],
+    destaque: false,
+    ativo: true
+  }
+];
+
+const DEFAULT_USUARIOS: Usuario[] = [
+  {
+    id: 'admin-user-id',
+    nome: 'Administrador Giganet',
+    email: 'admin@giganet.com.br',
+    perfil: 'admin'
   }
 ];
 
@@ -73,6 +98,7 @@ const setLocal = <T>(key: string, data: T): void => {
   localStorage.setItem(key, JSON.stringify(data));
 };
 
+// --- SITE CONFIG ---
 export async function getSiteConfig(): Promise<SiteConfig> {
   if (isRealSupabase && supabase) {
     try {
@@ -80,7 +106,6 @@ export async function getSiteConfig(): Promise<SiteConfig> {
       if (error) throw error;
       if (data) return data;
       
-      // If table exists but has no data, insert default
       const { data: inserted, error: insError } = await supabase
         .from('site_config')
         .insert([DEFAULT_CONFIG])
@@ -90,7 +115,7 @@ export async function getSiteConfig(): Promise<SiteConfig> {
       if (insError) throw insError;
       return inserted;
     } catch (e) {
-      console.warn('Real Supabase active but config fetch failed, using local/fallback config:', e);
+      console.warn('Supabase config fetch failed, using local fallback:', e);
       return getLocal<SiteConfig>('giganet_site_config', DEFAULT_CONFIG);
     }
   } else {
@@ -101,7 +126,6 @@ export async function getSiteConfig(): Promise<SiteConfig> {
 export async function saveSiteConfig(config: SiteConfig): Promise<SiteConfig> {
   if (isRealSupabase && supabase) {
     try {
-      // Check if config exists
       const { data: existing } = await supabase.from('site_config').select('*').limit(1).maybeSingle();
       let result;
       if (existing && existing.id) {
@@ -134,6 +158,7 @@ export async function saveSiteConfig(config: SiteConfig): Promise<SiteConfig> {
   }
 }
 
+// --- PLANOS ---
 export async function getPlanos(): Promise<Plano[]> {
   if (isRealSupabase && supabase) {
     try {
@@ -143,7 +168,6 @@ export async function getPlanos(): Promise<Plano[]> {
         .order('preco', { ascending: true });
       if (error) throw error;
       
-      // Map benefits back to array if stored as JSON or string
       return (data || []).map(p => ({
         ...p,
         beneficios: Array.isArray(p.beneficios) 
@@ -153,7 +177,7 @@ export async function getPlanos(): Promise<Plano[]> {
             : []
       }));
     } catch (e) {
-      console.warn('Real Supabase active but planes fetch failed, using local/fallback:', e);
+      console.warn('Supabase fetch query for planos failed, fallback:', e);
       return getLocal<Plano[]>('giganet_planos', DEFAULT_PLANOS);
     }
   } else {
@@ -167,12 +191,10 @@ export async function savePlano(plano: Omit<Plano, 'id'> & { id?: string | numbe
       let result;
       const formattedPlano = {
         ...plano,
-        // serialize benefits array to json standard for postgres
         beneficios: Array.isArray(plano.beneficios) ? plano.beneficios : []
       };
 
       if (plano.id && String(plano.id).length > 2) {
-        // Probably uuid
         const { data, error } = await supabase
           .from('planos')
           .update(formattedPlano)
@@ -182,7 +204,6 @@ export async function savePlano(plano: Omit<Plano, 'id'> & { id?: string | numbe
         if (error) throw error;
         result = data;
       } else {
-        // Insert new
         const { data, error } = await supabase
           .from('planos')
           .insert([formattedPlano])
@@ -197,7 +218,7 @@ export async function savePlano(plano: Omit<Plano, 'id'> & { id?: string | numbe
         beneficios: Array.isArray(result.beneficios) ? result.beneficios : JSON.parse(result.beneficios || '[]')
       };
     } catch (e) {
-      console.error('Failed to save plano to real Supabase, fallback to localStorage', e);
+      console.error('Failed to save plano, fallback to localStorage', e);
       const planes = getLocal<Plano[]>('giganet_planos', DEFAULT_PLANOS);
       let updated: Plano;
       if (plano.id) {
@@ -247,26 +268,27 @@ export async function deletePlano(id: string | number): Promise<void> {
   }
 }
 
-export async function getLeads(): Promise<LeadCobertura[]> {
+// --- LEADS ---
+export async function getLeads(): Promise<Lead[]> {
   if (isRealSupabase && supabase) {
     try {
       const { data, error } = await supabase
-        .from('leads_cobertura')
+        .from('leads')
         .select('*')
         .order('created_at', { ascending: false });
       if (error) throw error;
       return data || [];
     } catch (e) {
-      console.warn('Real Supabase active but leads fetch failed, using local fallback:', e);
-      return getLocal<LeadCobertura[]>('giganet_leads', []);
+      console.warn('Supabase fetch query for leads failed, trying fallback:', e);
+      return getLocal<Lead[]>('giganet_leads', []);
     }
   } else {
-    return getLocal<LeadCobertura[]>('giganet_leads', []);
+    return getLocal<Lead[]>('giganet_leads', []);
   }
 }
 
-export async function saveLead(lead: Omit<LeadCobertura, 'id' | 'created_at'>): Promise<LeadCobertura> {
-  const newLead: Omit<LeadCobertura, 'id'> & { id?: string | number; created_at?: string } = {
+export async function saveLead(lead: Omit<Lead, 'id' | 'created_at'>): Promise<Lead> {
+  const newLead: Omit<Lead, 'id'> & { id?: string | number; created_at?: string } = {
     ...lead,
     created_at: new Date().toISOString()
   };
@@ -274,7 +296,7 @@ export async function saveLead(lead: Omit<LeadCobertura, 'id' | 'created_at'>): 
   if (isRealSupabase && supabase) {
     try {
       const { data, error } = await supabase
-        .from('leads_cobertura')
+        .from('leads')
         .insert([newLead])
         .select()
         .single();
@@ -282,8 +304,8 @@ export async function saveLead(lead: Omit<LeadCobertura, 'id' | 'created_at'>): 
       return data;
     } catch (e) {
       console.error('Failed to submit lead to real Supabase, fallback to localStorage', e);
-      const leads = getLocal<LeadCobertura[]>('giganet_leads', []);
-      const created: LeadCobertura = {
+      const leads = getLocal<Lead[]>('giganet_leads', []);
+      const created: Lead = {
         ...newLead,
         id: Date.now().toString()
       };
@@ -292,8 +314,8 @@ export async function saveLead(lead: Omit<LeadCobertura, 'id' | 'created_at'>): 
       return created;
     }
   } else {
-    const leads = getLocal<LeadCobertura[]>('giganet_leads', []);
-    const created: LeadCobertura = {
+    const leads = getLocal<Lead[]>('giganet_leads', []);
+    const created: Lead = {
       ...newLead,
       id: Date.now().toString()
     };
@@ -303,17 +325,17 @@ export async function saveLead(lead: Omit<LeadCobertura, 'id' | 'created_at'>): 
   }
 }
 
-export async function updateLeadStatus(id: string | number, status: LeadCobertura['status']): Promise<void> {
+export async function updateLeadStatus(id: string | number, status: Lead['status']): Promise<void> {
   if (isRealSupabase && supabase) {
     try {
       const { error } = await supabase
-        .from('leads_cobertura')
+        .from('leads')
         .update({ status })
         .eq('id', id);
       if (error) throw error;
     } catch (e) {
       console.error('Failed to update lead in real Supabase, fallback to local', e);
-      const leads = getLocal<LeadCobertura[]>('giganet_leads', []);
+      const leads = getLocal<Lead[]>('giganet_leads', []);
       const index = leads.findIndex(l => String(l.id) === String(id));
       if (index > -1) {
         leads[index].status = status;
@@ -321,7 +343,7 @@ export async function updateLeadStatus(id: string | number, status: LeadCobertur
       }
     }
   } else {
-    const leads = getLocal<LeadCobertura[]>('giganet_leads', []);
+    const leads = getLocal<Lead[]>('giganet_leads', []);
     const index = leads.findIndex(l => String(l.id) === String(id));
     if (index > -1) {
       leads[index].status = status;
@@ -334,46 +356,237 @@ export async function deleteLead(id: string | number): Promise<void> {
   if (isRealSupabase && supabase) {
     try {
       const { error } = await supabase
-        .from('leads_cobertura')
+        .from('leads')
         .delete()
         .eq('id', id);
       if (error) throw error;
     } catch (e) {
       console.error('Failed to delete lead from real Supabase, fallback to local', e);
-      const leads = getLocal<LeadCobertura[]>('giganet_leads', []);
+      const leads = getLocal<Lead[]>('giganet_leads', []);
       const filtered = leads.filter(l => String(l.id) !== String(id));
       setLocal('giganet_leads', filtered);
     }
   } else {
-    const leads = getLocal<LeadCobertura[]>('giganet_leads', []);
+    const leads = getLocal<Lead[]>('giganet_leads', []);
     const filtered = leads.filter(l => String(l.id) !== String(id));
     setLocal('giganet_leads', filtered);
   }
 }
 
-// User-friendly Auth Layer (handles Auth Simulation if Supabase is offline)
+// --- USUARIOS ---
+export async function getUsuarios(): Promise<Usuario[]> {
+  if (isRealSupabase && supabase) {
+    try {
+      const { data, error } = await supabase
+        .from('usuarios')
+        .select('*')
+        .order('nome', { ascending: true });
+      if (error) throw error;
+      return data || [];
+    } catch (e) {
+      console.warn('Supabase fetch usuarios query failed (Rls or table), using fallback:', e);
+      return getLocal<Usuario[]>('giganet_usuarios', DEFAULT_USUARIOS);
+    }
+  } else {
+    return getLocal<Usuario[]>('giganet_usuarios', DEFAULT_USUARIOS);
+  }
+}
+
+export async function saveUsuario(usuario: Omit<Usuario, 'id'> & { id?: string }): Promise<Usuario> {
+  if (isRealSupabase && supabase) {
+    try {
+      let result;
+      const formatted = {
+        ...usuario,
+      };
+
+      if (usuario.id && usuario.id.length > 5) {
+        const { data, error } = await supabase
+          .from('usuarios')
+          .update(formatted)
+          .eq('id', usuario.id)
+          .select()
+          .single();
+        if (error) throw error;
+        result = data;
+      } else {
+        const { data, error } = await supabase
+          .from('usuarios')
+          .insert([{ ...formatted, id: Date.now().toString() }])
+          .select()
+          .single();
+        if (error) throw error;
+        result = data;
+      }
+      return result;
+    } catch (e) {
+      console.error('Failed to save usuario to real Supabase, fallback to local', e);
+      const users = getLocal<Usuario[]>('giganet_usuarios', DEFAULT_USUARIOS);
+      const updated = { ...usuario, id: usuario.id || Date.now().toString() } as Usuario;
+      const idx = users.findIndex(u => u.id === updated.id);
+      if (idx > -1) users[idx] = updated;
+      else users.push(updated);
+      setLocal('giganet_usuarios', users);
+      return updated;
+    }
+  } else {
+    const users = getLocal<Usuario[]>('giganet_usuarios', DEFAULT_USUARIOS);
+    const updated = { ...usuario, id: usuario.id || Date.now().toString() } as Usuario;
+    const idx = users.findIndex(u => u.id === updated.id);
+    if (idx > -1) users[idx] = updated;
+    else users.push(updated);
+    setLocal('giganet_usuarios', users);
+    return updated;
+  }
+}
+
+export async function deleteUsuario(id: string): Promise<void> {
+  if (isRealSupabase && supabase) {
+    try {
+      const { error } = await supabase.from('usuarios').delete().eq('id', id);
+      if (error) throw error;
+    } catch (e) {
+      console.error('Failed to delete usuario in real Supabase, fallback local', e);
+      const users = getLocal<Usuario[]>('giganet_usuarios', DEFAULT_USUARIOS);
+      setLocal('giganet_usuarios', users.filter(u => u.id !== id));
+    }
+  } else {
+    const users = getLocal<Usuario[]>('giganet_usuarios', DEFAULT_USUARIOS);
+    setLocal('giganet_usuarios', users.filter(u => u.id !== id));
+  }
+}
+
+// --- FILE UPLOAD / STORAGE ---
+export async function uploadFile(bucket: 'logos' | 'banners' | 'uploads', path: string, file: File): Promise<string> {
+  if (isRealSupabase && supabase) {
+    try {
+      // Standard file upload
+      const { data, error } = await supabase.storage
+        .from(bucket)
+        .upload(path, file, { 
+          upsert: true,
+          contentType: file.type
+        });
+      
+      if (error) {
+        // Code '3f000' or similar bucket not created - try to see if bucket exists, or just fallback, maybe we need to create the bucket dynamically!
+        throw error;
+      }
+
+      // Return public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from(bucket)
+        .getPublicUrl(path);
+
+      return publicUrl;
+    } catch (e) {
+      console.error(`Failed uploading file to bucket ${bucket}:`, e);
+      // Let's fallback to standard local Base64 resolution so the UI loads preview successfully!
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          resolve(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+  } else {
+    // Simulated upload - read as base64 to store in config State/localStorage
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        resolve(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+}
+
+// --- AUTH LAYER ---
+// Track password changes and first access status in LocalStorage or cookies
 export async function signIn(email: string, pass: string) {
+  // Let's get simulated password in case user changed it from Admin@123
+  const savedSimulatedPassword = localStorage.getItem('giganet_simulated_password') || 'Admin@123';
+  const hasChangedSimulated = localStorage.getItem('giganet_simulated_password_changed') === 'true';
+
   if (isRealSupabase && supabase) {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password: pass
       });
-      return { user: data.user, session: data.session, error };
-    } catch (error) {
-      return { user: null, session: null, error };
+      
+      if (error) throw error;
+
+      // Check if it's the admin@giganet.com.br and needs password change
+      const needsPasswordChange = email === 'admin@giganet.com.br' && pass === 'Admin@123';
+
+      return { 
+        user: data.user, 
+        session: data.session, 
+        needsPasswordChange,
+        error: null 
+      };
+    } catch (error: any) {
+      return { user: null, session: null, needsPasswordChange: false, error };
     }
   } else {
-    // Simulated authentication: standard email/password or admin/admin123
-    // This allows testing the control panel fully offline
-    if ((email === 'admin@giganet.com.br' && pass === 'admin123') || (email === 'demo' && pass === 'demo')) {
-      const user = { email, id: 'simulated-admin-user' };
-      const session = { access_token: 'mock-token', user };
-      localStorage.setItem('giganet_session', JSON.stringify(session));
-      return { user, session, error: null };
+    // Simulator Auth
+    const resolvedEmail = email.toLowerCase().trim();
+    if (resolvedEmail === 'admin@giganet.com.br') {
+      if (pass === savedSimulatedPassword) {
+        const user = { email: resolvedEmail, id: 'simulated-admin-user', user_metadata: { nome: 'Administrador Giganet' } };
+        const session = { access_token: 'mock-token', user };
+        localStorage.setItem('giganet_session', JSON.stringify(session));
+        
+        // Needs password change if he logged in with Admin@123 and hadn't changed it yet
+        const needsPasswordChange = pass === 'Admin@123' && !hasChangedSimulated;
+
+        return { user, session, needsPasswordChange, error: null };
+      } else {
+        return { user: null, session: null, needsPasswordChange: false, error: { message: 'Senha incorreta para a conta Administrador!' } };
+      }
     } else {
-      return { user: null, session: null, error: { message: 'Selecione o e-mail admin@giganet.com.br e senha admin123 para o login de testes ou configure as credenciais do Supabase!' } };
+      return { 
+        user: null, 
+        session: null, 
+        needsPasswordChange: false, 
+        error: { message: 'Inicie com uma conta existente. Experimente o e-mail: admin@giganet.com.br' } 
+      };
     }
+  }
+}
+
+export async function changePassword(newPassword: string) {
+  if (isRealSupabase && supabase) {
+    try {
+      const { data, error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) throw error;
+      return { error: null };
+    } catch (error: any) {
+      return { error };
+    }
+  } else {
+    localStorage.setItem('giganet_simulated_password', newPassword);
+    localStorage.setItem('giganet_simulated_password_changed', 'true');
+    return { error: null };
+  }
+}
+
+export async function resetPassword(email: string) {
+  if (isRealSupabase && supabase) {
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin
+      });
+      return { error };
+    } catch (error: any) {
+      return { error };
+    }
+  } else {
+    // Simulated OK
+    console.log(`Mock reset password email sent successfully to ${email}`);
+    return { error: null };
   }
 }
 

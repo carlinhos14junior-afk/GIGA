@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Menu, X, Landmark, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Menu, X, Phone, CheckCircle } from 'lucide-react';
 import { SiteConfig } from '../types';
 
 interface HeaderProps {
@@ -14,14 +14,14 @@ export default function Header({ config, onNavigate, currentView }: HeaderProps)
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
+      setScrolled(window.scrollY > 30);
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const whatsAppLink = `https://wa.me/${config.whatsapp}?text=${encodeURIComponent(
-    'Olá, tenho interesse nos planos da GIGANET. Pode me passar mais informações?'
+    `Olá, tenho interesse nos planos de Internet Fibra da ${config.nome_empresa}. Gostaria de mais informações!`
   )}`;
 
   const navItems = [
@@ -29,8 +29,6 @@ export default function Header({ config, onNavigate, currentView }: HeaderProps)
     { label: 'Planos', href: '#planos' },
     { label: 'Vantagens', href: '#vantagens' },
     { label: 'Cobertura', href: '#cobertura' },
-    { label: 'Sobre Nós', href: '#sobre' },
-    { label: 'FAQ', href: '#faq' },
     { label: 'Contato', href: '#contato' },
   ];
 
@@ -38,161 +36,157 @@ export default function Header({ config, onNavigate, currentView }: HeaderProps)
     setIsOpen(false);
     onNavigate('main');
     
-    // Smooth scroll delay to ensure main view is mounted first if we are in admin mode
     setTimeout(() => {
       const element = document.querySelector(href);
       if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
-    }, currentView === 'admin' ? 100 : 0);
+    }, currentView === 'admin' ? 150 : 0);
   };
 
   return (
     <header
-      id="header-giganet"
+      id="site-header"
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled || currentView === 'admin'
-          ? 'bg-[#070B19]/90 backdrop-blur-md border-b border-brand-purple/20 py-3 shadow-lg'
-          : 'bg-transparent py-5'
+          ? 'bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm py-3'
+          : 'bg-white/70 backdrop-blur-sm py-4 border-b border-slate-100'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
-          {/* Logo */}
+          
+          {/* Brand/Logo */}
           <div 
             onClick={() => { onNavigate('main'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-            className="flex items-center space-x-2 cursor-pointer group"
+            className="flex items-center space-x-3 cursor-pointer group"
           >
-            <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-brand-purple to-brand-bright-blue shadow-lg shadow-brand-purple/20 overflow-hidden">
-              <span className="font-display font-extrabold text-white text-xl tracking-tighter">G</span>
-              <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-            </div>
-            
-            <div className="flex flex-col">
-              <span className="font-display font-black text-2xl tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-100 to-brand-bright-blue">
-                {config.nome_empresa}
-              </span>
-              <span className="text-[9px] font-mono tracking-widest text-brand-neon -mt-1 font-bold">FIBRA ÓPTICA</span>
-            </div>
+            {config.logo_url ? (
+              <img 
+                src={config.logo_url} 
+                alt={config.nome_empresa} 
+                className="h-9 w-auto object-contain"
+                referrerPolicy="no-referrer"
+              />
+            ) : (
+              <div className="flex items-center space-x-2">
+                <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-[#0F172A] to-[#0284C7] shadow-sm text-white font-semibold text-xl tracking-tight">
+                  G
+                </div>
+                <div className="flex flex-col">
+                  <span className="font-display font-bold text-xl tracking-tight text-slate-900 leading-none">
+                    {config.nome_empresa}
+                  </span>
+                  <span className="text-[10px] tracking-wider text-sky-600 font-bold uppercase mt-1 leading-none">
+                    FIBRA ÓPTICA
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Desktop Navigation */}
+          {/* Navigation - Centered and elegant */}
           {currentView === 'main' ? (
-            <nav className="hidden lg:flex items-center space-x-8">
+            <nav className="hidden md:flex items-center space-x-8">
               {navItems.map((item) => (
                 <button
                   key={item.label}
                   onClick={() => handleNavClick(item.href)}
-                  className="text-sm font-medium text-slate-300 hover:text-brand-neon transition-colors relative group py-2"
+                  className="text-sm font-semibold text-slate-600 hover:text-sky-600 transition-colors uppercase tracking-wider text-xs"
                 >
                   {item.label}
-                  <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-brand-neon transition-all duration-300 group-hover:w-full"></span>
                 </button>
               ))}
             </nav>
           ) : (
-            <div className="hidden lg:flex items-center">
+            <div className="hidden md:flex items-center">
               <button 
                 onClick={() => onNavigate('main')}
-                className="text-sm font-medium text-slate-300 hover:text-brand-neon transition-colors"
+                className="text-sm font-semibold text-slate-500 hover:text-slate-800 transition-colors"
               >
                 ← Voltar para o Site Principal
               </button>
             </div>
           )}
 
-          {/* Call to Actions */}
-          <div className="hidden lg:flex items-center space-x-4">
-            <button
-              onClick={() => onNavigate('admin')}
-              className={`flex items-center space-x-1.5 px-4 py-2 text-xs font-semibold rounded-lg transition-all duration-200 ${
-                currentView === 'admin'
-                  ? 'bg-brand-purple text-white shadow-md shadow-brand-purple/30'
-                  : 'text-slate-300 hover:text-white border border-slate-700 hover:border-slate-500 hover:bg-slate-800/50'
-              }`}
-            >
-              <Landmark size={14} className="text-brand-bright-blue" />
-              <span>Área Administrativa</span>
-            </button>
-
+          {/* Action Buttons (Header CTA) */}
+          <div className="hidden md:flex items-center space-x-3">
             <a
               href={whatsAppLink}
               target="_blank"
               referrerPolicy="no-referrer"
               rel="noopener noreferrer"
-              className="relative inline-flex items-center justify-center p-0.5 overflow-hidden text-xs font-bold text-white rounded-lg group bg-gradient-to-br from-brand-purple to-brand-neon group-hover:from-brand-purple group-hover:to-brand-neon hover:text-white focus:ring-2 focus:outline-none focus:ring-brand-purple/40 shadow-lg shadow-brand-purple/30"
+              className="px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-100 rounded-lg border border-slate-350 transition-all flex items-center space-x-1.5"
             >
-              <span className="relative px-4 py-2 transition-all ease-in duration-75 bg-brand-dark rounded-md group-hover:bg-opacity-0 flex items-center space-x-1">
-                <span>Assinar Agora</span>
-                <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-              </span>
+              <Phone size={14} className="text-emerald-500" />
+              <span>WhatsApp</span>
             </a>
+
+            <button
+              onClick={() => handleNavClick('#cobertura')}
+              className="px-5 py-2 text-xs font-bold text-white bg-emerald-500 hover:bg-emerald-600 rounded-lg shadow-sm transition-all flex items-center space-x-1"
+            >
+              <CheckCircle size={14} />
+              <span>Consultar Disponibilidade</span>
+            </button>
           </div>
 
-          {/* Mobile menu button */}
-          <div className="flex items-center space-x-2 lg:hidden">
-            <button
-              onClick={() => onNavigate('admin')}
-              className={`p-2 rounded-lg ${currentView === 'admin' ? 'bg-brand-purple text-white' : 'text-slate-300 hover:text-white'}`}
-              title="Área Administrativa"
-            >
-              <Landmark size={20} />
-            </button>
+          {/* Mobile menu trigger */}
+          <div className="flex items-center space-x-2 md:hidden">
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="p-2 rounded-lg text-slate-300 hover:text-white focus:outline-none"
+              className="p-2 rounded-lg text-slate-700 hover:bg-slate-100 transition-colors"
             >
               {isOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
           </div>
+
         </div>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile Responsive Menu */}
       {isOpen && (
-        <div className="lg:hidden animate-fade-in bg-[#090F24] border-b border-brand-purple/20 px-4 pt-4 pb-6 space-y-4">
-          {currentView === 'main' && (
-            <div className="flex flex-col space-y-2">
+        <div className="md:hidden bg-white border-b border-slate-200 px-4 pt-3 pb-6 space-y-4 shadow-lg animate-fade-in">
+          {currentView === 'main' ? (
+            <div className="flex flex-col space-y-1">
               {navItems.map((item) => (
                 <button
                   key={item.label}
                   onClick={() => handleNavClick(item.href)}
-                  className="text-left py-3 px-4 rounded-lg text-base font-semibold text-slate-300 hover:text-brand-neon hover:bg-slate-800/40 transition-all"
+                  className="text-left py-3 px-3 rounded-lg text-sm font-bold text-slate-700 hover:bg-slate-50 hover:text-sky-600 transition-all"
                 >
                   {item.label}
                 </button>
               ))}
             </div>
-          )}
-          
-          {currentView === 'admin' && (
+          ) : (
             <button
               onClick={() => { setIsOpen(false); onNavigate('main'); }}
-              className="w-full text-left py-3 px-4 rounded-lg text-base font-semibold text-slate-300 hover:text-brand-neon hover:bg-slate-800/40 transition-all"
+              className="w-full text-left py-3 px-3 rounded-lg text-sm font-bold text-slate-500 hover:bg-slate-50 transition-all"
             >
               ← Voltar para o Site Principal
             </button>
           )}
 
-          <div className="pt-4 border-t border-slate-800 flex flex-col sm:flex-row gap-3">
-            <button
-              onClick={() => { setIsOpen(false); onNavigate('admin'); }}
-              className="flex items-center justify-center space-x-2 px-4 py-3 rounded-lg text-sm font-bold text-slate-300 border border-slate-700 bg-slate-800/30 hover:bg-slate-800/60"
-            >
-              <Landmark size={16} className="text-brand-bright-blue" />
-              <span>Acessar Área Administrativa</span>
-            </button>
-
+          <div className="pt-3 border-t border-slate-100 flex flex-col gap-2">
             <a
               href={whatsAppLink}
               target="_blank"
               referrerPolicy="no-referrer"
               rel="noopener noreferrer"
-              className="flex items-center justify-center space-x-2 px-4 py-3 rounded-lg text-sm font-bold bg-gradient-to-r from-brand-purple to-brand-bright-blue text-white shadow-lg shadow-brand-purple/30"
+              className="flex items-center justify-center space-x-2 px-4 py-3 rounded-lg text-sm font-bold text-slate-700 border border-slate-200 hover:bg-slate-50"
             >
-              <span>Assinar Agora no WhatsApp</span>
-              <ArrowRight size={16} />
+              <Phone size={16} className="text-emerald-500" />
+              <span>WhatsApp</span>
             </a>
+
+            <button
+              onClick={() => handleNavClick('#cobertura')}
+              className="flex items-center justify-center space-x-2 px-4 py-3 rounded-lg text-sm font-bold bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm"
+            >
+              <CheckCircle size={16} />
+              <span>Consultar Disponibilidade</span>
+            </button>
           </div>
         </div>
       )}

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Mail, Phone, Landmark, Lock, HelpCircle, FileText, ArrowUp } from 'lucide-react';
+import { Mail, Phone, Landmark, Lock, FileText, ArrowUp, MapPin } from 'lucide-react';
 import { SiteConfig } from '../types';
 
 interface FooterProps {
@@ -17,23 +17,27 @@ export default function Footer({ config, onNavigate }: FooterProps) {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer id="footer-giganet" className="relative bg-[#070B19] border-t border-slate-850/80 pt-16 pb-8 text-slate-300">
+    <footer id="footer-giganet" className="relative bg-slate-50 border-t border-slate-200 pt-16 pb-12 text-slate-650">
       
       {/* Footer Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+        
+        {/* Core Links Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12 border-b border-slate-200 pb-12">
           
           {/* Logo / Brand block */}
           <div className="flex flex-col space-y-4">
             <div className="flex items-center space-x-2">
-              <div className="relative flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-brand-purple to-brand-bright-blue font-display font-black text-white text-base">
+              <div className="relative flex items-center justify-center w-8 h-8 rounded-lg bg-slate-900 font-display font-black text-white text-base">
                 G
               </div>
-              <span className="font-display font-black text-xl text-white tracking-widest">{config.nome_empresa}</span>
+              <span className="font-display font-black text-xl text-slate-900 tracking-wider uppercase">{config.nome_empresa}</span>
             </div>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              Alta performance, suporte humanizado de verdade e 100% fibra óptica pura para conectar seu lar ou empresa com o futuro.
+            
+            <p className="text-xs text-slate-500 leading-relaxed">
+              Alta performance, suporte humanizado de verdade e fibra óptica pura de ponta a ponta para conectar você ao que mais importa.
             </p>
+
             {/* Social channels */}
             <div className="flex space-x-3 pt-2">
               {config.instagram && (
@@ -41,7 +45,7 @@ export default function Footer({ config, onNavigate }: FooterProps) {
                   href={`https://instagram.com/${config.instagram}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-2 bg-slate-900 hover:bg-brand-purple/20 border border-slate-800 hover:border-brand-purple/50 text-slate-450 hover:text-white rounded-lg transition-all text-xs font-mono font-bold"
+                  className="px-3 py-1.5 bg-white hover:bg-slate-100 border border-slate-200 text-slate-600 rounded-lg transition-colors text-xs font-semibold"
                 >
                   Instagram
                 </a>
@@ -51,7 +55,7 @@ export default function Footer({ config, onNavigate }: FooterProps) {
                   href={`https://facebook.com/${config.facebook}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-2 bg-slate-900 hover:bg-brand-purple/20 border border-slate-800 hover:border-brand-purple/50 text-slate-450 hover:text-white rounded-lg transition-all text-xs font-mono font-bold"
+                  className="px-3 py-1.5 bg-white hover:bg-slate-100 border border-slate-200 text-slate-600 rounded-lg transition-colors text-xs font-semibold"
                 >
                   Facebook
                 </a>
@@ -61,163 +65,170 @@ export default function Footer({ config, onNavigate }: FooterProps) {
 
           {/* Links Rápidos */}
           <div>
-            <h4 className="font-display font-bold text-sm text-white uppercase tracking-wider mb-4">Navegação</h4>
-            <ul className="space-y-2.5 text-xs">
+            <h4 className="font-display font-bold text-xs text-slate-900 uppercase tracking-wider mb-4">Navegação</h4>
+            <ul className="space-y-2 text-xs">
               <li>
-                <a href="#inicio" className="text-slate-400 hover:text-brand-neon transition-colors">Início</a>
+                <a href="#inicio" className="text-slate-500 hover:text-slate-900 transition-colors">Início</a>
               </li>
               <li>
-                <a href="#planos" className="text-slate-400 hover:text-brand-neon transition-colors">Planos Fibra</a>
+                <a href="#planos" className="text-slate-500 hover:text-slate-900 transition-colors">Planos Fibra</a>
               </li>
               <li>
-                <a href="#vantagens" className="text-slate-400 hover:text-brand-neon transition-colors">Nossos Diferenciais</a>
+                <a href="#vantagens" className="text-slate-500 hover:text-slate-900 transition-colors">Diferenciais</a>
               </li>
               <li>
-                <a href="#cobertura" className="text-slate-400 hover:text-brand-neon transition-colors">Consultar Cobertura</a>
+                <a href="#cobertura" className="text-slate-500 hover:text-slate-900 transition-colors">Consultar Cobertura</a>
               </li>
               <li>
-                <a href="#faq" className="text-slate-400 hover:text-brand-neon transition-colors">Dúvidas FAQ</a>
+                <a href="#faq" className="text-slate-500 hover:text-slate-900 transition-colors">Perguntas FAQ</a>
               </li>
             </ul>
           </div>
 
           {/* Contato Central */}
           <div>
-            <h4 className="font-display font-bold text-sm text-white uppercase tracking-wider mb-4">Central de Atendimento</h4>
-            <ul className="space-y-3 text-xs text-slate-400">
+            <h4 className="font-display font-bold text-xs text-slate-900 uppercase tracking-wider mb-4">Fale Conosco</h4>
+            <ul className="space-y-2.5 text-xs text-slate-500">
               <li className="flex items-center space-x-2">
-                <Phone size={14} className="text-brand-bright-blue shrink-0" />
+                <Phone size={13} className="text-slate-400 shrink-0" />
                 <span>{config.telefone}</span>
               </li>
               <li className="flex items-center space-x-2">
-                <Mail size={14} className="text-brand-bright-blue shrink-0" />
+                <Mail size={13} className="text-slate-400 shrink-0" />
                 <span className="break-all">{config.email}</span>
               </li>
               <li className="flex items-start space-x-2">
-                <landmark size={14} className="text-brand-bright-blue shrink-0 mt-0.5" />
+                <MapPin size={13} className="text-slate-400 shrink-0 mt-0.5" />
                 <span className="leading-relaxed">{config.endereco}</span>
               </li>
             </ul>
           </div>
 
-          {/* Legal / Admin portal widget */}
-          <div className="flex flex-col space-y-4">
-            <h4 className="font-display font-bold text-sm text-white uppercase tracking-wider">Portal do Cliente</h4>
-            <p className="text-xs text-slate-400">
-              Quer alterar as informações de contato, editar preços de planos ou ver leads? Acesse nossa área dedicada.
+          {/* Corporate hours summary */}
+          <div>
+            <h4 className="font-display font-bold text-xs text-slate-900 uppercase tracking-wider mb-4">Giganet Provedor</h4>
+            <p className="text-xs text-slate-500 leading-relaxed mb-2">
+              Sinal estável sem franquias de download para casas, negócios e redes corporativas sob medida.
             </p>
-            <button
-              onClick={() => { onNavigate('admin'); window.scrollTo({ top: 30, behavior: 'smooth' }); }}
-              className="flex items-center justify-center space-x-2 px-4 py-2.5 rounded-lg text-xs font-bold bg-slate-900 border border-slate-800 hover:border-brand-purple/40 text-slate-300 hover:text-white transition-all w-full"
-            >
-              <Landmark size={14} className="text-brand-bright-blue" />
-              <span>Painel Administrativo Login</span>
-            </button>
+            <p className="text-[11px] text-slate-400 font-mono">
+              Suporte das 08h às 20h pelo WhatsApp Comercial.
+            </p>
           </div>
 
         </div>
 
-        {/* Bottom bar (CNPJ and links) */}
-        <div className="pt-8 border-t border-slate-850/70 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
+        {/* Bottom bar (CNPJ and discreet links) */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
           
-          <div className="text-center sm:text-left text-slate-500">
+          <div className="text-center sm:text-left text-slate-400">
             <p>© {currentYear} {config.nome_empresa}. Todos os direitos reservados.</p>
-            <p className="mt-1 font-mono">CNPJ: 12.345.678/0001-99 (Editável no Painel de Admin)</p>
+            <p className="mt-1 font-mono text-[10px]/none text-slate-400">CNPJ: 12.345.678/0001-99</p>
           </div>
 
           {/* Links e Modais triggers */}
           <div className="flex items-center space-x-6">
             <button
               onClick={() => setActiveModal('privacy')}
-              className="text-slate-500 hover:text-brand-bright-blue font-medium cursor-pointer transition-colors"
+              className="text-slate-450 hover:text-slate-900 font-medium cursor-pointer transition-colors text-[11px] text-slate-400"
             >
               Política de Privacidade
             </button>
+            
             <button
               onClick={() => setActiveModal('terms')}
-              className="text-slate-500 hover:text-brand-bright-blue font-medium cursor-pointer transition-colors"
+              className="text-slate-450 hover:text-slate-900 font-medium cursor-pointer transition-colors text-[11px] text-slate-400"
             >
               Termos de Uso
             </button>
+
             <button
               onClick={handleScrollToTop}
               title="Voltar ao Topo"
-              className="p-2 bg-slate-900 border border-slate-800 rounded-lg text-brand-bright-blue hover:text-brand-neon hover:border-brand-neon transition-colors"
+              className="p-2 bg-white border border-slate-200 rounded-lg text-slate-500 hover:text-slate-950 hover:border-slate-350 transition-colors"
             >
-              <ArrowUp size={14} />
+              <ArrowUp size={12} />
+            </button>
+
+            {/* VERY DISCREET ADMIN LINK (requested: Colocar o link “Admin” bem discreto no rodapé, no canto inferior direito. Texto pequeno, quase imperceptível. Cor cinza claro. Sem botão chamativo. Também permitir acesso direto pela URL: /admin) */}
+            <button
+              onClick={() => { onNavigate('admin'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+              className="text-slate-200/50 hover:text-slate-300 font-mono text-[9px]/tight cursor-pointer uppercase transition-all tracking-widest pl-2"
+              title="Portal de Administração"
+            >
+              Admin
             </button>
           </div>
 
         </div>
       </div>
 
-      {/* --- POLITICA PRIVACIDADE MODAL --- */}
+      {/* --- PRIVACY POLICY MODAL --- */}
       {activeModal === 'privacy' && (
-        <div className="fixed inset-0 z-55 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm animate-fade-in">
-          <div className="bg-[#0d142c] border border-slate-850 max-w-2xl w-full max-h-[80vh] overflow-y-auto rounded-3xl p-6 sm:p-8 relative shadow-2xl no-scrollbar">
-            <div className="flex justify-between items-start pb-4 border-b border-slate-800 mb-6">
-              <div className="flex items-center space-x-2 text-brand-bright-blue">
-                <Lock size={18} />
-                <h3 className="font-display font-bold text-lg text-white">Política de Privacidade</h3>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/45 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white border border-slate-200 max-w-2xl w-full max-h-[85vh] overflow-y-auto rounded-3xl p-8 relative shadow-2xl">
+            <div className="flex justify-between items-start pb-4 border-b border-slate-100 mb-6">
+              <div className="flex items-center space-x-2 text-slate-800">
+                <Lock size={18} className="text-emerald-500" />
+                <h3 className="font-display font-bold text-lg text-slate-900">Política de Privacidade</h3>
               </div>
               <button 
                 onClick={() => setActiveModal(null)}
-                className="text-slate-400 hover:text-white font-black text-lg p-1 px-2.5 rounded bg-slate-800"
+                className="text-slate-400 hover:text-slate-900 font-bold text-sm p-1.5 px-3 rounded-lg bg-slate-100 hover:bg-slate-200 transition-colors"
               >
                 ✕
               </button>
             </div>
             
-            <div className="space-y-4 text-xs sm:text-sm text-slate-300 leading-relaxed">
-              <p className="font-bold text-brand-neon">Última atualização: Junho de 2026</p>
+            <div className="space-y-4 text-xs sm:text-sm text-slate-600 leading-relaxed">
+              <p className="font-bold text-slate-900">Última atualização: Junho de 2026</p>
               <p>
-                A <strong>{config.nome_empresa}</strong> dá extrema importância à privacidade de suas informações de contato e endereço. Coletamos apenas os dados declaradamente enviados pelo formulário de cobertura: seu nome completo, celular de contato (WhatsApp), CEP e os dados físicos de residência (rua, bairro e número).
+                A <strong>{config.nome_empresa}</strong> preza severamente pelo sigilo de suas informações de contato e endereço. Coletamos apenas as credenciais declaradamente enviadas pelos nossos formulários digitais de contato e consulta de cobertura.
               </p>
-              <h4 className="font-bold text-white mt-4 border-l-2 border-brand-purple pl-2">Utilização dos Dados</h4>
+              <h4 className="font-bold text-slate-900 mt-4 border-l-2 border-emerald-500 pl-2">Utilização de Dados Cadastrais</h4>
               <p>
-                Seus dados cadastrais serão usados unicamente pela nossa central de atendimento para verificar a viabilidade técnica e mapeamento correspondente de roteadores de fibra ao seu logradouro cadastrado, e para subsequente contato comercial autorizado via WhatsApp.
+                Seus dados cadastrais serão usados unica e exclusivamente pela nossa equipe interna qualificada visando realizar simulações eletivas de sinal fibra ao seu logradouro pretendido, seguido do contato comercial personalizado feito pelo WhatsApp.
               </p>
-              <h4 className="font-bold text-white mt-4 border-l-2 border-brand-purple pl-2">Armazenamento e Proteção</h4>
+              <h4 className="font-bold text-slate-900 mt-4 border-l-2 border-emerald-500 pl-2">LGPD e Proteção ao Consumidor</h4>
               <p>
-                Seguimos procedimentos rígidos e em conformidade estrita com a LGPD (Lei Geral de Proteção de Dados) para salvaguardar e assegurar as informações coletadas, prevenindo o acesso não autorizado de terceiros ou o uso incorreto de dados.
+                Seguimos fielmente os regulamentos e medidas estabelecidos pela Lei Geral de Proteção de Dados (LGPD) para assegurar que nenhum registro seja compartilhado, cedido ou leiloado comercialmente a terceiros operadores.
               </p>
               <p>
-                Caso deseje solicitar a total remoção ou descarte permanente de seu registro em nossas bases de dados, basta requerer isso ao nosso especialista a qualquer tempo por link eletrônico ou pelo WhatsApp comercial fornecido.
+                Caso requeira a exclusão perpétua de seus dados do nosso repositório de leads, basta nos notificar por escrito.
               </p>
             </div>
           </div>
         </div>
       )}
 
-      {/* --- TERMOS DE USO MODAL --- */}
+      {/* --- TERMS OF USE MODAL --- */}
       {activeModal === 'terms' && (
-        <div className="fixed inset-0 z-55 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm animate-fade-in">
-          <div className="bg-[#0d142c] border border-slate-850 max-w-2xl w-full max-h-[80vh] overflow-y-auto rounded-3xl p-6 sm:p-8 relative shadow-2xl no-scrollbar">
-            <div className="flex justify-between items-start pb-4 border-b border-slate-800 mb-6">
-              <div className="flex items-center space-x-2 text-brand-bright-blue">
-                <FileText size={18} />
-                <h3 className="font-display font-bold text-lg text-white">Termos de Uso do Serviço</h3>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/45 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white border border-slate-200 max-w-2xl w-full max-h-[85vh] overflow-y-auto rounded-3xl p-8 relative shadow-2xl">
+            <div className="flex justify-between items-start pb-4 border-b border-slate-100 mb-6">
+              <div className="flex items-center space-x-2 text-slate-800">
+                <FileText size={18} className="text-emerald-500" />
+                <h3 className="font-display font-bold text-lg text-slate-900">Termos de Uso</h3>
               </div>
               <button 
                 onClick={() => setActiveModal(null)}
-                className="text-slate-400 hover:text-white font-black text-lg p-1 px-2.5 rounded bg-slate-800"
+                className="text-slate-400 hover:text-slate-900 font-bold text-sm p-1.5 px-3 rounded-lg bg-slate-100 hover:bg-slate-200 transition-colors"
               >
                 ✕
               </button>
             </div>
             
-            <div className="space-y-4 text-xs sm:text-sm text-slate-300 leading-relaxed">
-              <p className="font-bold text-brand-neon">Última atualização: Junho de 2026</p>
+            <div className="space-y-4 text-xs sm:text-sm text-slate-600 leading-relaxed">
+              <p className="font-bold text-slate-900">Última atualização: Junho de 2026</p>
               <p>
-                Bem-vindo ao site institucional da <strong>{config.nome_empresa}</strong>. Ao acessar estas páginas e utilizar nossa consulta de cobertura ou solicitar atendimento, você declara plena anuência com as diretrizes listadas nestes termos.
+                Ao acessar este portal e simular disponibilidade técnica de internet para seu endereço, você concorda com as disposições a seguir regidas pela legislação nacional de telecomunicações.
               </p>
-              <h4 className="font-bold text-white mt-4 border-l-2 border-brand-purple pl-2">Consulta de Viabilidade</h4>
+              <h4 className="font-bold text-slate-900 mt-4 border-l-2 border-emerald-500 pl-2">Disponibilidade e Fibra Física</h4>
               <p>
-                A consulta e simulação de disponibilidade de rede óptica feitas por este portal configuram apenas uma pré-analise técnica primária informativa. A efetivação e instalação do link final de internet estão expressamente vinculadas à vistoria física real de nossos instaladores em campo, confirmando a viabilidade de cabos de fibra nos postes próximos.
+                Os resultados exibidos em nossa consulta de bairros representam apenas estimativas com base na malha pública em vigor. A instalação definitiva e concessão comercial dependem da aprovação de infraestrutura local física feita presencialmente por técnicos instaladores.
               </p>
-              <h4 className="font-bold text-white mt-4 border-l-2 border-brand-purple pl-2">Direitos Autorais</h4>
+              <h4 className="font-bold text-slate-900 mt-4 border-l-2 border-emerald-500 pl-2">Propriedade Intelectual</h4>
               <p>
-                Todos os textos explicativos, nomes de marca, logomarcas, ícones personalizados e recursos de design codificados são propriedades reservadas da {config.nome_empresa}. Cópias não autorizadas de conteúdo para fins concorrenciais violam direitos amparados por leis civis federais.
+                Todos os textos informativos, nomenclaturas de planos, logotipos, designs, códigos e estruturas contidas neste site pertencem legalmente à {config.nome_empresa}.
               </p>
             </div>
           </div>

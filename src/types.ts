@@ -8,6 +8,7 @@ export interface SiteConfig {
   endereco: string;
   instagram: string;
   facebook: string;
+  created_at?: string;
 }
 
 export interface Plano {
@@ -15,21 +16,31 @@ export interface Plano {
   nome: string;
   velocidade: string;
   preco: number;
-  beneficios: string[]; // will be stored as JSON/array in Supabase or text split
+  beneficios: string[];
   destaque: boolean;
   ativo: boolean;
-}
-
-export interface LeadCobertura {
-  id: string | number;
-  nome: string;
-  whatsapp: string;
-  cep: string;
-  rua: string;
-  numero: string;
-  bairro: string;
-  status: 'novo' | 'em atendimento' | 'finalizado';
   created_at?: string;
 }
 
-export type LeadStatus = 'novo' | 'em atendimento' | 'finalizado';
+export interface Lead {
+  id: string | number;
+  nome: string;
+  whatsapp: string;
+  email: string;
+  cep: string;
+  endereco: string;
+  plano_interesse?: string;
+  observacoes?: string;
+  status: 'novo' | 'em atendimento' | 'convertido' | 'cancelado';
+  created_at?: string;
+}
+
+export interface Usuario {
+  id: string;
+  nome: string;
+  email: string;
+  perfil: 'admin' | 'colaborador';
+  created_at?: string;
+}
+
+export type LeadStatus = 'novo' | 'em atendimento' | 'convertido' | 'cancelado';

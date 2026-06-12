@@ -7,34 +7,31 @@ interface SobreNosProps {
 
 export default function SobreNos({ config }: SobreNosProps) {
   return (
-    <section id="sobre" className="relative py-24 bg-[#070B19] overflow-hidden">
-      {/* Decorative vector */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-brand-purple/5 rounded-full filter blur-3xl pointer-events-none" />
-
+    <section id="sobre" className="relative py-28 bg-white overflow-hidden border-b border-slate-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
-        {/* Dual column bento */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+        {/* Dual column */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
           
           {/* Left Column: Visual presentation card */}
           <div className="lg:col-span-5 relative">
-            <div className="relative rounded-3xl overflow-hidden border border-slate-850 p-1 bg-gradient-to-tr from-brand-purple/30 to-brand-bright-blue/20">
+            <div className="relative rounded-3xl overflow-hidden border border-slate-200 p-1 bg-slate-100">
               <img
                 src="https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&q=80&w=800"
                 alt="Equipe Técnica Giganet Conectando Clientes"
                 referrerPolicy="no-referrer"
-                className="rounded-[22px] w-full object-cover aspect-[4/3] brightness-90 shadow-2xl"
+                className="rounded-[22px] w-full object-cover aspect-[4/3] brightness-95 shadow-md animate-fade-in"
               />
               
-              {/* Overlay telemetry badge */}
-              <div className="absolute -bottom-6 -right-4 bg-[#101835] border border-slate-700/80 rounded-2xl p-4 shadow-xl max-w-[240px]">
-                <div className="flex items-center space-x-2">
-                  <div className="p-2 rounded-xl bg-brand-purple text-brand-neon">
+              {/* Floating overlay badge */}
+              <div className="absolute -bottom-6 -right-4 bg-white border border-slate-200 rounded-2xl p-4 shadow-lg max-w-[240px]">
+                <div className="flex items-center space-x-3">
+                  <div className="p-2.5 rounded-xl bg-sky-50 text-sky-600">
                     <Server size={18} />
                   </div>
                   <div>
-                    <span className="text-[10px] font-mono tracking-wider text-slate-400 block font-bold">INFRAESTRUTURA</span>
-                    <span className="text-sm font-bold text-white">Backbone Redundante</span>
+                    <span className="text-[10px] font-bold tracking-wider text-slate-400 block uppercase leading-none mb-1">INFRAESTRUTURA</span>
+                    <span className="text-sm font-bold text-slate-800 leading-tight block">Rede Própria & Fibra</span>
                   </div>
                 </div>
               </div>
@@ -43,43 +40,42 @@ export default function SobreNos({ config }: SobreNosProps) {
 
           {/* Right Column: Mission with key metrics */}
           <div className="lg:col-span-7 flex flex-col space-y-6">
-            <div className="inline-flex items-center space-x-1.5 bg-brand-purple/10 border border-brand-purple/30 px-3 py-1 rounded-full text-brand-bright-blue font-mono text-xs font-semibold uppercase self-start">
-              <Heart size={12} className="text-rose-400 fill-rose-400/20" />
+            <div className="inline-flex items-center space-x-1.5 bg-sky-50 border border-sky-100 px-3 py-1.5 rounded-full text-sky-700 font-bold text-xs uppercase self-start tracking-wider">
+              <Heart size={12} className="text-rose-500 fill-current" />
               <span>Nossa História</span>
             </div>
 
-            <h2 className="font-display font-extrabold text-3xl sm:text-4xl text-white tracking-tight">
-              Conectando o que realmente importa para você
+            <h2 className="font-display font-extrabold text-3xl sm:text-4xl text-slate-900 tracking-tight leading-tight">
+              Conectando pessoas ao que realmente importa
             </h2>
 
-            {/* MANDATORY TEXT */}
-            <p className="text-slate-300 text-base sm:text-lg leading-relaxed font-normal">
-              A {config.nome_empresa} nasceu para entregar internet de qualidade, estabilidade e atendimento próximo. Nosso compromisso é conectar famílias e empresas com tecnologia de ponta e suporte eficiente.
+            <p className="text-slate-600 text-lg leading-relaxed font-normal">
+              A {config.nome_empresa} nasceu para entregar internet de qualidade real, estabilidade extrema e atendimento próximo. Nosso compromisso inabalável é conectar famílias e empresas com tecnologia de ponta e suporte eficiente.
             </p>
 
-            <p className="text-slate-400 text-sm leading-relaxed">
-              Trabalhamos incansavelmente para que nossos clientes tenham uma experiência livre de travamentos ou de atendimentos frios. Acreditamos que a conectividade premium deve vir acompanhada de relações de respeito e suporte ágil. Por isso, construímos uma rede robusta e preparamos equipes humanizadas prontas para servir você.
+            <p className="text-slate-500 text-sm leading-relaxed">
+              Trabalhamos incansavelmente para que nossos clientes tenham uma experiência de navegação livre de travamentos ou de atendimentos frios. Acreditamos que a conectividade premium deve vir acompanhada por relações de respeito e suporte comercial ágil. Por isso, investimos em servidores robustos e preparamos equipes humanizadas prontas para servir você.
             </p>
 
             {/* Core Pillars */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
-              <div className="p-4 rounded-2xl bg-slate-900 border border-slate-850 flex items-start space-x-3">
-                <div className="p-2.5 rounded-xl bg-purple-500/10 text-purple-400 shrink-0">
-                  <Target size={16} />
+              <div className="p-5 rounded-2xl bg-[#F8FAFC] border border-slate-205 flex items-start space-x-3.5">
+                <div className="p-2 rounded-xl bg-sky-50 text-sky-600 shrink-0">
+                  <Target size={18} />
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-white">Nosso Propósito</h4>
-                  <p className="text-xs text-slate-400 mt-1">Garantir estabilidade que permite o seu crescimento digital.</p>
+                  <h4 className="text-sm font-bold text-slate-900">Nosso Propósito</h4>
+                  <p className="text-xs text-slate-500 mt-1">Garantir estabilidade real que potencialize o crescimento pessoal e digital de cada usuário.</p>
                 </div>
               </div>
 
-              <div className="p-4 rounded-2xl bg-slate-900 border border-slate-850 flex items-start space-x-3">
-                <div className="p-2.5 rounded-xl bg-cyan-500/10 text-cyan-400 shrink-0">
-                  <Sparkles size={16} />
+              <div className="p-5 rounded-2xl bg-[#F8FAFC] border border-slate-205 flex items-start space-x-3.5">
+                <div className="p-2 rounded-xl bg-emerald-50 text-emerald-600 shrink-0">
+                  <Sparkles size={18} />
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-white">Nosso Valor Principal</h4>
-                  <p className="text-xs text-slate-400 mt-1">Conexão verdadeira de fibra de ponta a ponta e respeito absoluto.</p>
+                  <h4 className="text-sm font-bold text-slate-900">Nosso Principal Valor</h4>
+                  <p className="text-xs text-slate-500 mt-1">Conexão 100% fibra de ponta a ponta construída sobre ética, clareza e respeito absoluto aos prazos.</p>
                 </div>
               </div>
             </div>

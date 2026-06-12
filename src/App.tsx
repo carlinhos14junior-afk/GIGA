@@ -40,14 +40,14 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#070b19] flex items-center justify-center p-4">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
         <div className="flex flex-col items-center">
-          {/* Futuristic animated GIGANET spinner */}
-          <div className="relative flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-purple to-brand-bright-blue shadow-lg shadow-brand-purple/20 overflow-hidden animate-pulse">
+          {/* Elegant modern GIGANET loader */}
+          <div className="relative flex items-center justify-center w-16 h-16 rounded-2xl bg-slate-900 shadow-md overflow-hidden animate-pulse">
             <span className="font-display font-black text-white text-3xl">G</span>
           </div>
-          <p className="text-sm font-mono text-brand-bright-blue font-bold tracking-widest mt-6 uppercase animate-pulse">
-            GIGANET FIBRA • CARREGANDO...
+          <p className="text-xs font-bold text-slate-800 tracking-widest mt-6 uppercase animate-pulse">
+            Giganet Fibra • Carregando...
           </p>
         </div>
       </div>
