@@ -4,7 +4,7 @@ import {
   Activity, Calendar, Users, CheckSquare, Settings, Wifi, 
   Database, LogOut, ChevronLeft, ChevronRight, Grid, 
   LockKeyhole, Key, BadgeInfo, Image as ImageIcon, Globe, 
-  Share2, CheckCircle, X, Lock, Check, Copy, Eye
+  Share2, CheckCircle, X, Lock, Check, Copy, Eye, Sun, Moon
 } from 'lucide-react';
 import { 
   getSiteConfig, saveSiteConfig, getBanners, saveBanner, deleteBanner, 
@@ -29,6 +29,15 @@ interface AdminPanelProps {
 type TabType = 'dashboard' | 'banners' | 'empresa' | 'planos' | 'cobertura' | 'redes_sociais' | 'seo' | 'usuarios' | 'configuracoes';
 
 export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPanelProps) {
+  // Theme Toggle state (with persistence in localStorage)
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    return (localStorage.getItem('giga_admin_theme') as 'light' | 'dark') || 'light';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('giga_admin_theme', theme);
+  }, [theme]);
+
   // Navigation & Sizing
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -619,10 +628,108 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
     showAlert('URL copiada para a área de transferência!');
   };
 
+  const darkThemeStyles = theme === 'dark' ? (
+    <style dangerouslySetInnerHTML={{ __html: `
+      .dark-theme-admin {
+        background-color: #0b1329 !important;
+        color: #e2e8f0 !important;
+      }
+      .dark-theme-admin aside {
+        background-color: #0f1a36 !important;
+        border-color: #1e2e56 !important;
+      }
+      .dark-theme-admin aside .border-slate-100 {
+        border-color: #1e2e56 !important;
+      }
+      .dark-theme-admin input,
+      .dark-theme-admin select,
+      .dark-theme-admin textarea {
+        background-color: #142247 !important;
+        border-color: #243b70 !important;
+        color: #ffffff !important;
+      }
+      .dark-theme-admin input:focus,
+      .dark-theme-admin select:focus,
+      .dark-theme-admin textarea:focus {
+        border-color: #005BFF !important;
+        box-shadow: 0 0 0 2px rgba(0, 91, 255, 0.2) !important;
+        outline-color: #005BFF !important;
+      }
+      .dark-theme-admin .bg-white {
+        background-color: #111e3b !important;
+        border-color: #203561 !important;
+        color: #e2e8f0 !important;
+      }
+      .dark-theme-admin .border-slate-200,
+      .dark-theme-admin .border-slate-205,
+      .dark-theme-admin .border-slate-100 {
+        border-color: #203561 !important;
+      }
+      .dark-theme-admin label,
+      .dark-theme-admin .text-slate-400,
+      .dark-theme-admin .text-slate-500 {
+        color: #8fa0c4 !important;
+      }
+      .dark-theme-admin .text-slate-900,
+      .dark-theme-admin .text-slate-800,
+      .dark-theme-admin .text-slate-705,
+      .dark-theme-admin .text-slate-700 {
+        color: #ffffff !important;
+      }
+      .dark-theme-admin table {
+        color: #e2e8f0 !important;
+      }
+      .dark-theme-admin thead,
+      .dark-theme-admin .bg-slate-55,
+      .dark-theme-admin .bg-slate-50 {
+        background-color: #152449 !important;
+      }
+      .dark-theme-admin tr:hover {
+        background-color: #192b57 !important;
+      }
+      .dark-theme-admin .bg-emerald-50 {
+        background-color: #0d2a23 !important;
+        color: #4ade80 !important;
+        border-color: #115e45 !important;
+      }
+      .dark-theme-admin .text-emerald-605 {
+        color: #4ade80 !important;
+      }
+      .dark-theme-admin .bg-amber-50 {
+        background-color: #2d2613 !important;
+        color: #fbbf24 !important;
+        border-color: #78350f !important;
+      }
+      .dark-theme-admin .bg-blue-50 {
+        background-color: #0f2452 !important;
+        color: #38bdf8 !important;
+        border-color: #0369a1 !important;
+      }
+      .dark-theme-admin .bg-slate-100 {
+        background-color: #1a2c54 !important;
+        color: #94a3b8 !important;
+      }
+      .dark-theme-admin aside button.text-slate-600 {
+        color: #94a3b8 !important;
+      }
+      .dark-theme-admin aside button.text-slate-600:hover {
+        background-color: #192b57 !important;
+        color: #ffffff !important;
+      }
+      .dark-theme-admin .shadow-sm,
+      .dark-theme-admin .shadow-md,
+      .dark-theme-admin .shadow-lg,
+      .dark-theme-admin .shadow-xl {
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.4) !important;
+      }
+    ` }} />
+  ) : null;
+
   // Render Loader screen during authentication verification
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-white flex flex-col items-center justify-center p-8">
+      <div className={`min-h-screen bg-white flex flex-col items-center justify-center p-8 ${theme === 'dark' ? 'dark-theme-admin' : ''}`}>
+        {darkThemeStyles}
         <div className="w-10 h-10 border-4 border-slate-200 border-t-[#005BFF] rounded-full animate-spin"></div>
         <span className="text-[10px] font-bold text-slate-400 tracking-widest uppercase mt-4">Iniciando Portal de Controle...</span>
       </div>
@@ -632,7 +739,8 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
   // --- RENDERING 1: ALTERAÇÃO DE SENHA OBRIGATÓRIA ON FIRST ACCESS ---
   if (user && mustChangePassword) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 py-28">
+      <div className={`min-h-screen bg-slate-50 flex items-center justify-center p-4 py-28 ${theme === 'dark' ? 'dark-theme-admin' : ''}`}>
+        {darkThemeStyles}
         <div className="max-w-md w-full bg-white border border-slate-200 p-8 rounded-3xl shadow-xl">
           <div className="text-center mb-6">
             <div className="inline-flex p-3 rounded-2xl bg-amber-50 border border-amber-200 text-amber-600 mb-3">
@@ -699,7 +807,19 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
   // --- RENDERING 2: LOGIN CENTRAL ---
   if (!user) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 py-28 relative">
+      <div className={`min-h-screen bg-slate-50 flex items-center justify-center p-4 py-28 relative ${theme === 'dark' ? 'dark-theme-admin' : ''}`}>
+        {darkThemeStyles}
+        {/* Floating Toggle Theme button on login visual */}
+        <div className="absolute top-6 right-6 z-50">
+          <button
+            type="button"
+            onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+            className="flex items-center justify-center p-3 rounded-2xl bg-white border border-slate-200 text-slate-600 hover:text-slate-800 shadow-sm transition-all cursor-pointer"
+            title={theme === 'light' ? 'Ativar Modo Escuro' : 'Ativar Modo Claro'}
+          >
+            {theme === 'light' ? <Moon size={16} className="text-blue-600" /> : <Sun size={16} className="text-amber-500" />}
+          </button>
+        </div>
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:3.5rem_3.5rem] opacity-20 pointer-events-none" />
         
         <div className="relative max-w-sm w-full bg-white border border-slate-200 p-8 sm:p-10 rounded-3xl shadow-xl">
@@ -827,7 +947,8 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
 
   // --- RENDERING 3: FULL ADMINISTRATIVE LOGGED IN WORKSPACE ---
   return (
-    <div className="min-h-screen bg-slate-50 pt-28 pb-20 flex relative">
+    <div className={`min-h-screen bg-slate-50 pt-28 pb-20 flex relative ${theme === 'dark' ? 'dark-theme-admin' : ''}`}>
+      {darkThemeStyles}
       
       {/* Dynamic Popups */}
       {alertMessage && (
@@ -896,10 +1017,29 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
         <div className="pt-4 border-t border-slate-100">
           <button
             onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-            className="w-full flex items-center justify-center p-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-500 hover:text-slate-800 transition-colors mb-3"
+            className="w-full flex items-center justify-center p-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-500 hover:text-slate-800 transition-colors mb-2"
             title={isSidebarCollapsed ? 'Expandir Menu' : 'Recolher Menu'}
           >
             {isSidebarCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+            className="w-full flex items-center justify-center space-x-2 p-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-600 hover:text-slate-800 transition-colors mb-3 cursor-pointer"
+            title={theme === 'light' ? 'Ativar Modo Escuro' : 'Ativar Modo Claro'}
+          >
+            {theme === 'light' ? (
+              <>
+                <Moon size={14} className="text-blue-600 shrink-0" />
+                {!isSidebarCollapsed && <span className="text-[11px] font-bold">Modo Escuro</span>}
+              </>
+            ) : (
+              <>
+                <Sun size={14} className="text-amber-500 shrink-0" />
+                {!isSidebarCollapsed && <span className="text-[11px] font-bold">Modo Claro</span>}
+              </>
+            )}
           </button>
 
           {!isSidebarCollapsed && (
@@ -921,6 +1061,51 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
 
       {/* Main Panel Stage Container */}
       <div className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        {/* Mobile Navigation and Quick Controls (Displayed on mobile layouts below md breakpoint) */}
+        <div className="flex md:hidden flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white p-4 rounded-3xl border border-slate-205 mb-6 shadow-sm">
+          <div className="flex flex-col space-y-1.5 w-full sm:w-64">
+            <label className="text-[9px] font-black uppercase text-slate-400 tracking-wider">Aba Selecionada</label>
+            <select
+              value={activeTab}
+              onChange={(e) => setActiveTab(e.target.value as TabType)}
+              className="p-2.5 text-xs font-bold border border-slate-205 rounded-xl bg-slate-50 focus:outline-[#005BFF] cursor-pointer w-full text-slate-700"
+            >
+              <option value="dashboard">📊 Dashboard Geral</option>
+              <option value="banners">🖼️ Banners Slideshow</option>
+              <option value="empresa">🏢 Dados da Empresa</option>
+              <option value="planos">📶 Planos de Fibra</option>
+              <option value="cobertura">🌐 Cobertura Cidades</option>
+              <option value="redes_sociais">🔔 Redes Sociais</option>
+              <option value="seo">🔑 SEO e Metatags</option>
+              <option value="usuarios">👥 Usuários Admin</option>
+              <option value="configuracoes">📁 Gerenciador de Mídia</option>
+            </select>
+          </div>
+
+          <div className="flex items-center justify-end space-x-2.5 self-end sm:self-center">
+            {/* Theme Switcher */}
+            <button
+              type="button"
+              onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+              className="flex items-center justify-center p-2.5 rounded-xl bg-slate-50 border border-slate-205 text-slate-600 hover:text-slate-800 shadow-sm transition-all cursor-pointer"
+              title={theme === 'light' ? 'Ativar Modo Escuro' : 'Ativar Modo Claro'}
+            >
+              {theme === 'light' ? <Moon size={15} className="text-blue-600" /> : <Sun size={15} className="text-amber-500" />}
+            </button>
+
+            {/* Logout */}
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="flex items-center justify-center space-x-1.5 p-2.5 rounded-xl bg-red-50 border border-red-105 text-red-650 hover:bg-red-100 font-bold text-xs transition-colors cursor-pointer"
+              title="Fazer Logout"
+            >
+              <LogOut size={14} />
+              <span>Sair</span>
+            </button>
+          </div>
+        </div>
         
         {/* Connection status warning badge */}
         <div className="mb-6 p-4 rounded-2xl border flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white border-slate-200 shadow-sm text-xs text-slate-600">
