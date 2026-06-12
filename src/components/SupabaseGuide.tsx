@@ -51,7 +51,45 @@ CREATE TABLE IF NOT EXISTS leads_cobertura (
   bairro VARCHAR(150) NOT NULL,
   status VARCHAR(50) DEFAULT 'novo', -- 'novo', 'em atendimento', 'finalizado'
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);`;
+);
+
+-- 4. CRIAR TABELA HERO SECTION
+CREATE TABLE IF NOT EXISTS hero_section (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  title TEXT DEFAULT 'VOCÊ PODE CONFIAR!',
+  subtitle TEXT DEFAULT 'Protegendo sua família e seu patrimônio com agilidade, segurança e garantia.',
+  image_url TEXT,
+  active BOOLEAN DEFAULT true,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 5. CRIAR TABELA BLOG POSTS
+CREATE TABLE IF NOT EXISTS blog_posts (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  title TEXT NOT NULL,
+  slug TEXT UNIQUE,
+  content TEXT,
+  image_url TEXT,
+  published BOOLEAN DEFAULT true,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ATIVAR RLS E CRIAR POLÍTICAS (NOVO)
+ALTER TABLE hero_section ENABLE ROW LEVEL SECURITY;
+ALTER TABLE blog_posts ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "public read hero_section" ON hero_section FOR SELECT USING (true);
+CREATE POLICY "public read blog_posts" ON blog_posts FOR SELECT USING (true);
+
+CREATE POLICY "admin manage hero_section" ON hero_section FOR ALL 
+USING (auth.role() = 'authenticated') 
+WITH CHECK (auth.role() = 'authenticated');
+
+CREATE POLICY "admin manage blog_posts" ON blog_posts FOR ALL 
+USING (auth.role() = 'authenticated') 
+WITH CHECK (auth.role() = 'authenticated');
+
+NOTIFY pgrst, 'reload schema';`;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(sqlCode);

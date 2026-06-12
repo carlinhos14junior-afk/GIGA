@@ -2,7 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import { 
   SiteConfig, Plano, Lead, Usuario, Banner, 
   Empresa, RedesSociais, CidadeCobertura, SEOConfig, UploadMedia,
-  BrandSettings
+  BrandSettings, HeroSectionEntry, BlogPost
 } from '../types';
 
 // Support both NEXT_PUBLIC_ styles as well as VITE_ styles
@@ -256,6 +256,122 @@ const setLocal = <T>(key: string, data: T): void => {
 const updateTimestamp = () => {
   localStorage.setItem('giganet_last_update', new Date().toLocaleString('pt-BR'));
 };
+
+// --- HERO SECTION ---
+export async function getHeroSections(): Promise<HeroSectionEntry[]> {
+  if (isRealSupabase && supabase) {
+    try {
+      const { data, error } = await supabase
+        .from('hero_section')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return data || [];
+    } catch (e) {
+      console.error('Error fetching hero sections:', e);
+      return [];
+    }
+  }
+  return [];
+}
+
+export async function saveHeroSection(hero: Partial<HeroSectionEntry>): Promise<HeroSectionEntry> {
+  updateTimestamp();
+  if (isRealSupabase && supabase) {
+    try {
+      let result;
+      if (hero.id) {
+        const { data, error } = await supabase
+          .from('hero_section')
+          .update(hero)
+          .eq('id', hero.id)
+          .select()
+          .single();
+        if (error) throw error;
+        result = data;
+      } else {
+        const { data, error } = await supabase
+          .from('hero_section')
+          .insert([hero])
+          .select()
+          .single();
+        if (error) throw error;
+        result = data;
+      }
+      return result;
+    } catch (e) {
+      console.error('Error saving hero section:', e);
+      throw e;
+    }
+  }
+  throw new Error('Supabase credentials not configured');
+}
+
+export async function deleteHeroSection(id: string): Promise<void> {
+  updateTimestamp();
+  if (isRealSupabase && supabase) {
+    const { error } = await supabase.from('hero_section').delete().eq('id', id);
+    if (error) throw error;
+  }
+}
+
+// --- BLOG POSTS ---
+export async function getBlogPosts(): Promise<BlogPost[]> {
+  if (isRealSupabase && supabase) {
+    try {
+      const { data, error } = await supabase
+        .from('blog_posts')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return data || [];
+    } catch (e) {
+      console.error('Error fetching blog posts:', e);
+      return [];
+    }
+  }
+  return [];
+}
+
+export async function saveBlogPost(post: Partial<BlogPost>): Promise<BlogPost> {
+  updateTimestamp();
+  if (isRealSupabase && supabase) {
+    try {
+      let result;
+      if (post.id) {
+        const { data, error } = await supabase
+          .from('blog_posts')
+          .update(post)
+          .eq('id', post.id)
+          .select()
+          .single();
+        if (error) throw error;
+        result = data;
+      } else {
+        const { data, error } = await supabase
+          .from('blog_posts')
+          .insert([post])
+          .select()
+          .single();
+        if (error) throw error;
+        result = data;
+      }
+      return result;
+    } catch (e) {
+      console.error('Error saving blog post:', e);
+      throw e;
+    }
+  }
+  throw new Error('Supabase credentials not configured');
+}
+
+export async function deleteBlogPost(id: string): Promise<void> {
+  updateTimestamp();
+  if (isRealSupabase && supabase) {
+    const { error } = await supabase.from('blog_posts').delete().eq('id', id);
+    if (error) throw error;
+  }
+}
 
 export function getLastUpdate(): string {
   return localStorage.getItem('giganet_last_update') || new Date().toLocaleString('pt-BR');
@@ -1110,7 +1226,8 @@ export async function uploadFile(bucket: 'logos' | 'banners' | 'uploads' | 'site
         .from(bucket)
         .upload(path, file, { 
           upsert: true,
-          contentType: file.type
+          contentType: file.type,
+          cacheControl: '3600'
         });
       
       if (error) throw error;

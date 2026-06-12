@@ -12,7 +12,7 @@ import {
   getCidadesCobertura, saveCidadeCobertura, deleteCidadeCobertura, getPlanos, 
   savePlano, deletePlano, getLeads, deleteLead, updateLeadStatus, 
   getUsuarios, saveUsuario, deleteUsuario, uploadFile, signIn, changePassword, 
-  getCurrentUser, getLastUpdate, isRealSupabase, getUploads, saveUpload, deleteUpload,
+  getCurrentUser, getLastUpdate, isRealSupabase, supabase, getUploads, saveUpload, deleteUpload,
   signOut, resetPassword, getBrandSettings, saveBrandSettings
 } from '../lib/supabase';
 import { 
@@ -568,6 +568,14 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
     else setUploadFaviconLoading(true);
 
     try {
+      // User requested Pattern: Auth Check
+      if (isRealSupabase && supabase) {
+        const { data: userData } = await supabase.auth.getUser();
+        if (!userData.user) {
+          throw new Error("Usuário não autenticado. Faça login novamente.");
+        }
+      }
+
       const fileName = `${type}_${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
       const url = await uploadFile('site-images', fileName, file);
       
@@ -582,10 +590,13 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
       await saveBrandSettings(updated);
       
       onConfigChange();
-      showAlert(`Item de identidade (${type.replace('logo_', '').replace('_url', '').replace('_', ' ')}) atualizado com sucesso!`);
-    } catch (err) {
+      showAlert(`Item de identidade atualizado com sucesso!`);
+      
+      // User requested Pattern: Potential Reload
+      // We'll skip forced reload for better UX unless specifically forced by state issues
+    } catch (err: any) {
       console.error('Error uploading logo:', err);
-      showAlert('Erro ao subir logotipo.', 'error');
+      showAlert(err.message || 'Erro ao subir logotipo.', 'error');
     } finally {
       if (type === 'logo_url') setUploadLogoLoading(false);
       else if (type === 'logo_white_url') setUploadLogoBrancaLoading(false);

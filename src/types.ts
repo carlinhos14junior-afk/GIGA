@@ -214,4 +214,23 @@ export interface Usuario {
   updated_at?: string;
 }
 
+export interface HeroSectionEntry {
+  id: string;
+  title: string;
+  subtitle: string;
+  image_url?: string;
+  active: boolean;
+  created_at?: string;
+}
+
+export interface BlogPost {
+  id: string;
+  title: string;
+  slug: string;
+  content: string;
+  image_url?: string;
+  published: boolean;
+  created_at?: string;
+}
+
 export type LeadStatus = 'novo' | 'em atendimento' | 'convertido' | 'cancelado';
