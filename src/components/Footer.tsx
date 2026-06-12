@@ -18,19 +18,25 @@ export default function Footer({ config, onNavigate }: FooterProps) {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer id="footer-giganet" className="relative bg-slate-50 border-t border-slate-200 pt-16 pb-12 text-slate-650">
+    <footer id="footer-giganet" className="relative bg-slate-950 border-t border-white/5 pt-16 pb-12 text-slate-400 overflow-hidden">
+      {/* Dynamic top highlight line in gradient brand colors */}
+      <div className="absolute top-0 inset-x-0 h-[3px] bg-gradient-to-r from-[#005BFF] via-[#00AEEF] to-[#00D4FF]" />
       
+      {/* Decorative colored cyan & blue gradient glow halos in margins */}
+      <div className="absolute bottom-[-10%] right-[-10%] w-80 h-80 bg-[radial-gradient(circle_at_center,#00D4FF/5,transparent_60%)] pointer-events-none" />
+      <div className="absolute top-[10%] left-[-10%] w-72 h-72 bg-[radial-gradient(circle_at_center,#005BFF/5,transparent_60%)] pointer-events-none" />
+
       {/* Footer Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Core Links Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12 border-b border-slate-200 pb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12 border-b border-slate-900 pb-12">
           
           {/* Logo / Brand block */}
           <div className="flex flex-col space-y-4">
             <Logo size="md" />
             
-            <p className="text-xs text-slate-550 leading-relaxed font-medium">
+            <p className="text-xs text-slate-400 leading-relaxed font-semibold">
               Conexões ultrarrápidas, 100% fibra óptica de ponta a ponta e suporte humanizado qualificado para você navegar, jogar e assistir sem travamentos.
             </p>
 
@@ -41,7 +47,7 @@ export default function Footer({ config, onNavigate }: FooterProps) {
                   href={`https://instagram.com/${config.instagram}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-3 py-1.5 bg-white hover:bg-slate-100 border border-slate-200 text-slate-600 rounded-lg transition-colors text-xs font-semibold"
+                  className="px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 rounded-lg transition-colors text-xs font-semibold"
                 >
                   Instagram
                 </a>
@@ -51,7 +57,7 @@ export default function Footer({ config, onNavigate }: FooterProps) {
                   href={`https://facebook.com/${config.facebook}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-3 py-1.5 bg-white hover:bg-slate-100 border border-slate-200 text-slate-600 rounded-lg transition-colors text-xs font-semibold"
+                  className="px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 rounded-lg transition-colors text-xs font-semibold"
                 >
                   Facebook
                 </a>
@@ -61,40 +67,40 @@ export default function Footer({ config, onNavigate }: FooterProps) {
 
           {/* Links Rápidos */}
           <div>
-            <h4 className="font-display font-bold text-xs text-slate-900 uppercase tracking-wider mb-4">Navegação</h4>
+            <h4 className="font-display font-bold text-xs text-white uppercase tracking-wider mb-4">Navegação</h4>
             <ul className="space-y-2 text-xs">
               <li>
-                <a href="#inicio" className="text-slate-500 hover:text-slate-900 transition-colors">Início</a>
+                <a href="#inicio" className="text-slate-400 hover:text-white transition-colors">Início</a>
               </li>
               <li>
-                <a href="#planos" className="text-slate-500 hover:text-slate-900 transition-colors">Planos Fibra</a>
+                <a href="#planos" className="text-slate-400 hover:text-white transition-colors">Planos Fibra</a>
               </li>
               <li>
-                <a href="#vantagens" className="text-slate-500 hover:text-slate-900 transition-colors">Diferenciais</a>
+                <a href="#vantagens" className="text-slate-400 hover:text-white transition-colors">Diferenciais</a>
               </li>
               <li>
-                <a href="#cobertura" className="text-slate-500 hover:text-slate-900 transition-colors">Consultar Cobertura</a>
+                <a href="#cobertura" className="text-slate-400 hover:text-white transition-colors">Consultar Cobertura</a>
               </li>
               <li>
-                <a href="#faq" className="text-slate-500 hover:text-slate-900 transition-colors">Perguntas FAQ</a>
+                <a href="#faq" className="text-slate-400 hover:text-white transition-colors">Perguntas FAQ</a>
               </li>
             </ul>
           </div>
 
           {/* Contato Central */}
           <div>
-            <h4 className="font-display font-bold text-xs text-slate-900 uppercase tracking-wider mb-4">Fale Conosco</h4>
-            <ul className="space-y-2.5 text-xs text-slate-500">
+            <h4 className="font-display font-bold text-xs text-white uppercase tracking-wider mb-4">Fale Conosco</h4>
+            <ul className="space-y-2.5 text-xs text-slate-400">
               <li className="flex items-center space-x-2">
-                <Phone size={13} className="text-slate-400 shrink-0" />
+                <Phone size={13} className="text-slate-500 shrink-0" />
                 <span>{config.telefone}</span>
               </li>
               <li className="flex items-center space-x-2">
-                <Mail size={13} className="text-slate-400 shrink-0" />
+                <Mail size={13} className="text-slate-500 shrink-0" />
                 <span className="break-all">{config.email}</span>
               </li>
               <li className="flex items-start space-x-2">
-                <MapPin size={13} className="text-slate-400 shrink-0 mt-0.5" />
+                <MapPin size={13} className="text-slate-550 shrink-0 mt-0.5" />
                 <span className="leading-relaxed">{config.endereco}</span>
               </li>
             </ul>
@@ -102,11 +108,11 @@ export default function Footer({ config, onNavigate }: FooterProps) {
 
           {/* Corporate hours summary */}
           <div>
-            <h4 className="font-display font-bold text-xs text-slate-900 uppercase tracking-wider mb-4">GIGATEL FIBER</h4>
-            <p className="text-xs text-slate-500 leading-relaxed mb-2">
+            <h4 className="font-display font-bold text-xs text-white uppercase tracking-wider mb-4">GIGATEL FIBER</h4>
+            <p className="text-xs text-slate-400 leading-relaxed mb-2 font-medium">
               Sinal estável sem franquias de download para residências, comércios e corporações sob medida.
             </p>
-            <p className="text-[11px] text-slate-400 font-mono">
+            <p className="text-[11px] text-slate-500 font-mono">
               Suporte das 08h às 21h pelo WhatsApp Comercial GIGATEL.
             </p>
           </div>
@@ -116,23 +122,23 @@ export default function Footer({ config, onNavigate }: FooterProps) {
         {/* Bottom bar (CNPJ and discreet links) */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
           
-          <div className="text-center sm:text-left text-slate-400">
+          <div className="text-center sm:text-left text-slate-500 font-medium">
             <p>© {currentYear} GIGATEL FIBER. Todos os direitos reservados.</p>
-            <p className="mt-1 font-mono text-[10px]/none text-slate-450">CNPJ: 12.345.678/0001-99</p>
+            <p className="mt-1 font-mono text-[10px]/none text-slate-600">CNPJ: 12.345.678/0001-99</p>
           </div>
 
           {/* Links e Modais triggers */}
           <div className="flex items-center space-x-6">
             <button
               onClick={() => setActiveModal('privacy')}
-              className="text-slate-400 hover:text-slate-700 font-medium cursor-pointer transition-colors text-[11px]"
+              className="text-slate-500 hover:text-slate-300 font-medium cursor-pointer transition-colors text-[11px]"
             >
               Política de Privacidade
             </button>
             
             <button
               onClick={() => setActiveModal('terms')}
-              className="text-slate-400 hover:text-slate-700 font-medium cursor-pointer transition-colors text-[11px]"
+              className="text-slate-500 hover:text-slate-300 font-medium cursor-pointer transition-colors text-[11px]"
             >
               Termos de Uso
             </button>
@@ -140,7 +146,7 @@ export default function Footer({ config, onNavigate }: FooterProps) {
             <button
               onClick={handleScrollToTop}
               title="Voltar ao Topo"
-              className="p-2 bg-white border border-slate-205 rounded-lg text-slate-500 hover:text-slate-950 hover:border-slate-350 transition-colors"
+              className="p-2 bg-white/5 border border-white/10 rounded-lg text-slate-400 hover:text-white hover:border-white/20 transition-colors"
             >
               <ArrowUp size={12} />
             </button>
@@ -148,8 +154,8 @@ export default function Footer({ config, onNavigate }: FooterProps) {
             {/* VERY DISCREET ADMIN LINK (requested: Colocar o link “Admin” bem discreto no rodapé, no canto inferior direito. Texto pequeno, quase imperceptível. Cor cinza claro. Sem botão chamativo. Também permitir acesso direto pela URL: /admin) */}
             <button
               onClick={() => { onNavigate('admin'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-              style={{ color: '#BDBDBD', fontSize: '10px' }}
-              className="font-mono cursor-pointer transition-colors hover:text-slate-500 bg-transparent border-0 p-0 shadow-none outline-none leading-none select-none uppercase tracking-widest pl-2"
+              style={{ color: '#444444', fontSize: '10px' }}
+              className="font-mono cursor-pointer transition-colors hover:text-slate-400 bg-transparent border-0 p-0 shadow-none outline-none leading-none select-none uppercase tracking-widest pl-2"
               title="Portal de Administração"
             >
               Admin

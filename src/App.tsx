@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { MessageCircle, Instagram } from 'lucide-react';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import Planos from './components/Planos';
@@ -59,16 +60,16 @@ export default function App() {
   const activeConfig = siteConfig || {
     nome_empresa: 'GIGATEL FIBER',
     logo_url: '',
-    whatsapp: '5511999999999',
-    telefone: '(11) 4004-9999',
-    email: 'contato@gigatelfibra.com.br',
-    endereco: 'Av. Paulista, 1000 - Bela Vista - SP, CEP 01311-100',
-    instagram: 'gigatel_fibra',
-    facebook: 'gigatelfibra'
+    whatsapp: '5511910050121',
+    telefone: '(11) 91005-0121',
+    email: 'contato@gigatelfiber.com.br',
+    endereco: 'Rua Antônio Ferraciolli, 331 - Jardim Catarina - São Paulo - SP, CEP 03910-070',
+    instagram: 'gigatelfiberofc',
+    facebook: 'gigatelfiberofc'
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-between selection:bg-brand-purple/35 selection:text-white">
+    <div className="min-h-screen flex flex-col justify-between selection:bg-[#005BFF]/35 selection:text-white bg-slate-950">
       
       {/* Sticky Navigation Header */}
       <Header 
@@ -118,6 +119,41 @@ export default function App() {
 
       {/* Global Interactive footer */}
       <Footer config={activeConfig} onNavigate={(newView) => setView(newView)} />
+
+      {/* Floating Action Buttons */}
+      <div className="fixed bottom-6 right-6 z-50 flex flex-col items-center space-y-3">
+        {/* Instagram Floater */}
+        <a
+          href={`https://instagram.com/${activeConfig.instagram}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          title="Instagram GIGATEL FIBER"
+          className="group relative flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] text-white shadow-2xl transition-all duration-300 hover:scale-110 hover:rotate-6 active:scale-95"
+        >
+          <Instagram size={20} className="stroke-[2.2]" />
+          <span className="absolute right-14 scale-0 group-hover:scale-100 transition-all duration-200 bg-slate-950 text-white text-[10px] font-bold py-1.5 px-2.5 rounded-lg shadow-xl whitespace-nowrap tracking-wide uppercase border border-white/10">
+            @gigatelfiberofc
+          </span>
+        </a>
+
+        {/* WhatsApp Floater with pulse badge */}
+        <a
+          href={`https://wa.me/${activeConfig.whatsapp}?text=${encodeURIComponent('Olá GIGATEL FIBER! Quero contratar internet fibra ultraveloz agora.')}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          title="Fale Conosco no WhatsApp"
+          className="group relative flex items-center justify-center w-14 h-14 rounded-full bg-[#25D366] text-white shadow-2xl transition-all duration-300 hover:scale-110 active:scale-95"
+        >
+          <span className="absolute top-0 right-0 flex h-3.5 w-3.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-red-500 border border-white"></span>
+          </span>
+          <MessageCircle size={24} className="stroke-[2.2] fill-current" />
+          <span className="absolute right-16 scale-0 group-hover:scale-100 transition-all duration-200 bg-[#25D366] text-white text-[10px] font-bold py-1.5 px-2.5 rounded-lg shadow-xl whitespace-nowrap tracking-wide uppercase">
+            WhatsApp Online
+          </span>
+        </a>
+      </div>
 
     </div>
   );

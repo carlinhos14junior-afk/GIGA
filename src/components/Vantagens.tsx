@@ -1,57 +1,70 @@
-import { Zap, Gamepad, Unlock, Wifi, Headphones, CheckCircle } from 'lucide-react';
+import { Zap, HelpCircle, Activity, Heart, Shield, Headphones, Cpu, CheckCircle } from 'lucide-react';
 
 export default function Vantagens() {
   const vantagens = [
     {
-      titulo: 'Fibra Óptica de Verdade',
-      descricao: '100% fibra ultra estável até dentro da sua residência, reduzindo oscilações e quedas bruscas.',
+      titulo: 'Fibra Óptica de Ponta',
+      descricao: 'Conexão 100% fibra óptica FTTH diretamente dentro do seu roteador, minimizando perdas de sinal e atrasos.',
       icon: Zap,
-      cor: 'text-[#0A2F8F] bg-blue-50'
+      cor: 'text-[#005BFF] bg-[#005BFF]/10'
     },
     {
-      titulo: 'Sem Limite de Franquia',
-      descricao: 'Navegue de forma ilimitada sem qualquer tipo de redução de velocidade ou cobranças surpresas.',
-      icon: Unlock,
-      cor: 'text-[#E30613] bg-red-50'
-    },
-    {
-      titulo: 'Wi-Fi Inteligente Incluso',
-      descricao: 'Seu roteador Dual Band de última geração incluso gratuitamente em comodato nos planos ativos.',
-      icon: Wifi,
-      cor: 'text-[#0A2F8F] bg-blue-50'
-    },
-    {
-      titulo: 'Instalação Agilizada',
-      descricao: 'Processo rápido ideal para você não perder tempo. Agendamento facilitado e técnicos qualificados.',
+      titulo: 'Instalação Rápida',
+      descricao: 'Nossa equipe técnica qualificada realiza a implantação de forma ágil e segura sem complicações na sua casa.',
       icon: CheckCircle,
-      cor: 'text-[#E30613] bg-red-50'
+      cor: 'text-[#00D4FF] bg-[#00D4FF]/10'
     },
     {
-      titulo: 'Suporte Humanizado',
-      descricao: 'Atendimento extremamente rápido pelo WhatsApp com nossa equipe local sem robôs chatos.',
+      titulo: 'Suporte Especializado',
+      descricao: 'Central técnica qualificada com analistas prontos para monitorar e manter sua estabilidade 24 horas por dia.',
+      icon: Shield,
+      cor: 'text-[#00AEEF] bg-[#00AEEF]/10'
+    },
+    {
+      titulo: 'Alta Estabilidade',
+      descricao: 'Navegue sem oscilações climáticas ou gargalos de horário de pico graças à nossa rota de alta capacidade.',
+      icon: Activity,
+      cor: 'text-[#005BFF] bg-[#005BFF]/10'
+    },
+    {
+      titulo: 'Atendimento Humanizado',
+      descricao: 'Esqueça robôs chatos. Fale direto com profissionais paulistanos focados em resolver o seu problema em minutos.',
       icon: Headphones,
-      cor: 'text-[#0A2F8F] bg-blue-50'
+      cor: 'text-[#00D4FF] bg-[#00D4FF]/10'
     },
     {
-      titulo: 'Ideal para Jogos & Streaming',
-      descricao: 'Velocidade e conectividade com latência mínima (baixo ping) perfeito para seu 4K e games competitivos.',
-      icon: Gamepad,
-      cor: 'text-[#E30613] bg-red-50'
+      titulo: 'Tecnologia de Ponta',
+      descricao: 'Equipamentos de rede de última geração e roteadores dual band inteligentes inclusos na sua assinatura.',
+      icon: Cpu,
+      cor: 'text-[#00AEEF] bg-[#00AEEF]/10'
     },
   ];
 
   return (
-    <section id="vantagens" className="relative py-20 bg-white border-b border-slate-205">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+    <section 
+      id="vantagens" 
+      className="relative py-28 bg-[#020617] overflow-hidden text-white border-b border-white/5"
+    >
+      {/* Space glow elements */}
+      <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-96 h-96 rounded-full bg-[#005BFF]/10 blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-20 -right-20 w-96 h-96 rounded-full bg-[#00D4FF]/5 blur-3xl pointer-events-none" />
+      
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
         
         {/* Section Title */}
-        <div className="text-center max-w-3xl mx-auto mb-14">
-          <h2 className="font-display font-black text-3xl sm:text-4xl text-[#0A2F8F] tracking-tighter mb-3 uppercase">
-            POR QUE ESCOLHER A <span className="text-[#E30613]">GIGATEL FIBER</span>?
+        <div className="text-center max-w-3xl mx-auto mb-20">
+          <div className="inline-flex items-center space-x-2 bg-[#005BFF]/10 border border-[#005BFF]/30 px-4 py-1.5 rounded-full text-[#00D4FF] font-black text-xs uppercase mb-4 tracking-widest">
+            <span>Diferenciais Premium</span>
+          </div>
+          <h2 className="font-display font-black text-4xl sm:text-5xl lg:text-6xl text-white tracking-tighter mb-6 leading-none uppercase">
+            POR QUE ESCOLHER A <br />
+            <span className="bg-gradient-to-r from-[#005BFF] via-[#00AEEF] to-[#00D4FF] bg-clip-text text-transparent font-extrabold">
+              GIGATEL FIBRA
+            </span>?
           </h2>
 
-          <p className="text-slate-650 text-sm sm:text-base font-medium">
-            Combinamos uma infraestrutura de telecom moderna com suporte ao cliente dedicado e ágil bem pertinho de você.
+          <p className="text-slate-300 text-sm sm:text-base font-medium max-w-2xl mx-auto leading-relaxed">
+            Unimos excelente infraestrutura tecnológica de fibra óptica com pós-venda humanizado de altíssima velocidade.
           </p>
         </div>
 
@@ -63,19 +76,22 @@ export default function Vantagens() {
             return (
               <div
                 key={idx}
-                className="group relative rounded-2xl bg-[#F4F6F9] border border-slate-200 p-7 shadow-sm hover:shadow-md hover:bg-white transition-all duration-200"
+                className="group relative rounded-3xl bg-slate-900/60 border border-white/5 p-8 shadow-xl transition-all duration-300 hover:scale-102 hover:border-[#00D4FF]/25 hover:bg-slate-900"
               >
-                {/* Card Icon */}
-                <div className={`p-3 rounded-xl w-12 h-12 flex items-center justify-center mb-5 ${item.cor}`}>
-                  <IconComponent size={22} />
+                {/* Subtle top indicator glow line */}
+                <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-[#005BFF] to-[#00D4FF] opacity-0 group-hover:opacity-100 transition-opacity rounded-t-3xl" />
+
+                {/* Card Icon - Circular disk holding matching color icon */}
+                <div className={`p-4 rounded-xl w-14 h-14 flex items-center justify-center mb-6 text-white bg-slate-950 border border-white/10 shrink-0 group-hover:bg-gradient-to-r group-hover:from-[#005BFF] group-hover:to-[#00D4FF] transition-all duration-300 shadow-inner`}>
+                  <IconComponent size={24} className="stroke-[2.2]" />
                 </div>
 
                 {/* Content */}
-                <h3 className="font-display font-bold text-base text-slate-900 mb-2">
+                <h3 className="font-display font-black text-lg text-white mb-3 tracking-tight group-hover:text-[#00D4FF] transition-colors uppercase">
                   {item.titulo}
                 </h3>
                 
-                <p className="text-slate-500 text-xs sm:text-sm leading-relaxed font-medium">
+                <p className="text-slate-300 text-xs sm:text-sm leading-relaxed font-semibold">
                   {item.descricao}
                 </p>
               </div>

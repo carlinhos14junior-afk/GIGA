@@ -41,22 +41,29 @@ export default function FAQ() {
   };
 
   return (
-    <section id="faq" className="relative py-28 bg-white border-b border-slate-100">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 animate-fade-in">
+    <section id="faq" className="relative py-28 bg-[#030712] border-b border-white/5 overflow-hidden text-white">
+      {/* Decorative colored red & blue gradient glow halos in background margins */}
+      <div className="absolute top-[-20%] right-[-10%] w-[50%] h-[60%] bg-[radial-gradient(circle_at_top_right,#00D4FF/5,transparent_60%)] pointer-events-none" />
+      <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[50%] bg-[radial-gradient(circle_at_bottom_left,#005BFF/5,transparent_55%)] pointer-events-none" />
+
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full animate-fade-in">
         
         {/* Section Heading */}
         <div className="text-center mb-20">
-          <div className="inline-flex items-center space-x-1.5 bg-sky-50 border border-sky-100 px-3 py-1.5 rounded-full text-sky-700 font-bold text-xs uppercase mb-4 tracking-wider">
-            <HelpCircle size={12} className="text-sky-600" />
+          <div className="inline-flex items-center space-x-2 bg-[#005BFF]/10 border border-[#005BFF]/30 px-4 py-1.5 rounded-full text-[#00D4FF] font-black text-xs uppercase mb-4 tracking-widest">
+            <HelpCircle size={14} className="text-[#00D4FF]" />
             <span>Perguntas Frequentes</span>
           </div>
 
-          <h2 className="font-display font-extrabold text-3xl sm:text-4xl text-slate-900 tracking-tight mb-4 leading-tight">
-            Dúvidas Frequentes sobre a Giganet
+          <h2 className="font-display font-black text-4xl sm:text-5xl text-white tracking-tighter leading-none uppercase">
+            DÚVIDAS FREQUENTES SOBRE A <br />
+            <span className="bg-gradient-to-r from-[#005BFF] via-[#00AEEF] to-[#00D4FF] bg-clip-text text-transparent font-extrabold">
+              GIGATEL FIBRA
+            </span>
           </h2>
 
-          <p className="text-slate-600 text-sm sm:text-base">
-            Encontre respostas diretas e descomplicadas para as dúvidas mais comuns sobre faturamento, roteadores, Wi-Fi e instalação de fibra.
+          <p className="text-slate-300 text-sm sm:text-base font-medium max-w-2xl mx-auto leading-relaxed mt-4">
+            Encontre respostas diretas e descomplicadas para as dúvidas mais comuns sobre faturamento, roteadores, Wi-Fi e instalação de fibra na sua residência ou empresa.
           </p>
         </div>
 
@@ -68,16 +75,16 @@ export default function FAQ() {
             return (
               <div
                 key={idx}
-                className="rounded-2xl border border-slate-200 bg-[#F8FAFC] overflow-hidden transition-all duration-200"
+                className="rounded-2xl border border-white/5 bg-slate-900/60 overflow-hidden transition-all duration-300 hover:border-[#00D4FF]/20"
               >
                 <button
                   onClick={() => handleToggle(idx)}
-                  className="w-full flex items-center justify-between p-5 sm:p-6 text-left focus:outline-none hover:bg-slate-100 transition-colors group"
+                  className="w-full flex items-center justify-between p-5 sm:p-6 text-left focus:outline-none hover:bg-slate-900 transition-colors group"
                 >
-                  <span className="font-bold text-sm sm:text-base text-slate-800 group-hover:text-slate-900 transition-colors pr-4">
+                  <span className="font-bold text-sm sm:text-base text-white group-hover:text-[#00D4FF] transition-colors pr-4">
                     {faq.pergunta}
                   </span>
-                  <span className="p-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 shrink-0">
+                  <span className="p-2 rounded-lg bg-slate-950 border border-white/10 text-[#00D4FF] shrink-0 group-hover:border-[#00D4FF]/30 transition-colors">
                     {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                   </span>
                 </button>
@@ -85,10 +92,10 @@ export default function FAQ() {
                 {/* Answer panel */}
                 <div
                   className={`transition-all duration-300 ease-in-out ${
-                    isOpen ? 'max-h-[500px] border-t border-slate-200 opacity-100 p-5 sm:p-6 pb-6 bg-white' : 'max-h-0 opacity-0 pointer-events-none overflow-hidden'
+                    isOpen ? 'max-h-[500px] border-t border-white/5 opacity-100 p-5 sm:p-6 pb-6 bg-[#04081c]' : 'max-h-0 opacity-0 pointer-events-none overflow-hidden'
                   }`}
                 >
-                  <p className="text-slate-600 text-sm leading-relaxed">
+                  <p className="text-slate-300 text-sm leading-relaxed font-semibold">
                     {faq.resposta}
                   </p>
                 </div>

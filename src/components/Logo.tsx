@@ -4,9 +4,10 @@ interface LogoProps {
   className?: string;
   variant?: 'full' | 'icon';
   size?: 'sm' | 'md' | 'lg' | 'xl';
+  lightVersion?: boolean;
 }
 
-export default function Logo({ className = '', variant = 'full', size = 'md' }: LogoProps) {
+export default function Logo({ className = '', variant = 'full', size = 'md', lightVersion = false }: LogoProps) {
   // Determine dimensional constraints
   let iconDims = "w-10 h-10";
   let textSizes = {
@@ -34,20 +35,29 @@ export default function Logo({ className = '', variant = 'full', size = 'md' }: 
     };
   }
 
+  // Choose colors depending on light vs dark background
+  const gigaColorClass = lightVersion 
+    ? "text-white group-hover:text-[#00D4FF]"
+    : "text-[#005BFF] bg-gradient-to-r from-[#005BFF] to-[#00AEEF] bg-clip-text text-transparent";
+    
+  const fiberColorClass = lightVersion
+    ? "text-[#00D4FF]"
+    : "text-[#00AEEF]";
+
   return (
     <div className={`flex items-center space-x-2.5 select-none group ${className}`}>
       {/* 3D / Wireless Globe Icon */}
       <div className={`relative shrink-0 ${iconDims}`}>
         <svg viewBox="0 0 100 80" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
           {/* Signal waves (Left) - matching GIGATEL concentric design */}
-          <g stroke="#0A2F8F" strokeWidth="2.8" strokeLinecap="round" opacity="0.95">
+          <g stroke={lightVersion ? "#00D4FF" : "#005BFF"} strokeWidth="2.8" strokeLinecap="round" opacity="0.95">
             <path d="M 33,26 A 16,16 0 0,0 33,54" />
             <path d="M 27,20 A 23,23 0 0,0 27,60" />
             <path d="M 21,14 A 30,30 0 0,0 21,66" />
           </g>
 
           {/* Signal waves (Right) */}
-          <g stroke="#0A2F8F" strokeWidth="2.8" strokeLinecap="round" opacity="0.95">
+          <g stroke={lightVersion ? "#00D4FF" : "#005BFF"} strokeWidth="2.8" strokeLinecap="round" opacity="0.95">
             <path d="M 67,26 A 16,16 0 0,1 67,54" />
             <path d="M 73,20 A 23,23 0 0,1 73,60" />
             <path d="M 79,14 A 30,30 0 0,1 79,66" />
@@ -57,22 +67,19 @@ export default function Logo({ className = '', variant = 'full', size = 'md' }: 
           <g>
             <defs>
               <linearGradient id="silver-metallic-logo" x1="34" y1="40" x2="66" y2="40" gradientUnits="userSpaceOnUse">
-                <stop offset="0%" stopColor="#7B899B" />
-                <stop offset="30%" stopColor="#E2E8F0" />
+                <stop offset="0%" stopColor="#E2E8F0" />
                 <stop offset="50%" stopColor="#FFFFFF" />
-                <stop offset="75%" stopColor="#CBD5E1" />
-                <stop offset="100%" stopColor="#4A5568" />
+                <stop offset="100%" stopColor="#94A3B8" />
               </linearGradient>
               <linearGradient id="royal-blue-logo" x1="34" y1="40" x2="66" y2="40" gradientUnits="userSpaceOnUse">
-                <stop offset="0%" stopColor="#051D5A" />
-                <stop offset="35%" stopColor="#0A2F8F" />
-                <stop offset="75%" stopColor="#1D4ED8" />
-                <stop offset="100%" stopColor="#071946" />
+                <stop offset="0%" stopColor="#005BFF" />
+                <stop offset="50%" stopColor="#00AEEF" />
+                <stop offset="100%" stopColor="#00D4FF" />
               </linearGradient>
             </defs>
 
             {/* Inner background shadow disk for 3D realism */}
-            <circle cx="50" cy="40" r="15.5" fill="#020617" opacity="0.1" />
+            <circle cx="50" cy="40" r="15.5" fill="#005BFF" opacity="0.1" />
 
             {/* Ribbon 1: Silver Top Accent */}
             <path d="M 42,27 C 45,25 55,25 58,27 C 55,26 45,26 42,27 Z" fill="url(#silver-metallic-logo)" />
@@ -99,14 +106,14 @@ export default function Logo({ className = '', variant = 'full', size = 'md' }: 
 
       {variant === 'full' && (
         <div className="flex flex-col">
-          {/* Bold, heavy Red GIGATEL wordmark */}
-          <span className={`${textSizes.giga} font-display font-black tracking-tighter text-[#E30613] leading-none uppercase group-hover:scale-[1.01] transition-transform origin-left`}>
+          {/* Bold, heavy wordmark */}
+          <span className={`${textSizes.giga} font-display font-black tracking-tighter ${gigaColorClass} leading-none uppercase group-hover:scale-[1.01] transition-all origin-left`}>
             GIGATEL
           </span>
           {/* Handwritten Cursive Satisfy font for the 'fiber' script */}
           <span 
             style={{ fontFamily: "'Satisfy', cursive" }}
-            className={`${textSizes.fiber} font-normal text-[#0A2F8F] italic tracking-normal self-end -mt-1 leading-none pl-6 pr-1 group-hover:translate-x-1 transition-transform duration-300`}
+            className={`${textSizes.fiber} font-normal ${fiberColorClass} italic tracking-normal self-end -mt-1 leading-none pl-6 pr-1 group-hover:translate-x-1 transition-transform duration-300`}
           >
             fiber
           </span>

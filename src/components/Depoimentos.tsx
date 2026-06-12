@@ -16,7 +16,7 @@ export default function Depoimentos() {
     {
       nome: 'João Paulo Ramos',
       cargo: 'Gamer Competitivo & Streamer',
-      plano: 'GIGATEL 800 MEGA (Ultra)',
+      plano: 'GIGATEL GIGA BLACK',
       texto: 'O ping nos jogos online caiu drasticamente! Consigo fazer lives e downloads de gigabytes terminando em poucos minutos, sem afetar o resto dos dispositivos da casa. Recomendo a Gigatel de olhos fechados!',
       estrelas: 5,
       avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=150'
@@ -24,7 +24,7 @@ export default function Depoimentos() {
     {
       nome: 'Mariana Silva',
       cargo: 'Advogada & Mãe de Dois Filhos',
-      plano: 'GIGATEL 500 MEGA (Residencial)',
+      plano: 'GIGATEL GIGA BLACK (1 Giga)',
       texto: 'Finalmente um provedor que cumpre o que promete. Em casa, somos quatro pessoas conectadas simultaneamente. Assistimos filmes em 4K e jogamos ao mesmo tempo sem as irritantes telas de carregamento. Suporte nota mil!',
       estrelas: 5,
       avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=150'
@@ -50,21 +50,27 @@ export default function Depoimentos() {
   const current = avaliacoes[activeIndex];
 
   return (
-    <section className="relative py-20 bg-white border-b border-slate-205 overflow-hidden">
+    <section className="relative py-28 bg-[#020617] overflow-hidden text-white border-b border-white/5">
       {/* Background vector highlights */}
-      <div className="absolute top-1/2 left-[5%] -translate-y-1/2 w-48 h-48 bg-[#0A2F8F]/5 rounded-full filter blur-xl pointer-events-none" />
-      <div className="absolute top-1/2 right-[5%] -translate-y-1/2 w-48 h-48 bg-[#E30613]/5 rounded-full filter blur-xl pointer-events-none" />
+      <div className="absolute top-1/2 left-[5%] -translate-y-1/2 w-64 h-64 bg-[#005BFF]/10 rounded-full filter blur-3xl pointer-events-none" />
+      <div className="absolute top-1/2 right-[5%] -translate-y-1/2 w-64 h-64 bg-[#00D4FF]/5 rounded-full filter blur-3xl pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
         
         {/* Section Heading */}
-        <div className="text-center max-w-3xl mx-auto mb-12">
-          <h2 className="font-display font-black text-3xl sm:text-4xl text-[#0A2F8F] tracking-tighter mb-3 uppercase">
-            QUEM UTILIZA A GIGATEL FIBER, <span className="text-[#E30613]">RECOMENDA</span>!
+        <div className="text-center max-w-3xl mx-auto mb-16">
+          <div className="inline-flex items-center space-x-2 bg-[#005BFF]/10 border border-[#005BFF]/30 px-4 py-1.5 rounded-full text-[#00D4FF] font-black text-xs uppercase mb-4 tracking-widest">
+            <span>Avaliações dos Clientes</span>
+          </div>
+          <h2 className="font-display font-black text-4xl sm:text-5xl lg:text-6xl text-white tracking-tighter mb-4 uppercase leading-none">
+            RECOMENDADO POR <br />
+            <span className="bg-gradient-to-r from-[#005BFF] via-[#00AEEF] to-[#00D4FF] bg-clip-text text-transparent font-extrabold">
+              QUEM USA DE VERDADE
+            </span>
           </h2>
 
-          <p className="text-slate-650 text-sm sm:text-base font-medium">
-            Veja a opinião de clientes reais que elevaram sua internet residencial ou empresarial ao padrão FTTH de verdade.
+          <p className="text-slate-300 text-sm sm:text-base font-medium max-w-xl mx-auto leading-relaxed">
+            Veja a opinião de clientes reais que elevaram sua internet ao padrão máximo de ultravelocidade.
           </p>
         </div>
 
@@ -72,11 +78,14 @@ export default function Depoimentos() {
         <div className="relative max-w-3xl mx-auto px-4">
           
           {/* Main Card */}
-          <div className="relative rounded-3xl bg-[#F4F6F9] border border-slate-200/90 p-8 sm:p-12 shadow-md hover:shadow-lg transition-all duration-300 min-h-[340px] flex flex-col justify-between">
+          <div className="relative rounded-[2rem] bg-slate-900/60 border border-white/10 p-8 sm:p-12 shadow-2xl min-h-[340px] flex flex-col justify-between group overflow-hidden">
             {/* Elegant Quote Emblem */}
-            <span className="absolute top-6 right-8 text-brand-blue-royal/10 pointer-events-none">
-              <Quote size={60} className="stroke-current fill-current" />
+            <span className="absolute top-6 right-8 text-[#00D4FF]/5 pointer-events-none group-hover:scale-105 transition-transform">
+              <Quote size={80} className="stroke-current fill-current" />
             </span>
+
+            {/* Subtle top indicator glow line */}
+            <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-[#005BFF] to-[#00D4FF]" />
 
             {/* Testimonial Core Body */}
             <div className="animate-fade-in" key={activeIndex}>
@@ -84,27 +93,27 @@ export default function Depoimentos() {
               {/* Ratings Segment */}
               <div className="flex space-x-1 mb-5">
                 {[...Array(current.estrelas)].map((_, i) => (
-                  <Star key={i} size={15} className="text-amber-500 fill-amber-500" />
+                  <Star key={i} size={15} className="text-[#00D4FF] fill-[#00D4FF]" />
                 ))}
               </div>
 
               {/* Text */}
-              <blockquote className="text-slate-700 text-sm sm:text-base italic leading-relaxed font-semibold mb-8">
+              <blockquote className="text-slate-300 text-base sm:text-lg italic leading-relaxed font-semibold mb-8">
                 "{current.texto}"
               </blockquote>
 
               {/* Author Footer */}
-              <div className="flex items-center space-x-4 border-t border-slate-200/50 pt-6">
+              <div className="flex items-center space-x-4 border-t border-white/5 pt-6">
                 <img
                   src={current.avatar}
                   alt={current.nome}
                   referrerPolicy="no-referrer"
-                  className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-md bg-white shrink-0"
+                  className="w-12 h-12 rounded-full object-cover border border-white/10 shadow-md shrink-0 bg-slate-950"
                 />
                 <div className="flex flex-col">
-                  <span className="font-bold text-sm text-slate-900 leading-none">{current.nome}</span>
-                  <span className="text-[11px] text-slate-500 font-medium mt-1 leading-none">{current.cargo}</span>
-                  <span className="text-[10px] font-black text-[#0A2F8F] uppercase tracking-wider mt-1.5 leading-none bg-blue-50 border border-blue-100/55 px-2.5 py-1 rounded-md self-start">
+                  <span className="font-bold text-sm text-white leading-none">{current.nome}</span>
+                  <span className="text-[11px] text-slate-400 font-medium mt-1.5 leading-none">{current.cargo}</span>
+                  <span className="text-[9px] font-black text-[#00D4FF] uppercase tracking-widest mt-2 px-2 py-0.5 rounded bg-[#00D4FF]/10 border border-[#00D4FF]/20 self-start">
                     {current.plano}
                   </span>
                 </div>
@@ -118,18 +127,18 @@ export default function Depoimentos() {
           <div className="absolute top-1/2 -left-3 sm:-left-6 -translate-y-1/2 flex">
             <button
               onClick={handlePrev}
-              className="p-3.5 rounded-full bg-white border border-slate-200 shadow hover:bg-slate-50 text-slate-805 transition-all cursor-pointer hover:scale-105 active:scale-95"
+              className="p-3.5 rounded-full bg-slate-950 border border-white/10 hover:border-[#00D4FF]/30 shadow-lg text-slate-300 hover:text-[#00D4FF] transition-all cursor-pointer hover:scale-105 active:scale-95 bg-slate-900"
             >
-              <ChevronLeft size={18} />
+              <ChevronLeft size={18} className="stroke-[2.5]" />
             </button>
           </div>
 
           <div className="absolute top-1/2 -right-3 sm:-right-6 -translate-y-1/2 flex">
             <button
               onClick={handleNext}
-              className="p-3.5 rounded-full bg-white border border-slate-205 shadow hover:bg-slate-50 text-slate-805 transition-all cursor-pointer hover:scale-105 active:scale-95"
+              className="p-3.5 rounded-full bg-slate-950 border border-white/10 hover:border-[#00D4FF]/30 shadow-lg text-slate-300 hover:text-[#00D4FF] transition-all cursor-pointer hover:scale-105 active:scale-95 bg-slate-900"
             >
-              <ChevronRight size={18} />
+              <ChevronRight size={18} className="stroke-[2.5]" />
             </button>
           </div>
 
@@ -141,8 +150,8 @@ export default function Depoimentos() {
             <button
               key={idx}
               onClick={() => setActiveIndex(idx)}
-              className={`h-2.5 rounded-full transition-all duration-300 cursor-pointer ${
-                activeIndex === idx ? 'w-7 bg-[#E30613]' : 'w-2.5 bg-slate-350 hover:bg-slate-400'
+              className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
+                activeIndex === idx ? 'w-8 bg-[#00D4FF]' : 'w-2 bg-white/20 hover:bg-white/40'
               }`}
             />
           ))}

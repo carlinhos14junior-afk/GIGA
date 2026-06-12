@@ -16,7 +16,7 @@ export default function Contato({ config }: ContatoProps) {
       val: `+${config.whatsapp.substring(0,2)} (${config.whatsapp.substring(2,4)}) ${config.whatsapp.substring(4,9)}-${config.whatsapp.substring(9)}`,
       icon: MessageSquare,
       link: whatsAppLink,
-      badge: 'Contato Principal'
+      badge: 'Atendimento Rápido'
     },
     {
       title: 'Telefone comercial',
@@ -39,111 +39,102 @@ export default function Contato({ config }: ContatoProps) {
   ];
 
   return (
-    <>
-      <section id="contato" className="relative py-28 bg-[#F8FAFC] border-b border-slate-220">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 animate-fade-in">
+    <section 
+      id="contato" 
+      className="relative py-28 bg-[#030712] overflow-hidden text-white border-b border-white/5"
+    >
+      {/* Background decoration elements */}
+      <div className="absolute top-1/2 left-[-10%] w-96 h-96 bg-[radial-gradient(circle_at_center,#005BFF/8,transparent_60%)] pointer-events-none" />
+      <div className="absolute top-1/3 right-[-10%] w-96 h-96 bg-[radial-gradient(circle_at_center,#00D4FF/8,transparent_60%)] pointer-events-none" />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
+        
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-stretch">
           
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-stretch">
-            
-            {/* Left Column: text statement and details */}
-            <div className="lg:col-span-6 flex flex-col justify-between">
-              <div>
-                <div className="inline-flex items-center space-x-1 border border-red-200 bg-red-50 text-[#E30613] px-3 py-1.5 rounded-full font-bold text-xs uppercase mb-4 tracking-wider">
-                  <span>ATENDIMENTO CENTRAL</span>
-                </div>
-
-                <h2 className="font-display font-black text-3xl sm:text-4xl text-[#0A2F8F] tracking-tighter mb-4 leading-tight uppercase">
-                  FALE COM UM ESPECIALISTA DA <span className="text-[#E30613]">GIGATEL FIBER</span> AGORA MESMO
-                </h2>
-
-                <p className="text-slate-600 text-sm sm:text-base leading-relaxed mb-8 max-w-xl font-medium">
-                  Estamos à sua inteira disposição para tirar dúvidas, realizar consultas de viabilidade avançada ou agendar a instalação da sua internet fibra óptica. Pode contar conosco!
-                </p>
-
-                {/* Working hours section */}
-                <div className="flex items-center space-x-4 p-5 rounded-[1.25rem] bg-white border border-slate-202 max-w-md">
-                  <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl shrink-0">
-                    <Clock size={20} />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-bold text-slate-900">Horário de Atendimento Comercial</h4>
-                    <p className="text-xs text-slate-500 mt-1">Segunda a Sexta: 08h às 20h</p>
-                    <p className="text-xs text-slate-500">Sábado: 08h às 14h</p>
-                  </div>
-                </div>
+          {/* Left Column: text statement and details */}
+          <div className="lg:col-span-6 flex flex-col justify-between space-y-8">
+            <div className="space-y-6">
+              <div className="inline-flex items-center space-x-2 bg-[#005BFF]/10 border border-[#005BFF]/30 px-4 py-1.5 rounded-full text-[#00D4FF] font-black text-xs uppercase self-start tracking-widest">
+                <span>Canais de Atendimento</span>
               </div>
 
-              {/* Security trust badge */}
-              <div className="text-xs text-slate-400 max-w-sm pt-4 border-t border-slate-200 lg:block hidden">
-                * Todas as suas conversações e dados de atendimento por chat e WhatsApp são resguardados de acordo com a Lei Geral de Proteção de Dados (LGPD).
+              <h2 className="font-display font-black text-4xl sm:text-5xl text-white tracking-tighter leading-none uppercase">
+                FALE COM UM ESPECIALISTA <br />
+                <span className="bg-gradient-to-r from-[#005BFF] via-[#00AEEF] to-[#00D4FF] bg-clip-text text-transparent font-extrabold">
+                  GIGATEL FIBRA
+                </span>
+              </h2>
+
+              <p className="text-slate-355 text-sm sm:text-base leading-relaxed font-semibold">
+                Estamos à sua inteira disposição para tirar dúvidas, realizar consultas de viabilidade avançada ou agendar a instalação rápida da sua internet fibra óptica. Conte conosco!
+              </p>
+
+              {/* Working hours section */}
+              <div className="flex items-center space-x-4 p-5 rounded-3xl bg-slate-900 border border-white/10 max-w-md">
+                <div className="p-3 bg-[#00D4FF]/10 text-[#00D4FF] rounded-xl shrink-0 border border-[#00D4FF]/20 animate-pulse">
+                  <Clock size={20} />
+                </div>
+                <div>
+                  <h4 className="text-xs font-black uppercase text-white tracking-wider">Horário Operacional</h4>
+                  <p className="text-xs text-slate-300 mt-1 font-semibold">Segunda a Sexta: 08h às 20h</p>
+                  <p className="text-xs text-slate-300 font-semibold">Sábado: 08h às 14h</p>
+                </div>
               </div>
             </div>
 
-            {/* Right Column: details list buttons */}
-            <div className="lg:col-span-6">
-              <div className="grid grid-cols-1 gap-4">
-                
-                {contactItems.map((item, idx) => {
-                  const Icon = item.icon;
-                  return (
-                    <a
-                      id={`contact-item-${idx}`}
-                      key={idx}
-                      href={item.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="group flex items-center justify-between p-5 rounded-2xl bg-white border border-slate-200/80 hover:border-slate-350 hover:bg-slate-50 transition-all duration-200 shadow-sm"
-                    >
-                      <div className="flex items-center space-x-4 pr-4">
-                        <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 text-slate-600 group-hover:text-emerald-550 transition-colors">
-                          <Icon size={20} />
-                        </div>
-                        <div>
-                          <div className="flex items-center space-x-2">
-                            <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">
-                              {item.title}
-                            </span>
-                            {item.badge && (
-                              <span className="text-[8px] bg-emerald-50 border border-emerald-200 text-emerald-700 font-extrabold px-1.5 py-0.5 rounded uppercase font-mono">
-                                {item.badge}
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-sm sm:text-base font-bold text-slate-800 transition-colors mt-1 break-all">
-                            {item.val}
-                          </p>
-                        </div>
+            {/* Security trust badge */}
+            <div className="text-[10px] text-slate-500 max-w-sm pt-4 border-t border-white/5 lg:block hidden leading-relaxed font-medium">
+              * Todas as suas conversações e dados de atendimento por chat e WhatsApp são resguardados de acordo com as diretrizes da Lei Geral de Proteção de Dados (LGPD) garantindo sigilo absoluto.
+            </div>
+          </div>
+
+          {/* Right Column: details list buttons */}
+          <div className="lg:col-span-6 flex flex-col justify-center">
+            <div className="grid grid-cols-1 gap-4">
+              
+              {contactItems.map((item, idx) => {
+                const Icon = item.icon;
+                return (
+                  <a
+                    id={`contact-item-${idx}`}
+                    key={idx}
+                    href={item.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group flex items-center justify-between p-5 rounded-3xl bg-slate-900/60 border border-white/5 hover:border-[#00D4FF]/30 hover:bg-slate-900 transition-all duration-300 shadow-xl"
+                  >
+                    <div className="flex items-center space-x-4 pr-4">
+                      <div className="p-3.5 rounded-xl bg-slate-950 border border-white/10 text-slate-400 group-hover:text-[#00D4FF] group-hover:border-[#00D4FF]/30 group-hover:bg-[#005BFF]/10 transition-all">
+                        <Icon size={20} />
                       </div>
+                      <div>
+                        <div className="flex items-center space-x-2">
+                          <span className="text-[9px] font-black uppercase text-slate-400 tracking-widest">
+                            {item.title}
+                          </span>
+                          {item.badge && (
+                            <span className="text-[8px] bg-[#00D4FF]/10 border border-[#00D4FF]/25 text-[#00D4FF] font-black px-2 py-0.5 rounded uppercase tracking-wider font-mono">
+                              {item.badge}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-sm sm:text-base font-black text-white group-hover:text-[#00D4FF] transition-colors mt-1.5 break-all">
+                          {item.val}
+                        </p>
+                      </div>
+                    </div>
 
-                      <ExternalLink size={14} className="text-slate-300 group-hover:text-emerald-500 transition-all group-hover:translate-x-0.5" />
-                    </a>
-                  );
-                })}
+                    <ExternalLink size={14} className="text-slate-500 group-hover:text-[#00D4FF] transition-all group-hover:translate-x-0.5" />
+                  </a>
+                );
+              })}
 
-              </div>
             </div>
-
           </div>
 
         </div>
-      </section>
 
-      {/* Persistent Floating WhatsApp Widget */}
-      <a
-        id="floating-whatsapp-trigger"
-        href={whatsAppLink}
-        target="_blank"
-        referrerPolicy="no-referrer"
-        rel="noopener noreferrer"
-        aria-label="Falar conosco no WhatsApp"
-        className="fixed bottom-6 right-6 z-[60] flex items-center justify-center w-14 h-14 bg-emerald-500 rounded-full text-white shadow-xl hover:bg-emerald-600 hover:scale-105 transition-all group cursor-pointer"
-      >
-        <span className="absolute right-16 bg-slate-900 border border-slate-800 text-white font-bold text-xs py-2 px-3 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-md">
-          Dúvidas? Fale Conosco pelo WhatsApp!
-        </span>
-        <div className="absolute inset-0 rounded-full bg-emerald-500 animate-ping opacity-25" />
-        <MessageSquare size={26} className="relative z-10 fill-current" />
-      </a>
-    </>
+      </div>
+    </section>
   );
 }

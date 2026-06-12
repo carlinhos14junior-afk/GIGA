@@ -19,6 +19,7 @@ export interface Plano {
   beneficios: string[];
   destaque: boolean;
   ativo: boolean;
+  detalhes?: string;
   created_at?: string;
 }
 
