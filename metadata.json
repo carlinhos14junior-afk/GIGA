@@ -1,0 +1,6 @@
+{
+  "name": "Giganet Fibra",
+  "description": "Provedor de internet fibra óptica de alta velocidade com planos residenciais e corporativos, consulta de cobertura e painel administrativo.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
