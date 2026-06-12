@@ -14,6 +14,9 @@ export interface SiteConfig {
   cep?: string;
   tempo_carro?: string;
   tempo_moto?: string;
+  cnpj?: string;
+  numero?: string;
+  horario_funcionamento?: string;
   created_at?: string;
 }
 

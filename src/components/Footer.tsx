@@ -132,7 +132,7 @@ export default function Footer({ config, onNavigate }: FooterProps) {
           
           <div className="text-center sm:text-left text-slate-400 font-medium">
             <p>© {currentYear} {config.nome_empresa}. Todos os direitos reservados.</p>
-            <p className="mt-1 font-mono text-[10px]/none text-slate-500 font-semibold">CNPJ: 12.345.678/0001-99</p>
+            <p className="mt-1 font-mono text-[10px]/none text-slate-500 font-semibold">CNPJ: {config.cnpj || '45.182.293/0001-90'}</p>
           </div>
 
           {/* Links e Modais triggers */}

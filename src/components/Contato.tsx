@@ -92,8 +92,9 @@ export default function Contato({ config }: ContatoProps) {
                 </div>
                 <div>
                   <h4 className="text-xs font-black uppercase text-white tracking-wider">Canais 100% Ativos</h4>
-                  <p className="text-xs text-red-50 mt-1 font-bold">Segunda a Sexta: 08h às 20h</p>
-                  <p className="text-xs text-red-50 font-bold">Sábado: 08h às 14h</p>
+                  <div className="text-xs text-red-50 mt-1 font-bold whitespace-pre-line">
+                    {config.horario_funcionamento || 'Segunda a Sexta: 08h às 20h\nSábado: 08h às 14h'}
+                  </div>
                 </div>
               </div>
             </div>

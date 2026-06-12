@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Menu, X, MessageCircle, Lock } from 'lucide-react';
+import { Menu, X, MessageCircle, Lock, Phone, MapPin, Instagram, Facebook } from 'lucide-react';
 import { SiteConfig } from '../types';
 import Logo from './Logo';
 
@@ -26,6 +26,14 @@ export default function Header({ config, onNavigate, currentView }: HeaderProps)
     `Olá ${config.nome_empresa || 'GIGATEL FIBRA'}! Quero conhecer os planos de internet fibra de alta performance.`
   )}`;
 
+  const formattedAddress = `${config.endereco || ''}${config.numero ? `, ${config.numero}` : ''}${config.bairro ? `, ${config.bairro}` : ''}${config.cidade ? `, ${config.cidade}` : ''}${config.estado ? ` - ${config.estado}` : ''}${config.cep ? ` - CEP ${config.cep}` : ''}`;
+  const phoneLink = `tel:${config.telefone ? config.telefone.replace(/\D/g, '') : '11910050121'}`;
+  const displayPhone = config.telefone || '(11) 91005-0121';
+  const instagramUser = config.instagram ? config.instagram.replace('@', '') : '';
+  const instagramLink = instagramUser ? `https://instagram.com/${instagramUser}` : '';
+  const facebookUser = config.facebook || '';
+  const facebookLink = facebookUser ? `https://facebook.com/${facebookUser}` : '';
+
   const navItems = [
     { label: 'Início', href: '#inicio' },
     { label: 'Planos', href: '#planos' },
@@ -49,8 +57,58 @@ export default function Header({ config, onNavigate, currentView }: HeaderProps)
   return (
     <header
       id="site-header"
-      className="fixed top-0 left-0 right-0 z-50 flex flex-col w-full shadow-sm"
+      className="fixed top-0 left-0 right-0 z-50 flex flex-col w-full shadow-sm animate-fade-in"
     >
+      {/* 1. TOP INFORMATION BAR (TOPO DO SITE) - DINÂMICO */}
+      {currentView === 'main' && (
+        <div className="bg-[#0e2246] text-[10px] sm:text-[11px] text-white/90 py-1.5 px-4 relative z-50 border-b border-white/5 font-semibold">
+          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-1.5 sm:gap-4 text-center sm:text-left">
+            {/* Left: Address */}
+            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-4">
+              {config.endereco && (
+                <span className="flex items-center">
+                  <MapPin size={11} className="text-[#E53935] mr-1 shrink-0" />
+                  {formattedAddress}
+                </span>
+              )}
+            </div>
+
+            {/* Right: Phone and Socials */}
+            <div className="flex items-center justify-center gap-4">
+              <a 
+                href={phoneLink} 
+                className="flex items-center hover:text-[#00AEEF] transition-all"
+              >
+                <Phone size={11} className="text-[#E53935] mr-1 shrink-0" />
+                {displayPhone}
+              </a>
+              {instagramLink && (
+                <a 
+                  href={instagramLink} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="flex items-center hover:text-[#00AEEF] transition-all"
+                >
+                  <Instagram size={11} className="text-[#E53935] mr-1 shrink-0" />
+                  <span>Instagram</span>
+                </a>
+              )}
+              {facebookLink && (
+                <a 
+                  href={facebookLink} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="flex items-center hover:text-[#00AEEF] transition-all"
+                >
+                  <Facebook size={11} className="text-[#E53935] mr-1 shrink-0" />
+                  <span>Facebook</span>
+                </a>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* MAIN NAVIGATION MENU (HEADER WITH BLUR EFFECT) */}
       <div
         className={`w-full transition-all duration-300 ${

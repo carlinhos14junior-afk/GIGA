@@ -12,7 +12,7 @@ import Contato from './components/Contato';
 import Footer from './components/Footer';
 import AdminPanel from './components/AdminPanel';
 import Logo from './components/Logo';
-import { getSiteConfig, getPlanos, getBanners } from './lib/supabase';
+import { getSiteConfig, getPlanos, getBanners, getEmpresa } from './lib/supabase';
 import { SiteConfig, Plano, Banner } from './types';
 
 export default function App() {
@@ -26,7 +26,34 @@ export default function App() {
   const loadData = async () => {
     try {
       const cfg = await getSiteConfig();
-      setSiteConfig(cfg);
+      let emp = null;
+      try {
+        emp = await getEmpresa();
+      } catch (err) {
+        console.warn('Could not load company info from database:', err);
+      }
+
+      const mergedConfig: SiteConfig = {
+        ...cfg,
+        ...(emp ? {
+          nome_empresa: emp.nome_empresa,
+          telefone: emp.telefone,
+          whatsapp: emp.whatsapp,
+          email: emp.email,
+          endereco: emp.endereco,
+          numero: emp.numero,
+          bairro: emp.bairro,
+          cidade: emp.cidade,
+          estado: emp.estado,
+          cep: emp.cep,
+          horario_funcionamento: emp.horario_funcionamento,
+          cnpj: emp.cnpj,
+          instagram: emp.instagram,
+          facebook: emp.facebook,
+          logo_url: emp.logo_url
+        } : {})
+      };
+      setSiteConfig(mergedConfig);
 
       const pls = await getPlanos();
       setPlanosList(pls);

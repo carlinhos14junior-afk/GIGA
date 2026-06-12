@@ -51,9 +51,10 @@ export default function Planos({ config, planos }: PlanosProps) {
 
   const activePlanos = dbPlanos.length > 0 ? dbPlanos : fallbackPlanos;
 
+  const whatsappNumber = config.whatsapp ? config.whatsapp.replace(/\D/g, '') : '5511910050121';
   const getWhatsAppPlanoLink = (plano: Plano) => {
-    const text = `Olá GIGATEL! Quero assinar o plano ${plano.velocidade} por R$ ${plano.preco.toFixed(2).replace('.', ',')}/mês agora. Por favor, verifique minha cobertura!`;
-    return `https://wa.me/5511910050121?text=${encodeURIComponent(text)}`;
+    const text = `Olá ${config.nome_empresa || 'GIGATEL'}! Quero assinar o plano ${plano.velocidade} por R$ ${plano.preco.toFixed(2).replace('.', ',')}/mês agora. Por favor, verifique minha cobertura!`;
+    return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(text)}`;
   };
 
   // Maps exact request items to representative interactive icons
