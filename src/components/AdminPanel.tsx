@@ -2943,7 +2943,7 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
                           </div>
                           
                           <p className="text-2xl font-display font-black text-slate-900 mb-3">
-                            R$ {plano.preco.toFixed(2).replace('.', ',')}
+                            R$ {(Number(plano.preco) || 0).toFixed(2).replace('.', ',')}
                             <span className="text-xxs text-slate-400 font-normal ml-1">/mês</span>
                           </p>
 

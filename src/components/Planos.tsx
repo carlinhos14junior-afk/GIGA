@@ -53,7 +53,7 @@ export default function Planos({ config, planos }: PlanosProps) {
 
   const whatsappNumber = config.whatsapp ? config.whatsapp.replace(/\D/g, '') : '5511910050121';
   const getWhatsAppPlanoLink = (plano: Plano) => {
-    const text = `Olá ${config.nome_empresa || 'GIGATEL'}! Quero assinar o plano ${plano.velocidade} por R$ ${plano.preco.toFixed(2).replace('.', ',')}/mês agora. Por favor, verifique minha cobertura!`;
+    const text = `Olá ${config.nome_empresa || 'GIGATEL'}! Quero assinar o plano ${plano.velocidade} por R$ ${(Number(plano.preco) || 0).toFixed(2).replace('.', ',')}/mês agora. Por favor, verifique minha cobertura!`;
     return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(text)}`;
   };
 
@@ -168,11 +168,11 @@ export default function Planos({ config, planos }: PlanosProps) {
                       <div className="flex items-baseline mt-1">
                         <span className={`text-sm font-black mr-1 ${isFeatured ? 'text-white' : 'text-slate-800'}`}>R$</span>
                         <span className={`text-5xl font-display font-black tracking-tighter ${isFeatured ? 'text-white font-extrabold' : 'text-slate-900'}`}>
-                          {Math.floor(plano.preco)}
+                          {Math.floor(Number(plano.preco) || 0)}
                         </span>
                         <div className="flex flex-col ml-1 leading-none">
                           <span className={`text-xl font-display font-black ${isFeatured ? 'text-white' : 'text-[#0057FF]'}`}>
-                            ,{String((plano.preco % 1).toFixed(2)).split('.')[1] || '90'}
+                            ,{String(((Number(plano.preco) || 0) % 1).toFixed(2)).split('.')[1] || '90'}
                           </span>
                           <span className={`text-[10px] uppercase font-bold tracking-widest ${isFeatured ? 'text-blue-200' : 'text-slate-500'}`}>/mês</span>
                         </div>

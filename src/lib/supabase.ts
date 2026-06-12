@@ -17,8 +17,8 @@ export const supabase = createClient(
   supabaseAnonKey || 'placeholder'
 );
 
-// We export this as true so the app doesn't complain, but it will use real supabase client
-export const isRealSupabase = true;
+// We check if we have real configured keys to gracefully fallback if missing
+export const isRealSupabase = Boolean(supabaseUrl && supabaseAnonKey && !supabaseUrl.includes('placeholder'));
 
 // Initial Seeds
 const DEFAULT_CONFIG: SiteConfig = {
@@ -294,10 +294,35 @@ export async function saveHeroSection(hero: Partial<HeroSectionEntry>): Promise<
       return result;
     } catch (e) {
       console.error('Error saving hero section:', e);
-      throw e;
+      const list = getLocal<HeroSectionEntry[]>('giganet_hero_section', []);
+      let updated: HeroSectionEntry;
+      if (entry.id && String(entry.id).length > 2) {
+        updated = { ...entry, id: entry.id } as HeroSectionEntry;
+        const index = list.findIndex(item => String(item.id) === String(entry.id));
+        if (index > -1) list[index] = updated;
+        else list.push(updated);
+      } else {
+        updated = { ...entry, id: Date.now().toString(), created_at: new Date().toISOString() } as HeroSectionEntry;
+        list.push(updated);
+      }
+      setLocal('giganet_hero_section', list);
+      return updated;
     }
   }
-  throw new Error('Supabase credentials not configured');
+  
+  const list = getLocal<HeroSectionEntry[]>('giganet_hero_section', []);
+  let updated: HeroSectionEntry;
+  if (entry.id && String(entry.id).length > 2) {
+    updated = { ...entry, id: entry.id } as HeroSectionEntry;
+    const index = list.findIndex(item => String(item.id) === String(entry.id));
+    if (index > -1) list[index] = updated;
+    else list.push(updated);
+  } else {
+    updated = { ...entry, id: Date.now().toString(), created_at: new Date().toISOString() } as HeroSectionEntry;
+    list.push(updated);
+  }
+  setLocal('giganet_hero_section', list);
+  return updated;
 }
 
 export async function deleteHeroSection(id: string): Promise<void> {
@@ -352,10 +377,35 @@ export async function saveBlogPost(post: Partial<BlogPost>): Promise<BlogPost> {
       return result;
     } catch (e) {
       console.error('Error saving blog post:', e);
-      throw e;
+      const list = getLocal<BlogPost[]>('giganet_blog_posts', []);
+      let updated: BlogPost;
+      if (post.id && String(post.id).length > 2) {
+        updated = { ...post, id: post.id } as BlogPost;
+        const index = list.findIndex(item => String(item.id) === String(post.id));
+        if (index > -1) list[index] = updated;
+        else list.push(updated);
+      } else {
+        updated = { ...post, id: Date.now().toString(), created_at: new Date().toISOString() } as BlogPost;
+        list.push(updated);
+      }
+      setLocal('giganet_blog_posts', list);
+      return updated;
     }
   }
-  throw new Error('Supabase credentials not configured');
+  
+  const list = getLocal<BlogPost[]>('giganet_blog_posts', []);
+  let updated: BlogPost;
+  if (post.id && String(post.id).length > 2) {
+    updated = { ...post, id: post.id } as BlogPost;
+    const index = list.findIndex(item => String(item.id) === String(post.id));
+    if (index > -1) list[index] = updated;
+    else list.push(updated);
+  } else {
+    updated = { ...post, id: Date.now().toString(), created_at: new Date().toISOString() } as BlogPost;
+    list.push(updated);
+  }
+  setLocal('giganet_blog_posts', list);
+  return updated;
 }
 
 export async function deleteBlogPost(id: string): Promise<void> {
@@ -489,18 +539,48 @@ export async function saveBanner(banner: Omit<Banner, 'id'> & { id?: string | nu
       return result;
     } catch (e) {
       console.error('Error saving banner:', e);
-      throw e;
+      const list = getLocal<Banner[]>('giganet_banners', DEFAULT_BANNERS);
+      let updated: Banner;
+      if (banner.id && String(banner.id).length > 2) {
+        updated = { ...banner, id: banner.id } as Banner;
+        const index = list.findIndex(item => String(item.id) === String(banner.id));
+        if (index > -1) list[index] = updated;
+        else list.push(updated);
+      } else {
+        updated = { ...banner, id: Date.now().toString(), created_at: new Date().toISOString() } as Banner;
+        list.push(updated);
+      }
+      setLocal('giganet_banners', list);
+      return updated;
     }
   }
   
-  throw new Error('Supabase credentials not configured');
+  const list = getLocal<Banner[]>('giganet_banners', DEFAULT_BANNERS);
+  let updated: Banner;
+  if (banner.id && String(banner.id).length > 2) {
+    updated = { ...banner, id: banner.id } as Banner;
+    const index = list.findIndex(item => String(item.id) === String(banner.id));
+    if (index > -1) list[index] = updated;
+    else list.push(updated);
+  } else {
+    updated = { ...banner, id: Date.now().toString(), created_at: new Date().toISOString() } as Banner;
+    list.push(updated);
+  }
+  setLocal('giganet_banners', list);
+  return updated;
 }
 
 export async function deleteBanner(id: string | number): Promise<void> {
   updateTimestamp();
   if (isRealSupabase && supabase) {
-    const { error } = await supabase.from('banners').delete().eq('id', id);
-    if (error) throw error;
+    try {
+      const { error } = await supabase.from('banners').delete().eq('id', id);
+      if (error) throw error;
+    } catch (e) {
+      console.error('Error deleting banner from Supabase:', e);
+      const list = getLocal<Banner[]>('giganet_banners', DEFAULT_BANNERS);
+      setLocal('giganet_banners', list.filter(item => String(item.id) !== String(id)));
+    }
   } else {
     const list = getLocal<Banner[]>('giganet_banners', DEFAULT_BANNERS);
     setLocal('giganet_banners', list.filter(item => String(item.id) !== String(id)));
@@ -1177,12 +1257,14 @@ export async function saveBrandSettings(settings: BrandSettings): Promise<BrandS
       }
       return result;
     } catch (e) {
-      console.error('Error saving brand settings to Supabase:', e);
-      throw e;
+      console.error('Error saving brand settings to Supabase, saving locally:', e);
+      setLocal('giganet_brand_settings', settings);
+      return settings;
     }
   }
   
-  throw new Error('Supabase credentials not configured');
+  setLocal('giganet_brand_settings', settings);
+  return settings;
 }
 
 // --- FILE UPLOAD / STORAGE ---
@@ -1209,12 +1291,24 @@ export async function uploadFile(bucket: 'logos' | 'banners' | 'uploads' | 'site
 
       return publicUrl;
     } catch (e: any) {
-      console.error('Error uploading to Supabase:', e);
-      throw new Error(`Failed to upload file: ${e?.message || 'Unknown error'}`);
+      console.warn('Supabase upload failed, falling back to local base64:', e);
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          resolve(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+      });
     }
   }
   
-  throw new Error('Supabase credentials not configured');
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      resolve(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  });
 }
 
 // --- AUTH LAYER ---
