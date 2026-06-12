@@ -323,11 +323,17 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
     try {
       await deleteBanner(id);
       setBannersList(prev => prev.filter(banner => banner.id !== id));
+      
+      // Close modal if deleting the one being edited
+      if (editingBanner && editingBanner.id === id) {
+        setEditingBanner(null);
+      }
+      
       onConfigChange();
       showAlert('Banner excluído com sucesso!');
     } catch (error) {
-      console.error(error);
-      showAlert('Erro ao excluir banner', 'error');
+      console.error('Erro ao excluir banner:', error);
+      showAlert('Erro ao excluir banner do sistema.', 'error');
     }
   };
 

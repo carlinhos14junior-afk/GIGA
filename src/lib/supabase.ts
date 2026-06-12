@@ -413,13 +413,8 @@ export async function saveBanner(banner: Omit<Banner, 'id'> & { id?: string | nu
 export async function deleteBanner(id: string | number): Promise<void> {
   updateTimestamp();
   if (isRealSupabase && supabase) {
-    try {
-      const { error } = await supabase.from('banners').delete().eq('id', id);
-      if (error) throw error;
-    } catch (e) {
-      const list = getLocal<Banner[]>('giganet_banners', DEFAULT_BANNERS);
-      setLocal('giganet_banners', list.filter(item => String(item.id) !== String(id)));
-    }
+    const { error } = await supabase.from('banners').delete().eq('id', id);
+    if (error) throw error;
   } else {
     const list = getLocal<Banner[]>('giganet_banners', DEFAULT_BANNERS);
     setLocal('giganet_banners', list.filter(item => String(item.id) !== String(id)));
@@ -859,14 +854,8 @@ export async function savePlano(plano: Omit<Plano, 'id'> & { id?: string | numbe
 export async function deletePlano(id: string | number): Promise<void> {
   updateTimestamp();
   if (isRealSupabase && supabase) {
-    try {
-      const { error } = await supabase.from('planos').delete().eq('id', id);
-      if (error) throw error;
-    } catch (e) {
-      const planes = getLocal<Plano[]>('giganet_planos', DEFAULT_PLANOS);
-      const filtered = planes.filter(p => String(p.id) !== String(id));
-      setLocal('giganet_planos', filtered);
-    }
+    const { error } = await supabase.from('planos').delete().eq('id', id);
+    if (error) throw error;
   } else {
     const planes = getLocal<Plano[]>('giganet_planos', DEFAULT_PLANOS);
     const filtered = planes.filter(p => String(p.id) !== String(id));
