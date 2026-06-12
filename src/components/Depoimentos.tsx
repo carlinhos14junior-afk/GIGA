@@ -135,12 +135,14 @@ export default function Depoimentos({ config }: DepoimentosProps) {
 
               {/* Author Footer */}
               <div className="flex items-center space-x-4 border-t border-slate-100 pt-6">
-                <img
-                  src={current.avatar}
-                  alt={current.nome}
-                  referrerPolicy="no-referrer"
-                  className="w-12 h-12 rounded-full object-cover border border-slate-200 shadow-sm shrink-0 bg-slate-50"
-                />
+                {current.avatar && (
+                  <img
+                    src={current.avatar}
+                    alt={current.nome}
+                    referrerPolicy="no-referrer"
+                    className="w-12 h-12 rounded-full object-cover border border-slate-200 shadow-sm shrink-0 bg-slate-50"
+                  />
+                )}
                 <div className="flex flex-col">
                   <span className="font-bold text-sm text-slate-905 leading-none">{current.nome}</span>
                   <span className="text-[11px] text-slate-500 font-medium mt-1.5 leading-none">{current.cargo}</span>

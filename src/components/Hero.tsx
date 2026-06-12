@@ -85,13 +85,17 @@ export default function Hero({ config, banners = [] }: HeroProps) {
       {/* Background Banner Slider */}
       <div className="absolute inset-0 z-0">
         <picture className="w-full h-full">
-          <source media="(max-width: 640px)" srcSet={currentBanner.mobile_image_url || currentBanner.image_url} />
-          <img 
-            src={currentBanner.image_url} 
-            alt={currentBanner.titulo}
-            referrerPolicy="no-referrer"
-            className="w-full h-full object-cover brightness-[0.4] transition-all duration-1000 animate-fade-in"
-          />
+          { (currentBanner.mobile_image_url || currentBanner.image_url) && (
+            <source media="(max-width: 640px)" srcSet={currentBanner.mobile_image_url || currentBanner.image_url} />
+          )}
+          { currentBanner.image_url && (
+            <img 
+              src={currentBanner.image_url} 
+              alt={currentBanner.titulo}
+              referrerPolicy="no-referrer"
+              className="w-full h-full object-cover brightness-[0.4] transition-all duration-1000 animate-fade-in"
+            />
+          )}
         </picture>
         
         {/* Deep gradient overlay for text readability */}

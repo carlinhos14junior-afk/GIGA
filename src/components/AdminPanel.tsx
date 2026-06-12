@@ -1567,7 +1567,7 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
                     {bannersList.map((banner) => (
                       <div key={banner.id} className="p-4 border rounded-2xl flex flex-col md:flex-row md:items-center md:justify-between bg-[#F8FAFC] border-slate-200 text-xs gap-4 hover:border-slate-300">
                         <div className="flex items-start space-x-4">
-                          <img src={banner.image_url} alt={banner.titulo} className="w-16 h-12 rounded-lg object-cover border border-slate-200 shadow-sm" referrerPolicy="no-referrer" />
+                          {banner.image_url && <img src={banner.image_url} alt={banner.titulo} className="w-16 h-12 rounded-lg object-cover border border-slate-200 shadow-sm" referrerPolicy="no-referrer" />}
                           <div>
                             <span className="font-mono text-[9px] text-[#005BFF] bg-blue-50 px-1.5 py-0.5 rounded font-black">Slide Ordem: {banner.ordem}</span>
                             <h4 className="font-bold text-slate-900 text-sm mt-1 uppercase max-w-sm truncate">{banner.titulo}</h4>
@@ -3442,7 +3442,7 @@ export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPane
                     <div key={media.id} className="p-3 border.5 border rounded-2xl bg-[#F8FAFC] border-slate-200 text-xs flex flex-col justify-between hover:border-slate-300">
                       <div>
                         <div className="h-28 rounded-lg overflow-hidden border bg-white flex items-center justify-center relative group">
-                          <img src={media.url} alt={media.nome} className="max-h-full max-w-full object-contain" referrerPolicy="no-referrer" />
+                          {media.url && <img src={media.url} alt={media.nome} className="max-h-full max-w-full object-contain" referrerPolicy="no-referrer" />}
                           <div className="absolute inset-0 bg-slate-900/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center space-x-2">
                             <a href={media.url} target="_blank" rel="noopener noreferrer" className="p-1 px-2.5 bg-white text-slate-900 font-bold hover:bg-slate-200 rounded text-[10px]">Ver original</a>
                           </div>
