@@ -160,7 +160,19 @@ export async function saveRedesSociais(redes: RedesSociais): Promise<RedesSociai
 
 export async function getSEO(): Promise<SEOConfig> {
   const { data, error } = await supabase.from('seo').select('*').limit(1).maybeSingle();
-  if (error) throw error;
+  if (error) {
+    if (error.code === 'PGRST205') {
+       console.warn('Tabela seo não encontrada.');
+       return {
+         id: 1,
+         title: 'GIGATEL - Internet Ultraveloz',
+         meta_description: 'Internet Fibra Ultraveloz para sua casa.',
+         keywords: 'GIGATEL, INTERNET, FIBRA',
+         status: 'inativo'
+       } as SEOConfig;
+    }
+    throw error;
+  }
   if (!data) return {
     id: 1,
     title: 'GIGATEL - Internet Ultraveloz',
