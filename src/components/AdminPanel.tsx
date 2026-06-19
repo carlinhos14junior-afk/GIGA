@@ -29,7 +29,7 @@ interface AdminPanelProps {
 
 type TabType = 'dashboard' | 'banners' | 'empresa' | 'planos' | 'cobertura' | 'redes_sociais' | 'seo' | 'usuarios' | 'configuracoes' | 'rodape' | 'conteudo' | 'logo';
 
-export default function AdminPanel({ onConfigChange, onPlanosChange }: AdminPanelProps) {
+export default function Dashboard({ onConfigChange, onPlanosChange }: AdminPanelProps) {
   // Theme Toggle state (with persistence in localStorage)
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     return (localStorage.getItem('giga_admin_theme') as 'light' | 'dark') || 'light';

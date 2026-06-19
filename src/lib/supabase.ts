@@ -33,7 +33,19 @@ const updateTimestamp = () => {};
 export async function getSiteConfig(forceRefresh = false): Promise<SiteConfig> {
   const { data, error } = await supabase.from('configuracoes_site').select('*').limit(1).maybeSingle();
   if (error) throw error;
-  if (!data) throw new Error("Config not found");
+  if (!data) return {
+    id: 1,
+    nome_empresa: 'GIGATEL FIBER',
+    logo_url: '',
+    whatsapp: '5511910050121',
+    telefone: '(11) 91005-0121',
+    email: 'contato@gigatelfiber.com.br',
+    endereco: 'Rua Antônio Ferraciolli, 331',
+    bairro: 'Jardim Catarina',
+    cidade: 'São Paulo',
+    estado: 'SP',
+    cep: '03910-070'
+  } as SiteConfig;
   return data;
 }
 
@@ -97,7 +109,19 @@ export async function deleteBanner(id: string | number): Promise<void> {
 export async function getEmpresa(): Promise<Empresa> {
   const { data, error } = await supabase.from('empresa').select('*').limit(1).maybeSingle();
   if (error) throw error;
-  if (!data) throw new Error("Config not found");
+  if (!data) return {
+    id: 1,
+    nome_empresa: 'GIGATEL FIBER',
+    telefone: '(11) 91005-0121',
+    whatsapp: '5511910050121',
+    email: 'contato@gigatelfiber.com.br',
+    endereco: 'Rua Antônio Ferraciolli, 331',
+    numero: '331',
+    bairro: 'Jardim Catarina',
+    cidade: 'São Paulo',
+    estado: 'SP',
+    cep: '03910-070'
+  } as Empresa;
   return data;
 }
 
@@ -110,7 +134,11 @@ export async function saveEmpresa(empresa: Empresa): Promise<Empresa> {
 export async function getRedesSociais(): Promise<RedesSociais> {
   const { data, error } = await supabase.from('redes_sociais').select('*').limit(1).maybeSingle();
   if (error) throw error;
-  if (!data) throw new Error("Config not found");
+  if (!data) return {
+    id: 1,
+    instagram: 'gigatelfiberofc',
+    facebook: 'gigatelfiberofc'
+  } as RedesSociais;
   return data;
 }
 
@@ -123,7 +151,13 @@ export async function saveRedesSociais(redes: RedesSociais): Promise<RedesSociai
 export async function getSEO(): Promise<SEOConfig> {
   const { data, error } = await supabase.from('seo').select('*').limit(1).maybeSingle();
   if (error) throw error;
-  if (!data) throw new Error("Config not found");
+  if (!data) return {
+    id: 1,
+    title: 'GIGATEL FIBER - Internet Ultraveloz',
+    meta_description: 'Internet Fibra Ultraveloz para sua casa.',
+    keywords: 'GIGATEL, FIBER, INTERNET, FIBRA',
+    status: 'inativo'
+  } as SEOConfig;
   return data;
 }
 
@@ -169,7 +203,10 @@ export async function deleteUpload(id: string | number): Promise<void> {
 
 export async function getPlanos(): Promise<Plano[]> {
   const { data, error } = await supabase.from('planos').select('*').order('ordem', { ascending: true });
-  if (error) throw error;
+  if (error) {
+    if (error.code === 'PGRST205') return [];
+    throw error;
+  }
   
   // Fix nested JSON inside string issue that might happen
   return (data || []).map(p => ({
@@ -191,7 +228,10 @@ export async function deletePlano(id: string | number): Promise<void> {
 
 export async function getLeads(): Promise<Lead[]> {
   const { data, error } = await supabase.from('leads').select('*').order('created_at', { ascending: false });
-  if (error) throw error;
+  if (error) {
+    if (error.code === 'PGRST205') return [];
+    throw error;
+  }
   return data || [];
 }
 
@@ -213,7 +253,10 @@ export async function deleteLead(id: string | number): Promise<void> {
 
 export async function getUsuarios(): Promise<Usuario[]> {
   const { data, error } = await supabase.from('usuarios').select('*').order('nome', { ascending: true });
-  if (error) throw error;
+  if (error) {
+    if (error.code === 'PGRST205') return [];
+    throw error;
+  }
   return data || [];
 }
 
@@ -231,7 +274,14 @@ export async function deleteUsuario(id: string): Promise<void> {
 export async function getBrandSettings(): Promise<BrandSettings> {
   const { data, error } = await supabase.from('brand_settings').select('*').limit(1).maybeSingle();
   if (error) throw error;
-  if (!data) throw new Error("Config not found");
+  if (!data) return {
+    id: 1,
+    logo_url: '',
+    logo_white_url: '',
+    logo_footer_url: '',
+    logo_mobile_url: '',
+    favicon_url: ''
+  } as BrandSettings;
   return data;
 }
 

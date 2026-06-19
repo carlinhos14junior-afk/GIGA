@@ -10,7 +10,7 @@ import Depoimentos from './components/Depoimentos';
 import FAQ from './components/FAQ';
 import Contato from './components/Contato';
 import Footer from './components/Footer';
-import AdminPanel from './components/AdminPanel';
+import Dashboard from './components/AdminPanel';
 import Logo from './components/Logo';
 import { getSiteConfig, getPlanos, getBanners, getEmpresa, getSEO, isRealSupabase, supabase, getBrandSettings } from './lib/supabase';
 import { SiteConfig, Plano, Banner, BrandSettings } from './types';
@@ -292,7 +292,7 @@ export default function App() {
         ) : (
           <div className="animate-fade-in">
             {/* Real CRM & settings administrative board */}
-            <AdminPanel 
+            <Dashboard 
               onConfigChange={loadData} 
               onPlanosChange={loadData} 
             />
@@ -301,6 +301,17 @@ export default function App() {
       </main>
 
       {/* Global Interactive footer */}
+      <div className="w-full h-80 my-8">
+        <iframe 
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3656.321867140954!2d-46.50550478546522!3d-23.59011918466657!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ce678a1c977f6b%3A0x6b4fb6c123ea3d71!2sRua%20Ant%C3%B4nio%20Ferraciolli%2C%20331%20-%20Jardim%20Catarina%2C%20S%C3%A3o%20Paulo%20-%20SP%2C%2003910-070!5e0!3m2!1spt-BR!2sbr!4v1718816656781!5m2!1spt-BR!2sbr" 
+          width="100%" 
+          height="100%" 
+          className="border-0 shadow-lg rounded-lg" 
+          allowFullScreen={true} 
+          loading="lazy" 
+          referrerPolicy="no-referrer-when-downgrade"
+        ></iframe>
+      </div>
       <Footer config={activeConfig} onNavigate={handleNavigate} />
 
       {/* Floating Action Buttons */}
