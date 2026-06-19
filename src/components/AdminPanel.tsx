@@ -15,8 +15,9 @@ import {
   getCurrentUser, getLastUpdate, isRealSupabase, supabase, getUploads, saveUpload, deleteUpload,
   signOut, resetPassword, getBrandSettings, saveBrandSettings
 } from '../lib/supabase';
+import { safeQuery } from '../lib/supabase-safe';
 import { 
-  SiteConfig, Plano, Lead, Usuario, Banner, 
+  SiteConfig, Plano, Lead, Usuario, Banner,  
   Empresa, RedesSociais, CidadeCobertura, SEOConfig, UploadMedia,
   BrandSettings
 } from '../types';
@@ -72,6 +73,17 @@ export default function Dashboard({ onConfigChange, onPlanosChange }: AdminPanel
   const [planosList, setPlanosList] = useState<Plano[]>([]);
   const [redesSociaisDetail, setRedesSociaisDetail] = useState<RedesSociais | null>(null);
   const [seoConfigDetail, setSeoConfigDetail] = useState<SEOConfig | null>(null);
+  const [selectedSeoPage, setSelectedSeoPage] = useState<string>('home');
+  const [seoPagesMap, setSeoPagesMap] = useState<{[key: string]: SEOConfig}>({});
+  const [seoForm, setSeoForm] = useState<any>({
+    title: '',
+    meta_description: '',
+    keywords: '',
+    open_graph_title: '',
+    open_graph_description: '',
+    imagem_compartilhamento: '',
+    status: 'ativo'
+  });
   const [brandSettingsDetail, setBrandSettingsDetail] = useState<BrandSettings | null>(null);
   const [usuariosList, setUsuariosList] = useState<Usuario[]>([]);
   const [leadsList, setLeadsList] = useState<Lead[]>([]);
@@ -132,6 +144,93 @@ export default function Dashboard({ onConfigChange, onPlanosChange }: AdminPanel
     initSession();
   }, []);
 
+  const fetchSeoPages = async () => {
+    try {
+      const response = await safeQuery<any[]>(supabase.from('seo').select('*'));
+      if (response.error) {
+        throw response.error;
+      }
+      
+      const data = response.data;
+      if (data && data.length > 0) {
+        const mapped: {[key: string]: SEOConfig} = {};
+        data.forEach((row: any) => {
+          const key = row.page || row.slug || 'home';
+          mapped[key] = {
+            ...row,
+            title: row.title || '',
+            meta_description: row.meta_description || row.description || '',
+            keywords: row.keywords || '',
+            open_graph_title: row.open_graph_title || row.title || '',
+            open_graph_description: row.open_graph_description || row.meta_description || row.description || '',
+            imagem_compartilhamento: row.imagem_compartilhamento || row.og_image || '',
+            status: row.status || 'ativo'
+          };
+        });
+        setSeoPagesMap(mapped);
+      }
+    } catch (err) {
+      console.error('Erro ao ler páginas de SEO:', err);
+    }
+  };
+
+  useEffect(() => {
+    const pageKey = selectedSeoPage;
+    const existing = seoPagesMap[pageKey];
+    if (existing) {
+      setSeoForm({ ...existing });
+    } else {
+      const defaults: {[key: string]: SEOConfig} = {
+        home: {
+          title: 'GIGATEL - Internet Ultraveloz Fibra Óptica',
+          meta_description: 'Internet Fibra Óptica Ultraveloz para sua casa ou empresa com estabilidade máxima.',
+          keywords: 'GIGATEL, internet, fibra, ultraveloz, wifi',
+          open_graph_title: 'GIGATEL - Internet Ultraveloz Fibra Óptica',
+          open_graph_description: 'Conecte-se com a melhor ultra-velocidade da região!',
+          imagem_compartilhamento: '',
+          status: 'ativo'
+        },
+        planos: {
+          title: 'Nossos Planos de Internet Fibra - GIGATEL',
+          meta_description: 'Conheça nossos planos de internet banda larga e encontre o plano perfeito para você.',
+          keywords: 'planos, internet, banda larga, gigatel, preços',
+          open_graph_title: 'Nossos Planos de Internet Fibra - GIGATEL',
+          open_graph_description: 'Planos ultravelozes sob medida para você!',
+          imagem_compartilhamento: '',
+          status: 'ativo'
+        },
+        sobre: {
+          title: 'Quem Somos - GIGATEL Internet Fibra',
+          meta_description: 'Saiba mais sobre a nossa história, missão e valores em prover estabilidade.',
+          keywords: 'sobre, gigatel, historia, missao, valores',
+          open_graph_title: 'Quem Somos - GIGATEL Internet Fibra',
+          open_graph_description: 'Estabilidade e conexão de verdade na sua região!',
+          imagem_compartilhamento: '',
+          status: 'ativo'
+        },
+        contato: {
+          title: 'Fale Conosco - Atendimento GIGATEL',
+          meta_description: 'Entre em contato com nossa equipe de suporte ou venha nos visitar.',
+          keywords: 'contato, telefone, endereco, suporte, gigatel',
+          open_graph_title: 'Fale Conosco - Atendimento GIGATEL',
+          open_graph_description: 'Dúvidas ou suporte? Fale com nosso canal de atendimento!',
+          imagem_compartilhamento: '',
+          status: 'ativo'
+        }
+      };
+      
+      setSeoForm(defaults[pageKey] || {
+        title: 'GIGATEL - Internet Ultraveloz',
+        meta_description: 'Internet Fibra Ultraveloz para sua casa.',
+        keywords: 'GIGATEL, INTERNET, FIBRA',
+        open_graph_title: 'GIGATEL',
+        open_graph_description: 'Conexão ultraveloz.',
+        imagem_compartilhamento: '',
+        status: 'ativo'
+      });
+    }
+  }, [selectedSeoPage, seoPagesMap]);
+
   // Fetch all databases/Localstorage items
   const loadAllCMSData = async () => {
     // Optionally add a small fake delay to show transparency that it IS fetching
@@ -163,6 +262,8 @@ export default function Dashboard({ onConfigChange, onPlanosChange }: AdminPanel
       setLeadsList(lds);
       setUploadsList(mds);
       setBrandSettingsDetail(brands);
+      
+      await fetchSeoPages();
     } catch (e) {
       console.error("Error loading CMS elements: ", e);
     }
@@ -464,22 +565,117 @@ export default function Dashboard({ onConfigChange, onPlanosChange }: AdminPanel
   // MÓDULO SEO: Submit
   const handleSEOSaveSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!seoConfigDetail) return;
     try {
-      const saved = await saveSEO(seoConfigDetail);
-      setSeoConfigDetail(saved);
+      const payload: any = {
+        ...seoForm
+      };
       
-      // Set page meta details dynamically to demonstrate real fidelity
-      document.title = saved.title;
-      const metaDesc = document.querySelector('meta[name="description"]');
-      if (metaDesc) {
-        metaDesc.setAttribute('content', saved.meta_description);
+      // Defina os campos page e slug para identificar a página
+      payload.page = selectedSeoPage;
+      payload.slug = selectedSeoPage;
+      
+      // Garanta mapeamento cruzado entre colunas alternativas (meta_description vs description, etc)
+      if (payload.meta_description) {
+        payload.description = payload.meta_description;
+      } else if (payload.description) {
+        payload.meta_description = payload.description;
       }
       
+      if (payload.imagem_compartilhamento) {
+        payload.og_image = payload.imagem_compartilhamento;
+      } else if (payload.og_image) {
+        payload.imagem_compartilhamento = payload.og_image;
+      }
+      
+      let savedResult: any = null;
+      let attemptPayload = { ...payload };
+      const keysToTestRemove = [
+        'page',
+        'slug',
+        'meta_description',
+        'imagem_compartilhamento',
+        'open_graph_title',
+        'open_graph_description',
+        'status',
+        'description',
+        'og_image',
+        'created_at',
+        'updated_at'
+      ];
+      
+      let lastError: any = null;
+      for (let attempt = 0; attempt < 12; attempt++) {
+        const { data: savedData, error: saveError } = await supabase
+          .from('seo')
+          .upsert([attemptPayload])
+          .select()
+          .maybeSingle(); // Usar maybeSingle ou single para compatibilidade
+          
+        if (saveError) {
+          lastError = saveError;
+          if (saveError.code === '42703' || saveError.message?.includes('column') || saveError.message?.includes('does not exist')) {
+            const match = saveError.message.match(/column "(.*?)"/);
+            if (match && match[1]) {
+              const missingCol = match[1];
+              console.warn(`[SEO Dynamic Repair] Removendo coluna ausente no banco: ${missingCol}`);
+              delete attemptPayload[missingCol];
+              continue;
+            }
+            
+            let didRemove = false;
+            for (const key of keysToTestRemove) {
+              if (key in attemptPayload) {
+                console.warn(`[SEO Dynamic Repair] Backup eliminando coluna: ${key}`);
+                delete attemptPayload[key];
+                didRemove = true;
+                break;
+              }
+            }
+            if (didRemove) continue;
+          }
+          throw saveError;
+        }
+        
+        savedResult = savedData;
+        break;
+      }
+      
+      if (!savedResult) {
+        // Se a resposta SQL for nula ou não retornará o select, atualizamos o state local com o form original enviado
+        savedResult = { ...payload };
+      }
+      
+      // Normalização final para o state
+      const normalizedSaved: SEOConfig = {
+        ...savedResult,
+        title: savedResult.title || payload.title || '',
+        meta_description: savedResult.meta_description || savedResult.description || payload.meta_description || '',
+        keywords: savedResult.keywords || payload.keywords || '',
+        open_graph_title: savedResult.open_graph_title || savedResult.title || payload.open_graph_title || '',
+        open_graph_description: savedResult.open_graph_description || savedResult.meta_description || savedResult.description || payload.open_graph_description || '',
+        imagem_compartilhamento: savedResult.imagem_compartilhamento || savedResult.og_image || payload.imagem_compartilhamento || '',
+        status: savedResult.status || payload.status || 'ativo'
+      };
+      
+      setSeoPagesMap(prev => ({
+        ...prev,
+        [selectedSeoPage]: normalizedSaved
+      }));
+      setSeoConfigDetail(normalizedSaved);
+      
+      if (selectedSeoPage === 'home') {
+        document.title = normalizedSaved.title;
+        const metaDesc = document.querySelector('meta[name="description"]');
+        if (metaDesc) {
+          metaDesc.setAttribute('content', normalizedSaved.meta_description);
+        }
+      }
+      
+      showAlert(`Metadados de SEO salvos para a página [${selectedSeoPage.toUpperCase()}] com sucesso!`);
       onConfigChange();
-      showAlert('Metadados de SEO atualizados! (Os spiders do Google lerão estes dados informados)');
-    } catch (err) {
-      showAlert('Erro de SEO.', 'error');
+    } catch (err: any) {
+      console.error('Erro de salvamento de SEO:', err);
+      showAlert(`Erro ao salvar metadados de SEO: ${err.message || 'Erro inesperado'}`, 'error');
     }
   };
 
@@ -3046,11 +3242,34 @@ export default function Dashboard({ onConfigChange, onPlanosChange }: AdminPanel
         {/* ========================================================
             TAB 7: SEO E METATAGS
             ======================================================== */}
-        {activeTab === 'seo' && seoConfigDetail && (
+        {activeTab === 'seo' && (
           <form onSubmit={handleSEOSaveSubmit} className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm space-y-5 animate-fade-in">
-            <div className="pb-3 border-b border-slate-100">
-              <h3 className="font-display font-black text-xs text-slate-800 uppercase tracking-wider">Metatags de SEO para Google</h3>
-              <p className="text-[11px] text-slate-500 mt-0.5">Determine como as aranhas e indexadores do Google leem as informações de título e descrição do portal.</p>
+            <div className="pb-3 border-b border-slate-100 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div>
+                <h3 className="font-display font-black text-xs text-slate-800 uppercase tracking-wider">Metatags de SEO por Página</h3>
+                <p className="text-[11px] text-slate-500 mt-0.5">Determine como as aranhas e indexadores do Google leem as informações de cada página.</p>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {[
+                  { id: 'home', label: 'Início (Home)' },
+                  { id: 'planos', label: 'Planos' },
+                  { id: 'sobre', label: 'Sobre Nós' },
+                  { id: 'contato', label: 'Contato' }
+                ].map((p) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => { setSelectedSeoPage(p.id); }}
+                    className={`px-3 py-2 rounded-xl text-[11px] font-bold tracking-tight transition-all ${
+                      selectedSeoPage === p.id
+                        ? 'bg-[#005BFF] text-white shadow-sm'
+                        : 'bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-slate-100'
+                    }`}
+                  >
+                    {p.label}
+                  </button>
+                ))}
+              </div>
             </div>
 
             <div className="grid grid-cols-1 gap-4 text-xs">
@@ -3059,9 +3278,10 @@ export default function Dashboard({ onConfigChange, onPlanosChange }: AdminPanel
                 <input 
                   type="text" 
                   required
-                  value={seoConfigDetail.title}
-                  onChange={(e) => setSeoConfigDetail({ ...seoConfigDetail, title: e.target.value })}
+                  value={seoForm.title || ''}
+                  onChange={(e) => setSeoForm({ ...seoForm, title: e.target.value })}
                   className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white font-semibold text-slate-800"
+                  placeholder="Ex: GIGATEL - Internet Ultraveloz Fibra Óptica"
                 />
               </div>
 
@@ -3070,9 +3290,10 @@ export default function Dashboard({ onConfigChange, onPlanosChange }: AdminPanel
                 <textarea 
                   rows={3}
                   required
-                  value={seoConfigDetail.meta_description}
-                  onChange={(e) => setSeoConfigDetail({ ...seoConfigDetail, meta_description: e.target.value })}
+                  value={seoForm.meta_description || ''}
+                  onChange={(e) => setSeoForm({ ...seoForm, meta_description: e.target.value })}
                   className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                  placeholder="Ex: Oferecemos a internet banda larga mais rápida e estável para sua casa ou empresa com suporte de alta fidelidade..."
                 />
               </div>
 
@@ -3081,20 +3302,22 @@ export default function Dashboard({ onConfigChange, onPlanosChange }: AdminPanel
                 <input 
                   type="text" 
                   required
-                  value={seoConfigDetail.keywords}
-                  onChange={(e) => setSeoConfigDetail({ ...seoConfigDetail, keywords: e.target.value })}
+                  value={seoForm.keywords || ''}
+                  onChange={(e) => setSeoForm({ ...seoForm, keywords: e.target.value })}
                   className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white font-mono"
+                  placeholder="Ex: gigatel, internet fibra, provedor internet, ultravelocidade"
                 />
               </div>
 
               <div className="flex flex-col space-y-1">
-                <label className="font-bold text-slate-400 uppercase text-[10px]">OpenGraph Sharing Title (Título para WhatsApp / Face compartilhado)</label>
+                <label className="font-bold text-slate-400 uppercase text-[10px]">OpenGraph Sharing Title (Título para WhatsApp / Facebook compartilhado)</label>
                 <input 
                   type="text" 
                   required
-                  value={seoConfigDetail.open_graph_title}
-                  onChange={(e) => setSeoConfigDetail({ ...seoConfigDetail, open_graph_title: e.target.value })}
+                  value={seoForm.open_graph_title || ''}
+                  onChange={(e) => setSeoForm({ ...seoForm, open_graph_title: e.target.value })}
                   className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                  placeholder="Ex: GIGATEL - Internet Fibra Ultraveloz"
                 />
               </div>
 
@@ -3103,9 +3326,10 @@ export default function Dashboard({ onConfigChange, onPlanosChange }: AdminPanel
                 <input 
                   type="text" 
                   required
-                  value={seoConfigDetail.open_graph_description}
-                  onChange={(e) => setSeoConfigDetail({ ...seoConfigDetail, open_graph_description: e.target.value })}
+                  value={seoForm.open_graph_description || ''}
+                  onChange={(e) => setSeoForm({ ...seoForm, open_graph_description: e.target.value })}
                   className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
+                  placeholder="Ex: Conecte-se com a melhor ultra-velocidade da região com planos que cabem no seu bolso!"
                 />
               </div>
 
@@ -3114,9 +3338,10 @@ export default function Dashboard({ onConfigChange, onPlanosChange }: AdminPanel
                 <input 
                   type="text" 
                   required
-                  value={seoConfigDetail.imagem_compartilhamento}
-                  onChange={(e) => setSeoConfigDetail({ ...seoConfigDetail, imagem_compartilhamento: e.target.value })}
+                  value={seoForm.imagem_compartilhamento || ''}
+                  onChange={(e) => setSeoForm({ ...seoForm, imagem_compartilhamento: e.target.value })}
                   className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white font-mono"
+                  placeholder="URL de imagem pública para visualização no compartilhamento"
                 />
               </div>
             </div>
@@ -3127,7 +3352,7 @@ export default function Dashboard({ onConfigChange, onPlanosChange }: AdminPanel
                 className="px-6 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl flex items-center space-x-1.5"
               >
                 <Save size={14} />
-                <span>Salvar Meta Tags</span>
+                <span>Salvar Meta Tags [{selectedSeoPage.toUpperCase()}]</span>
               </button>
             </div>
           </form>

@@ -33,12 +33,12 @@ export default function Hero({ config, banners = [] }: HeroProps) {
 
   // Fallback banner if database results empty
   const currentBanner = activeBanners.length > 0 ? activeBanners[currentSlide] : {
-    titulo: config.hero_titulo || 'Aguardando Banners',
-    subtitulo: config.hero_subtitulo || 'Adicione banners no painel admin.',
-    texto_botao: config.hero_texto_botao || 'Painel Admin',
-    link_botao: '#admin',
-    image_url: '',
-    mobile_image_url: ''
+    titulo: config.hero_titulo || 'INTERNET ULTRAVELOZ COM FIBRA GIGATEL',
+    subtitulo: config.hero_subtitulo || 'Conecte toda a sua família à maior estabilidade, ultra performance e suporte 24h especializado.',
+    texto_botao: config.hero_texto_botao || 'Ver Planos',
+    link_botao: '#planos',
+    image_url: '/gigatel_banner_desktop_1781889399636.jpg',
+    mobile_image_url: '/gigatel_banner_mobile_1781889415602.jpg'
   };
 
   const cleanWhatsapp = config.whatsapp ? config.whatsapp.replace(/\D/g, '') : '5511910050121';
