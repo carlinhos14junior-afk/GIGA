@@ -3,6 +3,7 @@ import { MessageCircle, Instagram } from 'lucide-react';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import Planos from './components/Planos';
+import SpeedTest from './components/SpeedTest';
 import CoberturaForm from './components/CoberturaForm';
 import Vantagens from './components/Vantagens';
 import SobreNos from './components/SobreNos';
@@ -234,7 +235,7 @@ export default function App() {
     logo_url: '',
     whatsapp: '5511910050121',
     telefone: '(11) 91005-0121',
-    email: 'contato@gigatelfiber.com.br',
+    email: 'contato@gigatel.com.br',
     endereco: 'Rua Antônio Ferraciolli, 331',
     bairro: 'Jardim Catarina',
     cidade: 'São Paulo',
@@ -242,12 +243,12 @@ export default function App() {
     cep: '03910-070',
     tempo_carro: '15 min de carro',
     tempo_moto: '5 min de moto',
-    instagram: 'gigatelfiberofc',
-    facebook: 'gigatelfiberofc'
+    instagram: 'gigatelofc',
+    facebook: 'gigatelofc'
   };
 
   const floatWhatsappClean = activeConfig.whatsapp ? activeConfig.whatsapp.replace(/\D/g, '') : '5511910050121';
-  const floatInstagramUser = activeConfig.instagram ? activeConfig.instagram.replace('@', '') : 'gigatelfiberofc';
+  const floatInstagramUser = activeConfig.instagram ? activeConfig.instagram.replace('@', '') : 'gigatelofc';
   const floatInstagramLabel = `@${floatInstagramUser}`;
   const floatWhatsappMsg = `Olá ${activeConfig.nome_empresa}! Quero contratar internet fibra ultraveloz agora.`;
 
@@ -270,6 +271,9 @@ export default function App() {
             
             {/* 2. Fiber plans cards dynamic grid */}
             <Planos config={activeConfig} planos={planosList} />
+            
+            {/* Speed Test Widget */}
+            <SpeedTest />
             
             {/* 3. Coverage search inputs module (saving leads to Supabase) */}
             <CoberturaForm />

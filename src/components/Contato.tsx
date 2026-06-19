@@ -34,7 +34,7 @@ export default function Contato({ config }: ContatoProps) {
     },
     {
       title: 'E-mail Corporativo',
-      val: config.email || 'contato@gigatelfiber.com.br',
+      val: config.email || 'contato@gigatel.com.br',
       icon: Mail,
       link: `mailto:${config.email}`
     },

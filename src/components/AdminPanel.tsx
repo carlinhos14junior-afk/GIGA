@@ -893,7 +893,7 @@ export default function Dashboard({ onConfigChange, onPlanosChange }: AdminPanel
                     required
                     value={forgotEmail}
                     onChange={(e) => setForgotEmail(e.target.value)}
-                    placeholder="adm@gigatelfiber.com.br"
+                    placeholder="adm@gigatel.com.br"
                     className="w-full bg-white border border-slate-200 hover:border-slate-350 focus:border-slate-505 focus:outline-none rounded-xl py-3 px-4 text-sm text-slate-900"
                   />
                 </div>
@@ -936,7 +936,7 @@ export default function Dashboard({ onConfigChange, onPlanosChange }: AdminPanel
                     required
                     value={loginEmail}
                     onChange={(e) => setLoginEmail(e.target.value)}
-                    placeholder="adm@gigatelfiber.com.br"
+                    placeholder="adm@gigatel.com.br"
                     className="w-full bg-white border border-slate-200 hover:border-slate-350 focus:border-slate-500 focus:outline-none rounded-xl py-3 px-4 text-sm text-slate-900"
                   />
                 </div>
@@ -2499,7 +2499,7 @@ export default function Dashboard({ onConfigChange, onPlanosChange }: AdminPanel
                   value={empresaDetail.instagram || ''}
                   onChange={(e) => setEmpresaDetail({ ...empresaDetail, instagram: e.target.value })}
                   className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
-                  placeholder="gigatelfiberofc"
+                  placeholder="gigatelofc"
                 />
               </div>
 
@@ -2510,7 +2510,7 @@ export default function Dashboard({ onConfigChange, onPlanosChange }: AdminPanel
                   value={empresaDetail.facebook || ''}
                   onChange={(e) => setEmpresaDetail({ ...empresaDetail, facebook: e.target.value })}
                   className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
-                  placeholder="gigatelfiberofc"
+                  placeholder="gigatelofc"
                 />
               </div>
             </div>
@@ -3120,7 +3120,7 @@ export default function Dashboard({ onConfigChange, onPlanosChange }: AdminPanel
                   value={redesSociaisDetail.instagram}
                   onChange={(e) => setRedesSociaisDetail({ ...redesSociaisDetail, instagram: e.target.value })}
                   className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
-                  placeholder="gigatelfiberofc"
+                  placeholder="gigatelofc"
                 />
               </div>
 
@@ -3132,7 +3132,7 @@ export default function Dashboard({ onConfigChange, onPlanosChange }: AdminPanel
                   value={redesSociaisDetail.facebook}
                   onChange={(e) => setRedesSociaisDetail({ ...redesSociaisDetail, facebook: e.target.value })}
                   className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
-                  placeholder="gigatelfiberofc"
+                  placeholder="gigatelofc"
                 />
               </div>
 

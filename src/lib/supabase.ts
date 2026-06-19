@@ -39,7 +39,7 @@ export async function getSiteConfig(forceRefresh = false): Promise<SiteConfig> {
     logo_url: '',
     whatsapp: '5511910050121',
     telefone: '(11) 91005-0121',
-    email: 'contato@gigatelfiber.com.br',
+    email: 'contato@gigatel.com.br',
     endereco: 'Rua Antônio Ferraciolli, 331',
     bairro: 'Jardim Catarina',
     cidade: 'São Paulo',
@@ -114,7 +114,7 @@ export async function getEmpresa(): Promise<Empresa> {
     nome_empresa: 'GIGATEL',
     telefone: '(11) 91005-0121',
     whatsapp: '5511910050121',
-    email: 'contato@gigatelfiber.com.br',
+    email: 'contato@gigatel.com.br',
     endereco: 'Rua Antônio Ferraciolli, 331',
     numero: '331',
     bairro: 'Jardim Catarina',
@@ -136,8 +136,8 @@ export async function getRedesSociais(): Promise<RedesSociais> {
   if (error) throw error;
   if (!data) return {
     id: 1,
-    instagram: 'gigatelfiberofc',
-    facebook: 'gigatelfiberofc'
+    instagram: 'gigatelofc',
+    facebook: 'gigatelofc'
   } as RedesSociais;
   return data;
 }
