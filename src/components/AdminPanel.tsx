@@ -32,11 +32,11 @@ type TabType = 'dashboard' | 'banners' | 'empresa' | 'planos' | 'redes_sociais' 
 export default function Dashboard({ onConfigChange, onPlanosChange }: AdminPanelProps) {
   // Theme Toggle state (with persistence in localStorage)
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
-    return (localStorage.getItem('giga_admin_theme') as 'light' | 'dark') || 'light';
+    return (localStorage.getItem('gigatel_admin_theme') as 'light' | 'dark') || 'light';
   });
 
   useEffect(() => {
-    localStorage.setItem('giga_admin_theme', theme);
+    localStorage.setItem('gigatel_admin_theme', theme);
   }, [theme]);
 
   // Navigation & Sizing
@@ -119,7 +119,7 @@ export default function Dashboard({ onConfigChange, onPlanosChange }: AdminPanel
         }
         
         // Load initial status preference
-        const savedStatus = localStorage.getItem('giganet_site_status') as 'Ativo' | 'Manutenção';
+        const savedStatus = localStorage.getItem('gigatel_site_status') as 'Ativo' | 'Manutenção';
         if (savedStatus) {
           setSiteStatus(savedStatus);
         }
@@ -255,7 +255,7 @@ export default function Dashboard({ onConfigChange, onPlanosChange }: AdminPanel
         showAlert('Falha ao sincronizar status na nuvem.', 'error');
       }
     } else {
-      localStorage.setItem('giganet_site_status', status);
+      localStorage.setItem('gigatel_site_status', status);
       showAlert(`Status do site alterado para "${status}" localmente!`);
     }
   };

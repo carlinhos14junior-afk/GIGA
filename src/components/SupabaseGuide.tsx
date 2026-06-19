@@ -116,7 +116,7 @@ NOTIFY pgrst, 'reload schema';`;
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-medium text-slate-300">
           <div className="p-3 bg-slate-900 rounded-xl border border-slate-850">
             <span className="text-brand-neon font-bold block mb-1">Passo 1: Criar Projeto</span>
-            Crie uma conta gratuita no <span className="text-white">Supabase.com</span> e inicie um novo projeto chamado "Giganet".
+            Crie uma conta gratuita no <span className="text-white">Supabase.com</span> e inicie um novo projeto chamado "GIGATEL".
           </div>
           <div className="p-3 bg-slate-900 rounded-xl border border-slate-850">
             <span className="text-brand-neon font-bold block mb-1">Passo 2: Executar SQL</span>

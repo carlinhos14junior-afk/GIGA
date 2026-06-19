@@ -32,7 +32,7 @@ export default function Footer({ config, onNavigate }: FooterProps) {
       ];
 
   return (
-    <footer id="footer-giganet" className="relative bg-[#0A1F44] border-t border-white/5 pt-16 pb-12 text-slate-300 overflow-hidden">
+    <footer id="footer-gigatel" className="relative bg-[#0A1F44] border-t border-white/5 pt-16 pb-12 text-slate-300 overflow-hidden">
       {/* Top highlight bar */}
       <div className="absolute top-0 inset-x-0 h-[3px] bg-gradient-to-r from-[#0057FF] via-[#00AEEF] to-[#E53935]" />
 
