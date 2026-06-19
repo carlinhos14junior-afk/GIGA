@@ -27,7 +27,7 @@ interface AdminPanelProps {
   onPlanosChange: () => void;
 }
 
-type TabType = 'dashboard' | 'banners' | 'empresa' | 'planos' | 'cobertura' | 'redes_sociais' | 'seo' | 'usuarios' | 'configuracoes' | 'rodape' | 'conteudo' | 'logo';
+type TabType = 'dashboard' | 'banners' | 'empresa' | 'planos' | 'redes_sociais' | 'seo' | 'usuarios' | 'configuracoes' | 'rodape' | 'conteudo' | 'logo';
 
 export default function Dashboard({ onConfigChange, onPlanosChange }: AdminPanelProps) {
   // Theme Toggle state (with persistence in localStorage)
@@ -157,7 +157,6 @@ export default function Dashboard({ onConfigChange, onPlanosChange }: AdminPanel
       setBannersList(bans);
       setEmpresaDetail(emp);
       setPlanosList(pls);
-      setCoberturaList(cob);
       setRedesSociaisDetail(red);
       setSeoConfigDetail(seo);
       setUsuariosList(usrs);
@@ -433,41 +432,6 @@ export default function Dashboard({ onConfigChange, onPlanosChange }: AdminPanel
       } catch (err) {
         console.error('Error deleting plan:', err);
         showAlert('Erro ao excluir plano.', 'error');
-      }
-    }
-  };
-
-  // MÓDULO COBERTURA: Submit
-  const handleCoberturaSaveSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingCidade) return;
-    try {
-      await saveCidadeCobertura({
-        id: editingCidade.id,
-        nome: editingCidade.nome || '',
-        estado: editingCidade.estado || 'SP',
-        status: editingCidade.status || 'ativo'
-      });
-
-      const refreshed = await getCidadesCobertura();
-      setCoberturaList(refreshed);
-      setEditingCidade(null);
-      onConfigChange();
-      showAlert('Cidade adicionada à malha de cobertura!');
-    } catch (err) {
-      showAlert('Não foi possível gravar a cidade.', 'error');
-    }
-  };
-
-  const handleDeleteCidadeClick = async (id: string | number) => {
-    if (confirm('Remover esta cidade da cobertura regulada no site?')) {
-      try {
-        await deleteCidadeCobertura(id);
-        setCoberturaList(coberturaList.filter(c => c.id !== id));
-        onConfigChange();
-        showAlert('Cidade removida.');
-      } catch (err) {
-        showAlert('Erro ao apagar cidade.', 'error');
       }
     }
   };

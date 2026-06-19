@@ -202,7 +202,7 @@ export async function deleteUpload(id: string | number): Promise<void> {
 }
 
 export async function getPlanos(): Promise<Plano[]> {
-  const { data, error } = await supabase.from('planos').select('*').order('ordem', { ascending: true });
+  const { data, error } = await supabase.from('planos').select('*').order('id', { ascending: true });
   if (error) {
     if (error.code === 'PGRST205') return [];
     throw error;
@@ -271,18 +271,23 @@ export async function deleteUsuario(id: string): Promise<void> {
   if (error) throw error;
 }
 
-export async function getBrandSettings(): Promise<BrandSettings> {
-  const { data, error } = await supabase.from('brand_settings').select('*').limit(1).maybeSingle();
-  if (error) throw error;
-  if (!data) return {
-    id: 1,
-    logo_url: '',
-    logo_white_url: '',
-    logo_footer_url: '',
-    logo_mobile_url: '',
-    favicon_url: ''
-  } as BrandSettings;
-  return data;
+export async function getBrandSettings() {
+  try {
+    const { data, error } = await supabase
+      .from("brand_settings")
+      .select("*")
+      .single();
+
+    if (error) {
+      console.warn("Brand settings não encontrada:", error);
+      return null;
+    }
+
+    return data;
+  } catch (err) {
+    console.warn("Erro ao carregar configurações da marca:", err);
+    return null;
+  }
 }
 
 export async function saveBrandSettings(settings: BrandSettings): Promise<BrandSettings> {
