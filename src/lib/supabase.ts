@@ -35,7 +35,7 @@ export async function getSiteConfig(forceRefresh = false): Promise<SiteConfig> {
   if (error) throw error;
   if (!data) return {
     id: 1,
-    nome_empresa: 'GIGATEL FIBER',
+    nome_empresa: 'GIGATEL',
     logo_url: '',
     whatsapp: '5511910050121',
     telefone: '(11) 91005-0121',
@@ -111,7 +111,7 @@ export async function getEmpresa(): Promise<Empresa> {
   if (error) throw error;
   if (!data) return {
     id: 1,
-    nome_empresa: 'GIGATEL FIBER',
+    nome_empresa: 'GIGATEL',
     telefone: '(11) 91005-0121',
     whatsapp: '5511910050121',
     email: 'contato@gigatelfiber.com.br',
@@ -153,9 +153,9 @@ export async function getSEO(): Promise<SEOConfig> {
   if (error) throw error;
   if (!data) return {
     id: 1,
-    title: 'GIGATEL FIBER - Internet Ultraveloz',
+    title: 'GIGATEL - Internet Ultraveloz',
     meta_description: 'Internet Fibra Ultraveloz para sua casa.',
-    keywords: 'GIGATEL, FIBER, INTERNET, FIBRA',
+    keywords: 'GIGATEL, INTERNET, FIBRA',
     status: 'inativo'
   } as SEOConfig;
   return data;

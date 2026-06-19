@@ -17,7 +17,7 @@ export default function Logo({
   lightVersion = false, 
   logoUrl,
   logoWhiteUrl,
-  nomeEmpresa = 'GIGATEL FIBER'
+  nomeEmpresa = 'GIGATEL'
 }: LogoProps) {
   const activeLogo = lightVersion ? (logoWhiteUrl || logoUrl) : logoUrl;
 

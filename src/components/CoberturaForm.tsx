@@ -194,7 +194,7 @@ export default function CoberturaForm() {
 
               {/* Floating indicators labels inside map mockup */}
               <div className="relative z-10 flex justify-between items-center pb-2 border-b border-slate-100">
-                <span className="text-[10px] font-black tracking-widest text-[#0057FF] uppercase font-mono">GIGATEL FIBER MAP • DISPONÍVEL</span>
+                <span className="text-[10px] font-black tracking-widest text-[#0057FF] uppercase font-mono">GIGATEL MAP • DISPONÍVEL</span>
                 <span className="flex items-center text-[9px] font-black text-[#0057FF] uppercase tracking-widest">
                   <span className="h-1.5 w-1.5 rounded-full bg-[#E53935] mr-1.5 animate-ping"></span> REDE ATIVA
                 </span>
@@ -233,7 +233,7 @@ export default function CoberturaForm() {
                   </h3>
                   
                   <p className="text-slate-600 text-xs sm:text-sm max-w-sm leading-relaxed font-semibold">
-                    Registramos seu interesse com sucesso no sistema. Um de nossos analistas de rede da GIGATEL FIBER ligará ou enviará mensagem no seu WhatsApp em instantes! Hospe-se na velocidade!
+                    Registramos seu interesse com sucesso no sistema. Um de nossos analistas de rede da GIGATEL ligará ou enviará mensagem no seu WhatsApp em instantes! Hospe-se na velocidade!
                   </p>
                   
                   <button

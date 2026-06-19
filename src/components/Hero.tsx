@@ -43,7 +43,7 @@ export default function Hero({ config, banners = [] }: HeroProps) {
 
   const cleanWhatsapp = config.whatsapp ? config.whatsapp.replace(/\D/g, '') : '5511910050121';
   const whatsAppLink = `https://wa.me/${cleanWhatsapp}?text=${encodeURIComponent(
-    `Olá GIGATEL FIBER! Quero contratar internet fibra ultraveloz agora de forma rápida.`
+    `Olá GIGATEL! Quero contratar internet fibra ultraveloz agora de forma rápida.`
   )}`;
 
   const stats = [

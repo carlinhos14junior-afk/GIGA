@@ -216,12 +216,12 @@ export default function App() {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center p-8">
         <div className="flex flex-col items-center">
-          {/* Elegant modern GIGATEL FIBER loader */}
+          {/* Elegant modern GIGATEL loader */}
           <div className="relative transform hover:scale-105 transition-transform duration-300">
             <Logo size="lg" className="animate-pulse" logoUrl={siteConfig?.logo_url} />
           </div>
           <p className="text-[11px] font-bold text-slate-400 tracking-widest mt-8 uppercase animate-pulse font-mono">
-            GIGATEL FIBER • Conectando você ao mundo...
+            GIGATEL • Conectando você ao mundo...
           </p>
         </div>
       </div>
@@ -230,7 +230,7 @@ export default function App() {
 
   // Backup fallback config if none somehow loaded
   const activeConfig = siteConfig || {
-    nome_empresa: 'GIGATEL FIBER',
+    nome_empresa: 'GIGATEL',
     logo_url: '',
     whatsapp: '5511910050121',
     telefone: '(11) 91005-0121',
