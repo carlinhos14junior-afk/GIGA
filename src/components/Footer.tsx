@@ -28,7 +28,6 @@ export default function Footer({ config, onNavigate }: FooterProps) {
         { label: 'Início', href: '#inicio' },
         { label: 'Planos Fibra', href: '#planos' },
         { label: 'Diferenciais', href: '#vantagens' },
-        { label: 'Consultar Cobertura', href: '#cobertura' },
         { label: 'Perguntas FAQ', href: '#faq' }
       ];
 
@@ -194,7 +193,7 @@ export default function Footer({ config, onNavigate }: FooterProps) {
             <div className="space-y-4 text-xs sm:text-sm text-slate-600 leading-relaxed">
               <p className="font-bold text-slate-900">Última atualização: Junho de 2026</p>
               <p>
-                A <strong>{config.nome_empresa}</strong> preza severamente pelo sigilo de suas informações de contato e endereço. Coletamos apenas as credenciais declaradamente enviadas pelos nossos formulários digitais de contato e consulta de cobertura.
+                A <strong>{config.nome_empresa}</strong> preza severamente pelo sigilo de suas informações de contato e endereço. Coletamos apenas as credenciais declaradamente enviadas pelos nossos formulários digitais de contato.
               </p>
               <h4 className="font-bold text-slate-900 mt-4 border-l-2 border-emerald-500 pl-2">Utilização de Dados Cadastrais</h4>
               <p>

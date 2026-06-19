@@ -27,8 +27,8 @@ export default function FAQ({ config }: FAQProps) {
   if (faqs.length === 0) {
     faqs = [
       {
-        pergunta: 'Como consultar a disponibilidade de internet para minha rua?',
-        resposta: 'É muito simples! Basta preencher o nosso formulário na seção "Cobertura" informando seu CEP e endereço. Nossa equipe comercial fará uma auditoria imediata nos mapas de rede e entrará em contato pelo seu WhatsApp para confirmar a viabilidade disponível na sua região.'
+        pergunta: 'Como posso contratar planos e verificar disponibilidade?',
+        resposta: 'É muito simples! Entre em contato conosco diretamente pelo WhatsApp clicando no botão disponível em nosso site. Nossa equipe comercial fará a verificação estratégica da nossa infraestrutura viável em seu logradouro e guiará você com toda agilidade na contratação do plano ideal.'
       },
       {
         pergunta: 'Os planos de fibra óptica possuem fidelidade contratual?',

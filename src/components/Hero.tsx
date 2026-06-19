@@ -207,12 +207,8 @@ export default function Hero({ config, banners = [] }: HeroProps) {
         </svg>
       </div>
       
-      {/* Scroll indicator */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 opacity-40 animate-bounce">
-         <div className="w-6 h-10 border-2 border-white rounded-full flex justify-center p-1">
-            <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
-         </div>
-      </div>
+      {/* Scroll indicator - Removed */}
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 opacity-0"></div>
     </section>
   );
 }

@@ -70,7 +70,6 @@ export default function Dashboard({ onConfigChange, onPlanosChange }: AdminPanel
   const [bannersList, setBannersList] = useState<Banner[]>([]);
   const [empresaDetail, setEmpresaDetail] = useState<Empresa | null>(null);
   const [planosList, setPlanosList] = useState<Plano[]>([]);
-  const [coberturaList, setCoberturaList] = useState<CidadeCobertura[]>([]);
   const [redesSociaisDetail, setRedesSociaisDetail] = useState<RedesSociais | null>(null);
   const [seoConfigDetail, setSeoConfigDetail] = useState<SEOConfig | null>(null);
   const [brandSettingsDetail, setBrandSettingsDetail] = useState<BrandSettings | null>(null);
@@ -84,7 +83,6 @@ export default function Dashboard({ onConfigChange, onPlanosChange }: AdminPanel
   // Form Modals / Edit targets states
   const [editingBanner, setEditingBanner] = useState<Partial<Banner> | null>(null);
   const [editingPlano, setEditingPlano] = useState<Partial<Plano> | null>(null);
-  const [editingCidade, setEditingCidade] = useState<Partial<CidadeCobertura> | null>(null);
   const [editingUsuario, setEditingUsuario] = useState<Partial<Usuario> | null>(null);
 
   // Upload loaders
@@ -1066,7 +1064,6 @@ export default function Dashboard({ onConfigChange, onPlanosChange }: AdminPanel
               { id: 'empresa', label: 'Dados da Empresa', icon: Settings },
               { id: 'logo', label: 'Logotipos e Identidade', icon: ImageIcon },
               { id: 'planos', label: 'Planos de Fibra', icon: Wifi },
-              { id: 'cobertura', label: 'Cobertura Cidades', icon: Globe },
               { id: 'rodape', label: 'Rodapé Site', icon: ArrowDownToLine },
               { id: 'redes_sociais', label: 'Redes Sociais', icon: Share2 },
               { id: 'seo', label: 'SEO e Metatags', icon: Key },
@@ -1168,7 +1165,6 @@ export default function Dashboard({ onConfigChange, onPlanosChange }: AdminPanel
               <option value="conteudo">📝 Conteúdo do Site</option>
               <option value="empresa">🏢 Dados da Empresa</option>
               <option value="planos">📶 Planos de Fibra</option>
-              <option value="cobertura">🌐 Cobertura Cidades</option>
               <option value="rodape">👣 Rodapé do Site</option>
               <option value="redes_sociais">🔔 Redes Sociais</option>
               <option value="seo">🔑 SEO e Metatags</option>
@@ -2973,123 +2969,6 @@ export default function Dashboard({ onConfigChange, onPlanosChange }: AdminPanel
                             className="p-1 px-2.5 rounded bg-red-50 hover:bg-red-100 border border-red-100 text-red-650 font-bold"
                           >
                             Excluir
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ========================================================
-            TAB 5: COBERTURA CIDADES
-            ======================================================== */}
-        {activeTab === 'cobertura' && (
-          <div className="space-y-6 animate-fade-in">
-            {editingCidade ? (
-              <form onSubmit={handleCoberturaSaveSubmit} className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm space-y-4">
-                <div className="pb-3 border-b border-slate-100 flex justify-between items-center">
-                  <h3 className="font-display font-black text-sm text-slate-800 uppercase tracking-wider">
-                    {editingCidade.id ? 'Editar Cidade de Cobertura' : 'Adicionar Nova Região'}
-                  </h3>
-                  <button type="button" onClick={() => setEditingCidade(null)} className="text-slate-400 hover:text-slate-900">
-                    <X size={16} />
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
-                  <div className="flex flex-col space-y-1 sm:col-span-2">
-                    <label className="font-bold text-slate-400 uppercase text-[10px]">Nome da Cidade</label>
-                    <input 
-                      type="text" 
-                      required
-                      value={editingCidade.nome || ''}
-                      onChange={(e) => setEditingCidade({ ...editingCidade, nome: e.target.value })}
-                      className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
-                      placeholder="Ex: Santos"
-                    />
-                  </div>
-
-                  <div className="flex flex-col space-y-1">
-                    <label className="font-bold text-slate-400 uppercase text-[10px]">Estado (UF)</label>
-                    <input 
-                      type="text" 
-                      maxLength={2}
-                      required
-                      value={editingCidade.estado || ''}
-                      onChange={(e) => setEditingCidade({ ...editingCidade, estado: e.target.value.toUpperCase() })}
-                      className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
-                      placeholder="Ex: SP"
-                    />
-                  </div>
-
-                  <div className="flex flex-col space-y-1 sm:col-span-3">
-                    <label className="font-bold text-slate-400 uppercase text-[10px]">Malha com Sinal Ativo?</label>
-                    <select 
-                      value={editingCidade.status || 'ativo'}
-                      onChange={(e) => setEditingCidade({ ...editingCidade, status: e.target.value as 'ativo' | 'inativo' })}
-                      className="p-2.5 border rounded-xl focus:outline-slate-400 bg-white"
-                    >
-                      <option value="ativo">Sinal Ativo / Fibra em operação</option>
-                      <option value="inativo">Rede em implantação (Inativo)</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="pt-3 border-t flex justify-end space-x-2">
-                  <button type="button" onClick={() => setEditingCidade(null)} className="px-4 py-2 rounded-xl bg-slate-150 hover:bg-slate-200 text-slate-750 text-xs font-bold">Cancelar</button>
-                  <button type="submit" className="px-5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold flex items-center space-x-1.5"><Save size={13} /><span>Inserir Cidade</span></button>
-                </div>
-              </form>
-            ) : (
-              <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
-                <div className="flex justify-between items-center pb-4 border-b border-slate-100 mb-6 font-semibold">
-                  <div>
-                    <h3 className="font-display font-black text-xs text-slate-800 uppercase tracking-wider">Cidades com Rede (Cobertura)</h3>
-                    <p className="text-[11px] text-slate-500 mt-0.5">Determine em quais distritos ou municípios declaramos viabilidade do serviço.</p>
-                  </div>
-                  <button 
-                    onClick={() => setEditingCidade({ nome: '', estado: 'SP', status: 'ativo' })}
-                    className="px-3.5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-850 text-white font-bold text-xs flex items-center space-x-1.5"
-                  >
-                    <Plus size={14} />
-                    <span>Adicionar Cidade</span>
-                  </button>
-                </div>
-
-                {coberturaList.length === 0 ? (
-                  <p className="text-center py-12 text-slate-400 text-xs font-mono">Nenhuma região informada ainda.</p>
-                ) : (
-                  <div className="space-y-2.5">
-                    {coberturaList.map((cidade) => (
-                      <div key={cidade.id} className="p-3 border rounded-xl flex items-center justify-between bg-[#F8FAFC] border-slate-180 text-xs">
-                        <div className="flex items-center space-x-2.5">
-                          <span className="font-bold text-slate-800 text-sm">{cidade.nome}</span>
-                          <span className="text-[10px] font-bold text-slate-400 uppercase font-mono bg-slate-200 px-1 rounded">{cidade.estado}</span>
-                        </div>
-
-                        <div className="flex items-center space-x-3 text-right">
-                          <span className={`px-2 py-0.5 text-[8px] rounded font-black uppercase border font-mono ${
-                            cidade.status === 'ativo' 
-                              ? 'bg-emerald-50 border-emerald-200 text-emerald-700' 
-                              : 'bg-slate-100 border-slate-200 text-slate-400'
-                          }`}>
-                            {cidade.status === 'ativo' ? 'FIBRA ATIVA' : 'PLANEJAMENTO'}
-                          </span>
-                          <button 
-                            onClick={() => setEditingCidade(cidade)}
-                            className="p-1 px-2.5 rounded bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-bold text-[10px]"
-                          >
-                            Editar
-                          </button>
-                          <button 
-                            onClick={() => handleDeleteCidadeClick(cidade.id)}
-                            className="p-1 px-2.5 text-red-600 hover:text-red-800 text-[10px] font-bold"
-                          >
-                            Remover
                           </button>
                         </div>
                       </div>

@@ -23,13 +23,12 @@ export default function Header({ config, onNavigate, currentView }: HeaderProps)
 
   const whatsappNumber = config.whatsapp ? config.whatsapp.replace(/\D/g, '') : '5511910050121';
   const whatsAppLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
-    `Olá ${config.nome_empresa || 'GIGATEL FIBRA'}! Quero conhecer os planos de internet fibra de alta performance.`
+    `Olá ${config.nome_empresa || 'GIGATEL'}! Quero conhecer os planos de internet fibra de alta performance.`
   )}`;
 
   const navItems = [
     { label: 'Início', href: '#inicio' },
     { label: 'Planos', href: '#planos' },
-    { label: 'Cobertura', href: '#cobertura' },
     { label: 'Sobre Nós', href: '#sobre' },
     { label: 'Contato', href: '#contato' },
   ];
@@ -101,13 +100,6 @@ export default function Header({ config, onNavigate, currentView }: HeaderProps)
 
             {/* Action Buttons (Header CTA) */}
             <div className="hidden lg:flex items-center space-x-3.5">
-              <button
-                onClick={() => handleNavClick('#cobertura')}
-                className="px-5 py-2.5 text-xs font-bold text-white bg-transparent hover:bg-white hover:text-[#0A1F44] border border-white/20 rounded-xl transition-all duration-300"
-              >
-                Consultar Cobertura
-              </button>
-
               <a
                 href={whatsAppLink}
                 target="_blank"
@@ -160,13 +152,6 @@ export default function Header({ config, onNavigate, currentView }: HeaderProps)
           )}
 
           <div className="pt-3 border-t border-white/10 flex flex-col gap-2">
-            <button
-              onClick={() => handleNavClick('#cobertura')}
-              className="flex items-center justify-center space-x-2 px-4 py-3 rounded-xl text-xs font-bold text-white bg-transparent border border-white/20 hover:bg-white/10 transition-all shadow-md"
-            >
-              <span>Consultar Cobertura</span>
-            </button>
-
             <a
               href={whatsAppLink}
               target="_blank"

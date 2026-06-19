@@ -4,7 +4,6 @@ import Header from './components/Header';
 import Hero from './components/Hero';
 import Planos from './components/Planos';
 import SpeedTest from './components/SpeedTest';
-import CoberturaForm from './components/CoberturaForm';
 import Vantagens from './components/Vantagens';
 import SobreNos from './components/SobreNos';
 import Depoimentos from './components/Depoimentos';
@@ -275,9 +274,6 @@ export default function App() {
             {/* Speed Test Widget */}
             <SpeedTest />
             
-            {/* 3. Coverage search inputs module (saving leads to Supabase) */}
-            <CoberturaForm />
-
             {/* 4. Core corporate differential advantages */}
             <Vantagens config={activeConfig} />
 
