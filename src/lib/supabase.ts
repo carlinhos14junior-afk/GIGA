@@ -133,7 +133,17 @@ export async function saveEmpresa(empresa: Empresa): Promise<Empresa> {
 
 export async function getRedesSociais(): Promise<RedesSociais> {
   const { data, error } = await supabase.from('redes_sociais').select('*').limit(1).maybeSingle();
-  if (error) throw error;
+  if (error) {
+    if (error.code === 'PGRST205') {
+       console.warn('Tabela redes_sociais não encontrada.');
+       return {
+         id: 1,
+         instagram: 'gigatelofc',
+         facebook: 'gigatelofc'
+       } as RedesSociais;
+    }
+    throw error;
+  }
   if (!data) return {
     id: 1,
     instagram: 'gigatelofc',
