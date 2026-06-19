@@ -72,10 +72,90 @@ export default function Home() {
       
       setSiteConfig(mergedConfig);
 
-      const [pls, bans] = await Promise.all([
+      let [pls, bans] = await Promise.all([
         getPlanos(),
         getBanners()
       ]);
+
+      const hasFlyerPromo = (pls || []).some(p => p.velocidade === '600 MEGA');
+      if (!hasFlyerPromo && isRealSupabase && supabase) {
+        try {
+          console.log('Sincronizando novos planos dos folhetos com o Supabase...');
+          // Exclui planos antigos/stale se houverem
+          if (pls && pls.length > 0) {
+            await Promise.all(pls.map(p => supabase.from('planos').delete().eq('id', p.id)));
+          }
+          
+          const plansToSeed = [
+            {
+              nome: 'GIGA START 100',
+              velocidade: '100 MEGA',
+              preco: 69.99,
+              detalhes: 'Internet Fibra de alta qualidade para navegar com total economia.',
+              beneficios: ['Canais abertos e fechados', 'Internet 100% Fibra Óptica', 'Roteador Wi-Fi Incluso', 'Redes Sociais e e-mails', 'Instalação Grátis', 'Garantia Gigatel Fiber'],
+              destaque: false,
+              ativo: true,
+              ordem: 1
+            },
+            {
+              nome: 'GIGA AJUSTADO 600',
+              velocidade: '600 MEGA',
+              preco: 70.00,
+              detalhes: 'Promoção Marquee Flyer! Sabemos que mudanças geram gastos, por isso a Gigatel moldou este super plano para você.',
+              beneficios: ['+ 110 Canais de TV', 'Internet 100% Fibra Óptica', 'Super Estabilidade & Games', 'Roteador Gigabit Wi-Fi', 'Instalação Residencial Grátis', 'Suporte Próprio 24h'],
+              destaque: true,
+              ativo: true,
+              ordem: 2
+            },
+            {
+              nome: 'GIGA SMART 200',
+              velocidade: '200 MEGA',
+              preco: 79.90,
+              detalhes: 'Velocidade excelente para streaming de vídeos e consumo multidevice leve.',
+              beneficios: ['Canais abertos e fechados', 'Internet 100% Fibra Óptica', 'Roteador Wi-Fi Incluso', 'Vídeos e Playlists HD', 'Instalação Grátis', 'Garantia Gigatel Fiber'],
+              destaque: false,
+              ativo: true,
+              ordem: 3
+            },
+            {
+              nome: 'GIGA MAIS 300',
+              velocidade: '300 MEGA',
+              preco: 89.90,
+              detalhes: 'Conexão robusta e veloz para múltiplos dispositivos simultâneos.',
+              beneficios: ['Canais abertos e fechados', 'Internet 100% Fibra Óptica', 'Roteador Gigabit Wi-Fi', 'Jogos Online e Downloads', 'Instalação Grátis', 'Garantia Gigatel Fiber'],
+              destaque: false,
+              ativo: true,
+              ordem: 4
+            },
+            {
+              nome: 'GIGA ULTRA 500',
+              velocidade: '500 MEGA',
+              preco: 99.90,
+              detalhes: 'Performance profissional para trabalho, estudo e lazer em alto nível.',
+              beneficios: ['Canais abertos e fechados', 'Internet 100% Fibra Óptica', 'Roteador Bi-Band Gigabit', 'Streaming 4K e Home Office', 'Instalação Grátis', 'Garantia Gigatel Fiber'],
+              destaque: false,
+              ativo: true,
+              ordem: 5
+            },
+            {
+              nome: 'GIGA SUPREMO 800',
+              velocidade: '800 MEGA',
+              preco: 109.90,
+              detalhes: 'O plano topo de linha para quem deseja a menor latência e maior vazão.',
+              beneficios: ['Canais abertos e fechados', 'Internet 100% Fibra Óptica', 'Roteador Premium Wi-Fi', 'Descargas Instantâneas', 'Instalação Premium Grátis', 'Suporte VIP Prioritário'],
+              destaque: false,
+              ativo: true,
+              ordem: 6
+            }
+          ];
+
+          await supabase.from('planos').insert(plansToSeed);
+          pls = await getPlanos();
+        } catch (seedErr) {
+          console.error('Falha ao sincronizar planos no Supabase:', seedErr);
+        }
+      }
+
       setPlanosList(pls);
       setBannersList(bans);
     } catch (e) {

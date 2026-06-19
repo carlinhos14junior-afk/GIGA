@@ -7,49 +7,130 @@ interface PlanosProps {
 }
 
 export default function Planos({ config, planos }: PlanosProps) {
-  // Use DB plans if some are active, otherwise fall back to 2 high-conversion premium default plans
+  // Use DB plans if some are active, otherwise fall back to premium default flyer plans
   const dbPlanos = planos.filter(p => p.ativo);
   
   const fallbackPlanos: Plano[] = [
     {
-      id: 'f1',
-      nome: 'PREMIUM FIBRA',
-      velocidade: '500 MEGA',
-      preco: 99.90,
-      detalhes: 'Ideal para famílias que querem navegar, assistir e jogar com velocidade premium.',
+      id: 'f100',
+      nome: 'GIGA START 100',
+      velocidade: '100 MEGA',
+      preco: 69.99,
+      detalhes: 'Internet Fibra de alta qualidade para navegar com total economia.',
       beneficios: [
-        'Streaming',
-        'Games Online',
-        'Home Office',
-        'Redes Sociais',
-        'Instalação Rápida',
-        'Wi-Fi Incluso'
+        'Canais abertos e fechados',
+        'Internet 100% Fibra Óptica',
+        'Roteador Wi-Fi Incluso',
+        'Redes Sociais e e-mails',
+        'Instalação Grátis',
+        'Garantia Gigatel Fiber'
       ],
       destaque: false,
       ativo: true,
+      ordem: 1,
       created_at: ''
     },
     {
-      id: 'f2',
-      nome: 'GIGA BLACK',
-      velocidade: '1 GIGA',
-      preco: 149.90,
-      detalhes: 'A velocidade máxima de conexão. Desenvolvida para múltiplos dispositivos simultâneos, gamers profissionais e streaming em 4K/8K.',
+      id: 'f600',
+      nome: 'GIGA AJUSTADO 600',
+      velocidade: '600 MEGA',
+      preco: 70.00,
+      detalhes: 'Promoção Marquee Flyer! Sabemos que mudanças geram gastos, por isso a Gigatel moldou este super plano para você.',
       beneficios: [
-        'Streaming',
-        'Games Online',
-        'Home Office',
-        'Redes Sociais',
-        'Instalação Rápida',
-        'Wi-Fi Incluso'
+        '+ 110 Canais de TV',
+        'Internet 100% Fibra Óptica',
+        'Super Estabilidade & Games',
+        'Roteador Gigabit Wi-Fi',
+        'Instalação Residencial Grátis',
+        'Suporte Próprio 24h'
       ],
-      destaque: true, // DESTACAR O PLANO MAIS VENDIDO
+      destaque: true,
       ativo: true,
+      ordem: 2,
+      created_at: ''
+    },
+    {
+      id: 'f200',
+      nome: 'GIGA SMART 200',
+      velocidade: '200 MEGA',
+      preco: 79.90,
+      detalhes: 'Velocidade excelente para streaming de vídeos e consumo multidevice leve.',
+      beneficios: [
+        'Canais abertos e fechados',
+        'Internet 100% Fibra Óptica',
+        'Roteador Wi-Fi Incluso',
+        'Vídeos e Playlists HD',
+        'Instalação Grátis',
+        'Garantia Gigatel Fiber'
+      ],
+      destaque: false,
+      ativo: true,
+      ordem: 3,
+      created_at: ''
+    },
+    {
+      id: 'f300',
+      nome: 'GIGA MAIS 300',
+      velocidade: '300 MEGA',
+      preco: 89.90,
+      detalhes: 'Conexão robusta e veloz para múltiplos dispositivos simultâneos.',
+      beneficios: [
+        'Canais abertos e fechados',
+        'Internet 100% Fibra Óptica',
+        'Roteador Gigabit Wi-Fi',
+        'Jogos Online e Downloads',
+        'Instalação Grátis',
+        'Garantia Gigatel Fiber'
+      ],
+      destaque: false,
+      ativo: true,
+      ordem: 4,
+      created_at: ''
+    },
+    {
+      id: 'f500',
+      nome: 'GIGA ULTRA 500',
+      velocidade: '500 MEGA',
+      preco: 99.90,
+      detalhes: 'Performance profissional para trabalho, estudo e lazer em alto nível.',
+      beneficios: [
+        'Canais abertos e fechados',
+        'Internet 100% Fibra Óptica',
+        'Roteador Bi-Band Gigabit',
+        'Streaming 4K e Home Office',
+        'Instalação Grátis',
+        'Garantia Gigatel Fiber'
+      ],
+      destaque: false,
+      ativo: true,
+      ordem: 5,
+      created_at: ''
+    },
+    {
+      id: 'f800',
+      nome: 'GIGA SUPREMO 800',
+      velocidade: '800 MEGA',
+      preco: 109.90,
+      detalhes: 'O plano topo de linha para quem deseja a menor latência e maior vazão.',
+      beneficios: [
+        'Canais abertos e fechados',
+        'Internet 100% Fibra Óptica',
+        'Roteador Premium Wi-Fi',
+        'Descargas Instantâneas',
+        'Instalação Premium Grátis',
+        'Suporte VIP Prioritário'
+      ],
+      destaque: false,
+      ativo: true,
+      ordem: 6,
       created_at: ''
     }
   ];
 
-  const activePlanos = dbPlanos.length > 0 ? dbPlanos : fallbackPlanos;
+  // Sort plans by order or price
+  const activePlanos = dbPlanos.length > 0 
+    ? [...dbPlanos].sort((a, b) => (a.ordem || 0) - (b.ordem || 0)) 
+    : fallbackPlanos;
 
   const whatsappNumber = config.whatsapp ? config.whatsapp.replace(/\D/g, '') : '5511910050121';
   const getWhatsAppPlanoLink = (plano: Plano) => {
@@ -61,11 +142,11 @@ export default function Planos({ config, planos }: PlanosProps) {
   const getFeatureIcon = (ben: string, isFeatured: boolean) => {
     const text = ben.toLowerCase();
     const color = isFeatured ? 'text-white' : 'text-[#0057FF]';
-    if (text.includes('streaming')) return <Tv size={15} className={color} />;
+    if (text.includes('streaming') || text.includes('canal') || text.includes('tv') || text.includes('canais')) return <Tv size={15} className={color} />;
     if (text.includes('game') || text.includes('jogo')) return <Gamepad2 size={15} className={color} />;
     if (text.includes('home') || text.includes('office') || text.includes('trabalho')) return <Briefcase size={15} className={color} />;
     if (text.includes('rede') || text.includes('social') || text.includes('instagram')) return <Share2 size={15} className={color} />;
-    if (text.includes('instala') || text.includes('rápida')) return <Zap size={15} className={color} />;
+    if (text.includes('instala') || text.includes('rápida') || text.includes('grátis')) return <Zap size={15} className={color} />;
     if (text.includes('wi-fi') || text.includes('wifi') || text.includes('roteador')) return <Wifi size={15} className={color} />;
     return <Check size={14} className={color} />;
   };
@@ -81,7 +162,7 @@ export default function Planos({ config, planos }: PlanosProps) {
         <div className="text-center max-w-3xl mx-auto mb-20">
           <div className="inline-flex items-center space-x-2 bg-blue-50 border border-blue-100 px-4 py-1.5 rounded-full text-[#0057FF] font-black text-xs uppercase mb-4 tracking-widest">
             <Sparkles size={12} className="text-[#0057FF]" />
-            <span>Nossos Planos</span>
+            <span>Nossos Planos de Internet e TV</span>
           </div>
           <h2 className="font-display font-black text-4xl sm:text-5xl lg:text-6xl text-slate-900 mb-6 tracking-tighter leading-none uppercase">
             CONEXÕES QUE IMPULSIONAM <br />
@@ -91,12 +172,12 @@ export default function Planos({ config, planos }: PlanosProps) {
           </h2>
           
           <p className="text-slate-600 text-sm sm:text-base font-medium max-w-2xl mx-auto leading-relaxed">
-            Internet 100% fibra óptica com ultraestabilidade para navegar, jogar, fazer streaming 4K e Home Office sem quedas ou lentidão.
+            Internet 100% fibra óptica com ultraestabilidade para navegar, jogar, assistir TV Digital e fazer Home Office em altíssima qualidade.
           </p>
         </div>
 
         {/* Plans Container Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10 items-stretch max-w-5xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch max-w-7xl mx-auto">
           {activePlanos.map((plano) => {
             const isFeatured = plano.destaque;
             
@@ -104,7 +185,7 @@ export default function Planos({ config, planos }: PlanosProps) {
             const benefitsList = (plano.beneficios && plano.beneficios.length > 0)
               ? plano.beneficios
               : [
-                'Streaming',
+                'Streaming de Vídeo',
                 'Games Online',
                 'Home Office',
                 'Redes Sociais',
@@ -119,14 +200,14 @@ export default function Planos({ config, planos }: PlanosProps) {
                 className={`relative flex flex-col justify-between rounded-3xl transition-all duration-300 overflow-hidden ${
                   isFeatured
                     ? 'bg-[#0057FF] text-white border-2 border-transparent shadow-2xl md:scale-103 z-10'
-                    : 'bg-white border-2 border-[#0057FF] shadow-md hover:shadow-lg'
+                    : 'bg-white border-2 border-slate-200 hover:border-[#0057FF] shadow-sm hover:shadow-lg'
                 } group p-8 hover:translate-y-[-4px]`}
               >
                 {/* Popular Highlight Tag */}
                 {isFeatured && (
                   <div className="absolute top-4 right-4 bg-[#E53935] text-white px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center space-x-1 shadow-md">
                     <Star size={11} className="text-white fill-current animate-pulse" />
-                    <span>MAIS VENDIDO</span>
+                    <span>MAIS VENDIDO / PROMO</span>
                   </div>
                 )}
 
@@ -138,8 +219,8 @@ export default function Planos({ config, planos }: PlanosProps) {
                   <p className={`text-4xl sm:text-5xl font-display font-black tracking-tight mb-2 uppercase ${isFeatured ? 'text-white' : 'text-slate-900'}`}>
                     {plano.velocidade}
                   </p>
-                  <p className={`text-xs font-medium leading-relaxed mb-6 ${isFeatured ? 'text-blue-105' : 'text-slate-550'}`}>
-                    {plano.detalhes || 'A melhor tecnologia de conexão de ponta a ponta.'}
+                  <p className={`text-xs font-medium leading-relaxed mb-6 min-h-[36px] ${isFeatured ? 'text-blue-100' : 'text-slate-500'}`}>
+                    {plano.detalhes || plano.descricao || 'A melhor tecnologia de conexão de ponta a ponta.'}
                   </p>
 
                   <hr className={`mb-6 ${isFeatured ? 'border-white/20' : 'border-slate-100'}`} />
@@ -148,7 +229,7 @@ export default function Planos({ config, planos }: PlanosProps) {
                   <h4 className={`text-[11px] font-black uppercase tracking-wider mb-4 ${isFeatured ? 'text-white' : 'text-[#0057FF]'}`}>
                     O que está incluso no plano:
                   </h4>
-                  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3 mb-8">
+                  <ul className="flex flex-col gap-y-3 mb-8">
                     {benefitsList.map((ben, idx) => (
                       <li key={idx} className="flex items-center space-x-3 text-xs">
                         <div className={`shrink-0 w-6 h-6 rounded-lg flex items-center justify-center p-1 font-semibold ${isFeatured ? 'bg-white/10 border border-white/20' : 'bg-blue-50 border border-blue-100/40'}`}>
@@ -184,7 +265,19 @@ export default function Planos({ config, planos }: PlanosProps) {
                     </div>
                   </div>
 
-                  {/* Purchase CTA button - REMOVED AS REQUESTED */}
+                  <a
+                    href={getWhatsAppPlanoLink(plano)}
+                    target="_blank"
+                    referrerPolicy="no-referrer"
+                    className={`w-full py-3.5 px-6 rounded-2xl font-black uppercase text-xs tracking-wider flex items-center justify-center space-x-2 transition-all ${
+                      isFeatured
+                        ? 'bg-white text-[#0057FF] hover:bg-slate-50 hover:scale-[1.01]'
+                        : 'bg-[#0057FF] text-white hover:bg-blue-600 hover:scale-[1.01]'
+                    }`}
+                  >
+                    <span>Contratar no WhatsApp</span>
+                    <ArrowRight size={14} />
+                  </a>
                 </div>
 
               </div>
