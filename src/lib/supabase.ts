@@ -32,7 +32,25 @@ const updateTimestamp = () => {};
 
 export async function getSiteConfig(forceRefresh = false): Promise<SiteConfig> {
   const { data, error } = await supabase.from('configuracoes_site').select('*').limit(1).maybeSingle();
-  if (error) throw error;
+  if (error) {
+    if (error.code === 'PGRST205') {
+      console.warn('Tabela configuracoes_site não encontrada.');
+      return {
+        id: 1,
+        nome_empresa: 'GIGATEL',
+        logo_url: '',
+        whatsapp: '5511910050121',
+        telefone: '(11) 91005-0121',
+        email: 'contato@gigatel.com.br',
+        endereco: 'Rua Antônio Ferraciolli, 331',
+        bairro: 'Jardim Catarina',
+        cidade: 'São Paulo',
+        estado: 'SP',
+        cep: '03910-070'
+      } as SiteConfig;
+    }
+    throw error;
+  }
   if (!data) return {
     id: 1,
     nome_empresa: 'GIGATEL',
@@ -57,7 +75,13 @@ export async function saveSiteConfig(config: Partial<SiteConfig>): Promise<SiteC
 
 export async function getHeroSection(): Promise<HeroSectionEntry[]> {
   const { data, error } = await supabase.from('hero_section').select('*').order('ordem', { ascending: true });
-  if (error) throw error;
+  if (error) {
+    if (error.code === 'PGRST205') {
+      console.warn('Tabela hero_section não encontrada.');
+      return [];
+    }
+    throw error;
+  }
   return data || [];
 }
 
@@ -74,7 +98,13 @@ export async function deleteHeroSection(id: string | number): Promise<void> {
 
 export async function getBlogPosts(): Promise<BlogPost[]> {
   const { data, error } = await supabase.from('blog_posts').select('*').order('created_at', { ascending: false });
-  if (error) throw error;
+  if (error) {
+    if (error.code === 'PGRST205') {
+      console.warn('Tabela blog_posts não encontrada.');
+      return [];
+    }
+    throw error;
+  }
   return data || [];
 }
 
@@ -91,7 +121,13 @@ export async function deleteBlogPost(id: string | number): Promise<void> {
 
 export async function getBanners(forceRefresh = false): Promise<Banner[]> {
   const { data, error } = await supabase.from('banners').select('*').order('ordem', { ascending: true });
-  if (error) throw error;
+  if (error) {
+    if (error.code === 'PGRST205') {
+      console.warn('Tabela banners não encontrada.');
+      return [];
+    }
+    throw error;
+  }
   return data || [];
 }
 
@@ -108,7 +144,25 @@ export async function deleteBanner(id: string | number): Promise<void> {
 
 export async function getEmpresa(): Promise<Empresa> {
   const { data, error } = await supabase.from('empresa').select('*').limit(1).maybeSingle();
-  if (error) throw error;
+  if (error) {
+    if (error.code === 'PGRST205') {
+      console.warn('Tabela empresa não encontrada.');
+      return {
+        id: 1,
+        nome_empresa: 'GIGATEL',
+        telefone: '(11) 91005-0121',
+        whatsapp: '5511910050121',
+        email: 'contato@gigatel.com.br',
+        endereco: 'Rua Antônio Ferraciolli, 331',
+        numero: '331',
+        bairro: 'Jardim Catarina',
+        cidade: 'São Paulo',
+        estado: 'SP',
+        cep: '03910-070'
+      } as Empresa;
+    }
+    throw error;
+  }
   if (!data) return {
     id: 1,
     nome_empresa: 'GIGATEL',
@@ -191,7 +245,13 @@ export async function saveSEO(seo: SEOConfig): Promise<SEOConfig> {
 
 export async function getCidadesCobertura(): Promise<CidadeCobertura[]> {
   const { data, error } = await supabase.from('cidades_cobertura').select('*').order('nome', { ascending: true });
-  if (error) throw error;
+  if (error) {
+    if (error.code === 'PGRST205') {
+      console.warn('Tabela cidades_cobertura não encontrada.');
+      return [];
+    }
+    throw error;
+  }
   return data || [];
 }
 
@@ -208,7 +268,13 @@ export async function deleteCidadeCobertura(id: string | number): Promise<void> 
 
 export async function getUploads(): Promise<UploadMedia[]> {
   const { data, error } = await supabase.from('uploads').select('*').order('created_at', { ascending: false });
-  if (error) throw error;
+  if (error) {
+    if (error.code === 'PGRST205') {
+      console.warn('Tabela uploads não encontrada.');
+      return [];
+    }
+    throw error;
+  }
   return data || [];
 }
 
@@ -293,23 +359,35 @@ export async function deleteUsuario(id: string): Promise<void> {
   if (error) throw error;
 }
 
-export async function getBrandSettings() {
-  try {
-    const { data, error } = await supabase
-      .from("brand_settings")
-      .select("*")
-      .single();
+export async function getBrandSettings(): Promise<BrandSettings> {
+  const { data, error } = await supabase
+    .from("brand_settings")
+    .select("*")
+    .limit(1)
+    .maybeSingle();
 
-    if (error) {
-      console.warn("Brand settings não encontrada:", error);
-      return null;
+  if (error) {
+    if (error.code === 'PGRST205') {
+       console.warn('Tabela brand_settings não encontrada.');
+       return {
+         id: 1,
+         logo_url: '',
+         logo_white_url: '',
+         logo_footer_url: '',
+         logo_mobile_url: '',
+         favicon_url: ''
+       } as BrandSettings;
     }
-
-    return data;
-  } catch (err) {
-    console.warn("Erro ao carregar configurações da marca:", err);
-    return null;
+    throw error;
   }
+  return data || {
+         id: 1,
+         logo_url: '',
+         logo_white_url: '',
+         logo_footer_url: '',
+         logo_mobile_url: '',
+         favicon_url: ''
+       } as BrandSettings;
 }
 
 export async function saveBrandSettings(settings: BrandSettings): Promise<BrandSettings> {

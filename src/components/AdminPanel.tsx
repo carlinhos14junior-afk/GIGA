@@ -930,12 +930,22 @@ export default function Dashboard({ onConfigChange, onPlanosChange }: AdminPanel
                 <button
                   type="submit"
                   disabled={loginLoading}
-                  className="w-full py-3.5 bg-[#005BFF] hover:bg-[#004ccb] text-white text-xs font-bold uppercase tracking-widest rounded-xl transition-all disabled:opacity-50 mt-3 flex items-center justify-center space-x-2"
+                  className="w-full py-3.5 bg-[#005BFF] hover:bg-[#004ccb] text-white text-xs font-bold uppercase tracking-widest rounded-xl transition-all disabled:opacity-50 mt-3 flex items-center justify-center space-x-2 cursor-pointer"
                 >
                   <Key size={13} />
                   <span>{loginLoading ? 'Conectando...' : 'Entrar no Painel'}</span>
                 </button>
               </form>
+              
+              <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 text-center">
+                <a
+                  href="/"
+                  className="inline-flex items-center space-x-2 text-xs font-bold text-slate-500 hover:text-[#005BFF] transition-colors"
+                >
+                  <Globe size={13} />
+                  <span>Voltar para o site público</span>
+                </a>
+              </div>
             </div>
           )}
         </div>
@@ -1100,6 +1110,14 @@ export default function Dashboard({ onConfigChange, onPlanosChange }: AdminPanel
             {refreshing ? <span className="animate-spin mr-1">⌛</span> : <Activity size={13} />}
             {!isSidebarCollapsed && <span>{refreshing ? 'Atualizando...' : 'Atualizar Site'}</span>}
           </button>
+
+          <a
+            href="/"
+            className="w-full flex items-center justify-center space-x-2 p-2.5 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-100 text-xs font-black transition-colors cursor-pointer mb-2"
+          >
+            <Globe size={13} />
+            {!isSidebarCollapsed && <span>Voltar ao Site</span>}
+          </a>
 
           <button
             onClick={handleLogout}
