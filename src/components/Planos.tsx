@@ -34,7 +34,7 @@ export default function Planos({ config, planos }: PlanosProps) {
       id: 'f600',
       nome: 'GIGA PROMO (COMPRE 500 LEVE 600)',
       velocidade: '600 MEGA',
-      preco: 70.00,
+      preco: 99.90,
       detalhes: 'Compre 500 Mega e Ganhe 600 Mega! Sabemos que mudanças geram gastos, por isso a Gigatel moldou este super plano para você.',
       beneficios: [
         'Compre 500 Mega, Leve 600 Mega!',
@@ -89,25 +89,6 @@ export default function Planos({ config, planos }: PlanosProps) {
       created_at: ''
     },
     {
-      id: 'f500',
-      nome: 'GIGA ULTRA 500',
-      velocidade: '500 MEGA',
-      preco: 99.90,
-      detalhes: 'Performance profissional para trabalho, estudo e lazer em alto nível.',
-      beneficios: [
-        'Canais abertos e fechados',
-        'Internet 100% Fibra Óptica',
-        'Roteador Bi-Band Gigabit',
-        'Streaming 4K e Home Office',
-        'Instalação Grátis',
-        'Garantia Gigatel Fiber'
-      ],
-      destaque: false,
-      ativo: true,
-      ordem: 5,
-      created_at: ''
-    },
-    {
       id: 'f800',
       nome: 'GIGA SUPREMO 800',
       velocidade: '800 MEGA',
@@ -123,7 +104,7 @@ export default function Planos({ config, planos }: PlanosProps) {
       ],
       destaque: false,
       ativo: true,
-      ordem: 6,
+      ordem: 5,
       created_at: ''
     }
   ];

@@ -76,7 +76,7 @@ export default function Home() {
         getBanners()
       ]);
 
-      const hasCorrectedPromo = (pls || []).some(p => p.velocidade === '600 MEGA' && p.nome.includes('COMPRE 500'));
+      const hasCorrectedPromo = (pls || []).some(p => p.velocidade === '600 MEGA' && p.preco === 99.90 && !(pls || []).some(x => x.velocidade === '500 MEGA'));
       if (!hasCorrectedPromo && isRealSupabase && supabase) {
         try {
           console.log('Sincronizando novos planos dos folhetos com o Supabase...');
@@ -99,7 +99,7 @@ export default function Home() {
             {
               nome: 'GIGA PROMO (COMPRE 500 LEVE 600)',
               velocidade: '600 MEGA',
-              preco: 70.00,
+              preco: 99.90,
               detalhes: 'Compre 500 Mega e Ganhe 600 Mega! Sabemos que mudanças geram gastos, por isso a Gigatel moldou este super plano para você.',
               beneficios: ['Compre 500 Mega, Leve 600 Mega!', '+ 110 Canais de TV', 'Internet 100% Fibra Óptica', 'Super Estabilidade & Games', 'Roteador Gigabit Wi-Fi', 'Instalação Residencial Grátis', 'Suporte Próprio 24h'],
               destaque: true,
@@ -127,16 +127,6 @@ export default function Home() {
               ordem: 4
             },
             {
-              nome: 'GIGA ULTRA 500',
-              velocidade: '500 MEGA',
-              preco: 99.90,
-              detalhes: 'Performance profissional para trabalho, estudo e lazer em alto nível.',
-              beneficios: ['Canais abertos e fechados', 'Internet 100% Fibra Óptica', 'Roteador Bi-Band Gigabit', 'Streaming 4K e Home Office', 'Instalação Grátis', 'Garantia Gigatel Fiber'],
-              destaque: false,
-              ativo: true,
-              ordem: 5
-            },
-            {
               nome: 'GIGA SUPREMO 800',
               velocidade: '800 MEGA',
               preco: 109.90,
@@ -144,7 +134,7 @@ export default function Home() {
               beneficios: ['Canais abertos e fechados', 'Internet 100% Fibra Óptica', 'Roteador Premium Wi-Fi', 'Descargas Instantâneas', 'Instalação Premium Grátis', 'Suporte VIP Prioritário'],
               destaque: false,
               ativo: true,
-              ordem: 6
+              ordem: 5
             }
           ];
 
