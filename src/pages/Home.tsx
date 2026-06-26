@@ -97,16 +97,6 @@ export default function Home() {
               ordem: 1
             },
             {
-              nome: 'GIGA PROMO (COMPRE 500 LEVE 600)',
-              velocidade: '600 MEGA',
-              preco: 99.90,
-              detalhes: 'Compre 500 Mega e Ganhe 600 Mega! Sabemos que mudanças geram gastos, por isso a Gigatel moldou este super plano para você.',
-              beneficios: ['Compre 500 Mega, Leve 600 Mega!', '+ 110 Canais de TV', 'Internet 100% Fibra Óptica', 'Super Estabilidade & Games', 'Roteador Gigabit Wi-Fi', 'Instalação Residencial Grátis', 'Suporte Próprio 24h'],
-              destaque: true,
-              ativo: true,
-              ordem: 2
-            },
-            {
               nome: 'GIGA SMART 200',
               velocidade: '200 MEGA',
               preco: 79.90,
@@ -114,7 +104,7 @@ export default function Home() {
               beneficios: ['Canais abertos e fechados', 'Internet 100% Fibra Óptica', 'Roteador Wi-Fi Incluso', 'Vídeos e Playlists HD', 'Instalação Grátis', 'Garantia Gigatel Fiber'],
               destaque: false,
               ativo: true,
-              ordem: 3
+              ordem: 2
             },
             {
               nome: 'GIGA MAIS 300',
@@ -123,6 +113,16 @@ export default function Home() {
               detalhes: 'Conexão robusta e veloz para múltiplos dispositivos simultâneos.',
               beneficios: ['Canais abertos e fechados', 'Internet 100% Fibra Óptica', 'Roteador Gigabit Wi-Fi', 'Jogos Online e Downloads', 'Instalação Grátis', 'Garantia Gigatel Fiber'],
               destaque: false,
+              ativo: true,
+              ordem: 3
+            },
+            {
+              nome: 'GIGA PROMO (COMPRE 500 LEVE 600)',
+              velocidade: '600 MEGA',
+              preco: 99.90,
+              detalhes: 'Compre 500 Mega e Ganhe 600 Mega! Sabemos que mudanças geram gastos, por isso a Gigatel moldou este super plano para você.',
+              beneficios: ['Compre 500 Mega, Leve 600 Mega!', '+ 110 Canais de TV', 'Internet 100% Fibra Óptica', 'Super Estabilidade & Games', 'Roteador Gigabit Wi-Fi', 'Instalação Residencial Grátis', 'Suporte Próprio 24h'],
+              destaque: true,
               ativo: true,
               ordem: 4
             },
