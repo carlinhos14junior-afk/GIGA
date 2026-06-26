@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Hero from '../components/Hero';
 import Planos from '../components/Planos';
-import SpeedTest from '../components/SpeedTest';
 import Vantagens from '../components/Vantagens';
 import SobreNos from '../components/SobreNos';
 import Depoimentos from '../components/Depoimentos';
@@ -77,8 +76,8 @@ export default function Home() {
         getBanners()
       ]);
 
-      const hasFlyerPromo = (pls || []).some(p => p.velocidade === '600 MEGA');
-      if (!hasFlyerPromo && isRealSupabase && supabase) {
+      const hasCorrectedPromo = (pls || []).some(p => p.velocidade === '600 MEGA' && p.nome.includes('COMPRE 500'));
+      if (!hasCorrectedPromo && isRealSupabase && supabase) {
         try {
           console.log('Sincronizando novos planos dos folhetos com o Supabase...');
           // Exclui planos antigos/stale se houverem
@@ -98,11 +97,11 @@ export default function Home() {
               ordem: 1
             },
             {
-              nome: 'GIGA AJUSTADO 600',
+              nome: 'GIGA PROMO (COMPRE 500 LEVE 600)',
               velocidade: '600 MEGA',
               preco: 70.00,
-              detalhes: 'Promoção Marquee Flyer! Sabemos que mudanças geram gastos, por isso a Gigatel moldou este super plano para você.',
-              beneficios: ['+ 110 Canais de TV', 'Internet 100% Fibra Óptica', 'Super Estabilidade & Games', 'Roteador Gigabit Wi-Fi', 'Instalação Residencial Grátis', 'Suporte Próprio 24h'],
+              detalhes: 'Compre 500 Mega e Ganhe 600 Mega! Sabemos que mudanças geram gastos, por isso a Gigatel moldou este super plano para você.',
+              beneficios: ['Compre 500 Mega, Leve 600 Mega!', '+ 110 Canais de TV', 'Internet 100% Fibra Óptica', 'Super Estabilidade & Games', 'Roteador Gigabit Wi-Fi', 'Instalação Residencial Grátis', 'Suporte Próprio 24h'],
               destaque: true,
               ativo: true,
               ordem: 2
@@ -304,9 +303,6 @@ export default function Home() {
           
           {/* 2. Fiber plans cards dynamic grid */}
           <Planos config={activeConfig} planos={planosList} />
-          
-          {/* Speed Test Widget */}
-          <SpeedTest />
           
           {/* 4. Core corporate differential advantages */}
           <Vantagens config={activeConfig} />

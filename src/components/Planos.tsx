@@ -32,11 +32,12 @@ export default function Planos({ config, planos }: PlanosProps) {
     },
     {
       id: 'f600',
-      nome: 'GIGA AJUSTADO 600',
+      nome: 'GIGA PROMO (COMPRE 500 LEVE 600)',
       velocidade: '600 MEGA',
       preco: 70.00,
-      detalhes: 'Promoção Marquee Flyer! Sabemos que mudanças geram gastos, por isso a Gigatel moldou este super plano para você.',
+      detalhes: 'Compre 500 Mega e Ganhe 600 Mega! Sabemos que mudanças geram gastos, por isso a Gigatel moldou este super plano para você.',
       beneficios: [
+        'Compre 500 Mega, Leve 600 Mega!',
         '+ 110 Canais de TV',
         'Internet 100% Fibra Óptica',
         'Super Estabilidade & Games',
